@@ -1,0 +1,7 @@
+README.md
+setup.py
+pylabelalpha.egg-info/PKG-INFO
+pylabelalpha.egg-info/SOURCES.txt
+pylabelalpha.egg-info/dependency_links.txt
+pylabelalpha.egg-info/requires.txt
+pylabelalpha.egg-info/top_level.txt
