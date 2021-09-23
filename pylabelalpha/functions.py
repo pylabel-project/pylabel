@@ -1,27 +1,44 @@
-from math import radians, cos, sin, asin, sqrt
-
-def haversine(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
+def ImportCoco(path):
     """
-    Calculate the great circle distance between two points on the 
-    earth (specified in decimal degrees), returns the distance in
-    meters.
-    All arguments must be of equal length.
-    :param lon1: longitude of first place
-    :param lat1: latitude of first place
-    :param lon2: longitude of second place
-    :param lat2: latitude of second place
-    :return: distance in meters between the two sets of coordinates
+    This function takes the path to an xml file in coco format as input. 
+    It returns a dataframe in schema used by pylable to store annotations. 
     """
-    # Convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    with open(path) as cocojson:
+        annotations_json = json.load(cocojson)
 
-    # Haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    r = 6371 # Radius of earth in kilometers
-    return c * r
+    #Store the 3 sections of the json as seperate json arrays
+    images = pd.json_normalize(annotations_json["images"])
+    images.columns = 'img_' + images.columns
 
+    annotations = pd.json_normalize(annotations_json["annotations"])
+    annotations.columns = 'ann_' + annotations.columns
 
-haversine(52.370216, 4.895168, 52.520008, 13.404954)
+    categories = pd.json_normalize(annotations_json["categories"])
+    categories.columns = 'cat_' + categories.columns
+
+    df = annotations
+    df[['ann_bbox_xmin','ann_bbox_ymax','ann_bbox_width','ann_bbox_height']] = pd.DataFrame(df.ann_bbox.tolist(), index= df.index)
+    df.insert(8, 'ann_bbox_xmax', df['ann_bbox_xmin'] + df['ann_bbox_width'] )
+    df.insert(10, 'ann_bbox_ymin', df['ann_bbox_ymax'] - df['ann_bbox_height'] )
+    
+    #debug print(df.info())
+
+    #Join the annotions with the information about the image to add the image columns to the dataframe
+    df = pd.merge(images, df, left_on='img_id', right_on='ann_image_id', how='left')
+    df = pd.merge(df, categories, left_on='ann_category_id', right_on='cat_id', how='left')
+    
+    #Rename columns if needed from the coco column name to the pylabel column name 
+    df.rename(columns={"img_file_name": "img_filename"}, inplace=True)
+
+    #Drop columns that are not in the schema
+    df = df[df.columns.intersection(schema)]
+
+    #Add missing columns that are in the schema but not part of the table
+    df[list(set(schema) - set(df.columns))] = ""
+
+    #Reorder columns
+    df = df[schema]
+
+    return df
+
+    ##sdsdf
