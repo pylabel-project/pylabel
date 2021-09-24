@@ -1,8 +1,11 @@
 import json
 import pandas as pd
+import xml.etree.ElementTree as ET
+import os
 
 #These are the valid columns in the pylabel annotations table.              
 schema = ['id','img_folder','img_filename','img_path','img_id','img_width','img_height','img_depth','ann_segmented','ann_bbox_xmin','ann_bbox_ymin','ann_bbox_xmax','ann_bbox_ymax','ann_bbox_width','ann_bbox_height','ann_area','ann_segmentation','ann_iscrowd','ann_pose','ann_truncated','ann_difficult','cat_id','cat_name','cat_supercategory','split']
+
 
 def ImportCoco(path):
     """
@@ -45,5 +48,75 @@ def ImportCoco(path):
 
     #Reorder columns
     df = df[schema]
+
+    return df
+
+def ImportVOC(path):
+    print(path)
+    #Create an empty dataframe
+    df = pd.DataFrame(columns=schema) 
+
+    row_id = 0
+    img_id = 0
+    cat_names = []
+
+    def GetCatId(cat_name):
+        """This will assign a numeric cat_id to each cat_name."""
+        if cat_name not in cat_names:
+            cat_names.append(cat_name)
+        
+        return cat_names.index(cat_name)
+
+    # iterate over files in that directory
+    for filename in os.scandir(path):
+        if filename.is_file() and filename.name.endswith('.xml'):
+            filepath = filename.path
+            xml_data = open(filepath, 'r').read()  # Read file
+            root = ET.XML(xml_data)  # Parse XML
+
+            folder = root.find("folder").text
+            filename = root.find("filename").text
+            size = root.find("size")
+            size_width = size.find("width").text
+            size_height = size.find("height").text
+            size_depth = size.find("depth").text
+            segmented = root.find("segmented").text
+
+            row = {}
+            #Build dictionary that will be become the row in the dataframe
+            row["img_folder"] = folder
+            row["img_filename"] = filename
+            row["img_id"] = img_id
+            row["img_width"] = size_width
+            row["img_height"] = size_height
+            row["img_depth"] = size_depth
+            row["ann_segmented"] = segmented
+
+            object = root.findall("object")
+
+            for o in object:
+                row["id"] = row_id
+                row["cat_name"] = o.find("name").text
+                row["cat_id"] = GetCatId(row["cat_name"])
+                row["ann_pose"] = o.find("pose").text
+                row["ann_truncated"] = o.find("truncated").text
+                row["ann_difficult"] = o.find("difficult").text
+                row["ann_bbox_xmin"] = int(o.find("bndbox").find("xmin").text)
+                row["ann_bbox_ymin"] = int(o.find("bndbox").find("ymin").text)
+                row["ann_bbox_xmax"] = int(o.find("bndbox").find("xmax").text)
+                row["ann_bbox_ymax"] = int(o.find("bndbox").find("ymax").text)
+                row["ann_bbox_width"] = row["ann_bbox_xmax"] - row["ann_bbox_xmin"] 
+
+                df = df.append(row, ignore_index=True)
+                #increment the rowid
+                row_id += 1
+
+        #Increment the imageid because we are going to read annother file
+        img_id += 1
+
+    #Reorder columns
+    df = df[schema]
+    
+    print(f'{img_id} annotation files read. {row_id} annotations imported.')
 
     return df
