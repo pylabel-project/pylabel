@@ -2,6 +2,8 @@ import json
 import pandas as pd
 import xml.etree.ElementTree as ET
 import os
+from pathlib import Path
+
 
 from pylabelalpha.constants import schema
 from pylabelalpha.dataset import Dataset
@@ -50,7 +52,12 @@ def ImportCoco(path):
     #Reorder columns
     df = df[schema]
 
-    return Dataset(df)
+    dataset = Dataset(df)
+
+    #Assign the filemame (without extension) as the name of the dataset
+    dataset.name = Path(path).stem
+
+    return dataset
 
 def ImportVOC(path):
     print(path)
