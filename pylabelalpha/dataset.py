@@ -5,12 +5,10 @@ class Dataset:
     def __init__(self, df):
         self.df = df
         self.name = "dataset"
+        self.analyze = Analyze(self.df)   
+        #self.export = Export(self.df)
 
-    def analyze(self):
-        return Analyze(self.df)
-
-    def export(self):
-        return Export(self.df)
+    
 
     
 
