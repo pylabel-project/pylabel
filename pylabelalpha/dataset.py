@@ -4,7 +4,7 @@ from pylabelalpha.exporter import Export
 class Dataset:
     def __init__(self, df):
         self.df = df
-        self.name = ""
+        self.name = "dataset"
 
     def analyze(self):
         return Analyze(self.df)

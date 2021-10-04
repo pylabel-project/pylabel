@@ -10,7 +10,7 @@ from pylabelalpha.dataset import Dataset
 
 
 #These are the valid columns in the pylabel annotations table.              
-def ImportCoco(path):
+def ImportCoco(path, name=""):
     """
     This function takes the path to an xml file in coco format as input. 
     It returns a dataframe in the schema used by pylable to store annotations. 
@@ -55,18 +55,30 @@ def ImportCoco(path):
     dataset = Dataset(df)
 
     #Assign the filemame (without extension) as the name of the dataset
-    dataset.name = Path(path).stem
+    if name == "":
+        dataset.name = Path(path).stem
+    else:
+        dataset.name = name
 
     return dataset
 
-def ImportVOC(path):
-    print(path)
+def ImportVOC(path, name="dataset"):
     #Create an empty dataframe
     df = pd.DataFrame(columns=schema) 
 
     row_id = 0
     img_id = 0
     cat_names = []
+
+    def GetValueOrBlank(element):
+        """
+        If an element is missing from the XML file reading the .text value will return an error.
+        If the element does not exist return ""
+        """
+        if element == None:
+            return ""
+        else:
+            return element.text 
 
     def GetCatId(cat_name):
         """This will assign a numeric cat_id to each cat_name."""
@@ -82,13 +94,13 @@ def ImportVOC(path):
             xml_data = open(filepath, 'r').read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
 
-            folder = root.find("folder").text
+            folder = GetValueOrBlank(root.find("folder"))
             filename = root.find("filename").text
             size = root.find("size")
             size_width = size.find("width").text
             size_height = size.find("height").text
-            size_depth = size.find("depth").text
-            segmented = root.find("segmented").text
+            size_depth = GetValueOrBlank(size.find("depth"))
+            segmented = GetValueOrBlank(root.find("segmented"))
 
             row = {}
             #Build dictionary that will be become the row in the dataframe
@@ -106,14 +118,17 @@ def ImportVOC(path):
                 row["id"] = row_id
                 row["cat_name"] = o.find("name").text
                 row["cat_id"] = GetCatId(row["cat_name"])
-                row["ann_pose"] = o.find("pose").text
-                row["ann_truncated"] = o.find("truncated").text
-                row["ann_difficult"] = o.find("difficult").text
-                row["ann_bbox_xmin"] = int(o.find("bndbox").find("xmin").text)
-                row["ann_bbox_ymin"] = int(o.find("bndbox").find("ymin").text)
-                row["ann_bbox_xmax"] = int(o.find("bndbox").find("xmax").text)
-                row["ann_bbox_ymax"] = int(o.find("bndbox").find("ymax").text)
+                row["ann_pose"] = GetValueOrBlank(o.find("pose"))
+                row["ann_truncated"] = GetValueOrBlank(o.find("truncated"))
+                row["ann_difficult"] = GetValueOrBlank(o.find("difficult"))
+                row["ann_bbox_xmin"] = float(o.find("bndbox").find("xmin").text)
+                row["ann_bbox_ymin"] = float(o.find("bndbox").find("ymin").text)
+                row["ann_bbox_xmax"] = float(o.find("bndbox").find("xmax").text)
+                row["ann_bbox_ymax"] = float(o.find("bndbox").find("ymax").text)
                 row["ann_bbox_width"] = row["ann_bbox_xmax"] - row["ann_bbox_xmin"] 
+                row["ann_bbox_height"] = row["ann_bbox_ymax"] - row["ann_bbox_ymin"] 
+                row["ann_area"] = row["ann_bbox_width"] * row["ann_bbox_height"] 
+                row["split"] = ""
 
                 df = df.append(row, ignore_index=True)
                 #increment the rowid
@@ -125,6 +140,9 @@ def ImportVOC(path):
     #Reorder columns
     df = df[schema]
     
-    print(f'{img_id} annotation files read. {row_id} annotations imported.')
 
-    return df
+    dataset = Dataset(df)
+
+    dataset.name = name
+
+    return dataset
