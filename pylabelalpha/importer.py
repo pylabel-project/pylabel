@@ -139,10 +139,66 @@ def ImportVOC(path, name="dataset"):
 
     #Reorder columns
     df = df[schema]
-    
-
     dataset = Dataset(df)
-
     dataset.name = name
+    return dataset
 
+def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], name="dataset",):
+    
+    def GetCatNameFromId(cat_id, cat_names):
+        cat_id = int(cat_id)
+        if len(cat_names) > int(cat_id):
+            print (cat_names[cat_id])
+            return cat_names[cat_id]
+
+    img_width = int(img_width)
+    img_height = int(img_height)
+
+    #Create an empty dataframe
+    df = pd.DataFrame(columns=schema) 
+
+
+    # the dictionary to pass to pandas dataframe
+    d = {}
+
+    row_id = 0
+    img_id = 0
+
+    # iterate over files in that directory
+    for filename in os.scandir(path):
+        if filename.is_file() and filename.name.endswith('.txt'):
+            filepath = filename.path
+            file = open(filepath, 'r')  # Read file
+
+            for line in file:
+                row = {}
+                cat_id, x_center_norm, y_center_norm, width_norm, height_norm = line.split()
+                row["id"] = row_id
+                row["img_filename"] = filename.name.replace("txt",img_ext)
+                row["img_id"] = img_id
+                row["img_width"] = img_width
+                row["img_height"] = img_height
+
+
+                row["ann_bbox_width"] = float(width_norm) * img_width
+                row["ann_bbox_height"] = float(height_norm) * img_height
+                row["ann_bbox_xmin"] = float(x_center_norm) * img_width  - ((row["ann_bbox_width"]  / 2))
+                row["ann_bbox_ymax"] = float(y_center_norm) * img_height  + ((row["ann_bbox_height"]  / 2))
+                row["ann_bbox_xmax"] = row["ann_bbox_xmin"] + row["ann_bbox_width"]
+                row["ann_bbox_ymin"] = row["ann_bbox_ymax"] - row["ann_bbox_height"]
+
+                row["ann_area"] = row["ann_bbox_width"] * row["ann_bbox_height"] 
+
+                row["cat_id"] = cat_id
+                row["cat_name"] = GetCatNameFromId(cat_id, cat_names)
+
+                d[row_id] = row
+                row_id += 1
+        img_id += 1
+
+    df = pd.DataFrame.from_dict(d, "index", columns=schema)
+
+    #Reorder columns
+    dataset = Dataset(df)
+    dataset.name = name
     return dataset
