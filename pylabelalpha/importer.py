@@ -66,6 +66,9 @@ def ImportVOC(path, name="dataset"):
     #Create an empty dataframe
     df = pd.DataFrame(columns=schema) 
 
+    # the dictionary to pass to pandas dataframe
+    d = {}
+
     row_id = 0
     img_id = 0
     cat_names = []
@@ -89,6 +92,7 @@ def ImportVOC(path, name="dataset"):
 
     # iterate over files in that directory
     for filename in os.scandir(path):
+        print(filename)
         if filename.is_file() and filename.name.endswith('.xml'):
             filepath = filename.path
             xml_data = open(filepath, 'r').read()  # Read file
@@ -130,12 +134,16 @@ def ImportVOC(path, name="dataset"):
                 row["ann_area"] = row["ann_bbox_width"] * row["ann_bbox_height"] 
                 row["split"] = ""
 
-                df = df.append(row, ignore_index=True)
+                #Add this row to the dict
+                d[row_id] = row
                 #increment the rowid
                 row_id += 1
 
         #Increment the imageid because we are going to read annother file
         img_id += 1
+
+    #Convert the dict with all of the annotation data to a dataframe
+    df = pd.DataFrame.from_dict(d, "index", columns=schema)
 
     #Reorder columns
     df = df[schema]
@@ -148,7 +156,6 @@ def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], name="
     def GetCatNameFromId(cat_id, cat_names):
         cat_id = int(cat_id)
         if len(cat_names) > int(cat_id):
-            print (cat_names[cat_id])
             return cat_names[cat_id]
 
     img_width = int(img_width)
@@ -192,6 +199,7 @@ def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], name="
                 row["cat_id"] = cat_id
                 row["cat_name"] = GetCatNameFromId(cat_id, cat_names)
 
+                #Add this row to the dict
                 d[row_id] = row
                 row_id += 1
         img_id += 1
