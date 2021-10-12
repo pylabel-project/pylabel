@@ -1,9 +1,9 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='pylabelalpha_test22',
+    name='pylabelalphatest',
     packages=['pylabelalpha'],
-    version='0.1.5',
+    version='0.1.1',
     description='My first Python library',
     author='Me',
     license='MIT',
