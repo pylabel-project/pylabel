@@ -11,9 +11,7 @@ class Dataset:
         self.analyze = Analyze(self.df) 
         self.GroupShuffleSplit = GroupShuffleSplit
         self.StratifiedGroupShuffleSplit = StratifiedGroupShuffleSplit
-        #self.export = Export(self.df)
-
-    
+        self.export = Export(self.df)
 
     
 
