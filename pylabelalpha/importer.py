@@ -2,15 +2,24 @@ import json
 import pandas as pd
 import xml.etree.ElementTree as ET
 import os
-from pathlib import Path
-from pathlib import PurePath
+from pathlib import Path, PurePath
+import copy
 
 from pylabelalpha.constants import schema
 from pylabelalpha.dataset import Dataset
-import copy
+
+def _GetValueOrBlank(element, user_input=None):
+    """
+    If an element is missing from the XML file reading the .text value will return an error.
+    If the element does not exist return ""
+    """
+    if user_input == None:
+        return element.text 
+    else:
+        return user_input
 
 #These are the valid columns in the pylabel annotations table.              
-def ImportCoco(path, path_to_images="", name=""):
+def ImportCoco(path, path_to_images=None, name=""):
     """
     This function takes the path to an xml file in coco format as input. 
     It returns a dataframe in the schema used by pylable to store annotations. 
@@ -22,6 +31,8 @@ def ImportCoco(path, path_to_images="", name=""):
     #Store the 3 sections of the json as seperate json arrays
     images = pd.json_normalize(annotations_json["images"])
     images.columns = 'img_' + images.columns
+    images["img_folder"] = _GetValueOrBlank(images["img_folder"], path_to_images)
+    images = images.astype({'img_width': 'int64','img_height': 'int64','img_depth': 'int64'})
 
     annotations = pd.json_normalize(annotations_json["annotations"])
     annotations.columns = 'ann_' + annotations.columns
@@ -62,10 +73,9 @@ def ImportCoco(path, path_to_images="", name=""):
 
     dataset.path_to_annotations = PurePath(path).parent
 
-
     return dataset
 
-def ImportVOC(path, path_to_images="", name="dataset"):
+def ImportVOC(path, path_to_images=None, name="dataset"):
     #Create an empty dataframe
     df = pd.DataFrame(columns=schema) 
 
@@ -76,23 +86,10 @@ def ImportVOC(path, path_to_images="", name="dataset"):
     img_id = 0
     cat_names = []
 
-    def GetValueOrBlank(element, user_input=""):
-        """
-        If an element is missing from the XML file reading the .text value will return an error.
-        If the element does not exist return ""
-        """
-        if user_input != "":
-            return user_input
-        elif element == None:
-            return ""
-        else:
-            return element.text 
-
     def GetCatId(cat_name):
         """This will assign a numeric cat_id to each cat_name."""
         if cat_name not in cat_names:
             cat_names.append(cat_name)
-        
         return cat_names.index(cat_name)
 
     # iterate over files in that directory
@@ -101,14 +98,14 @@ def ImportVOC(path, path_to_images="", name="dataset"):
             filepath = filename.path
             xml_data = open(filepath, 'r').read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
-
-            folder = GetValueOrBlank(root.find("folder"), user_input=path_to_images)
+            print(path_to_images)
+            folder = _GetValueOrBlank(root.find("folder"), user_input=path_to_images)
             filename = root.find("filename").text
             size = root.find("size")
             size_width = size.find("width").text
             size_height = size.find("height").text
-            size_depth = GetValueOrBlank(size.find("depth"))
-            segmented = GetValueOrBlank(root.find("segmented"))
+            size_depth = _GetValueOrBlank(size.find("depth"))
+            segmented = _GetValueOrBlank(root.find("segmented"))
 
             row = {}
             #Build dictionary that will be become the row in the dataframe
@@ -126,9 +123,9 @@ def ImportVOC(path, path_to_images="", name="dataset"):
                 row["id"] = row_id
                 row["cat_name"] = o.find("name").text
                 row["cat_id"] = GetCatId(row["cat_name"])
-                row["ann_pose"] = GetValueOrBlank(o.find("pose"))
-                row["ann_truncated"] = GetValueOrBlank(o.find("truncated"))
-                row["ann_difficult"] = GetValueOrBlank(o.find("difficult"))
+                row["ann_pose"] = _GetValueOrBlank(o.find("pose"))
+                row["ann_truncated"] = _GetValueOrBlank(o.find("truncated"))
+                row["ann_difficult"] = _GetValueOrBlank(o.find("difficult"))
                 row["ann_bbox_xmin"] = float(o.find("bndbox").find("xmin").text)
                 row["ann_bbox_ymin"] = float(o.find("bndbox").find("ymin").text)
                 row["ann_bbox_xmax"] = float(o.find("bndbox").find("xmax").text)
@@ -154,11 +151,10 @@ def ImportVOC(path, path_to_images="", name="dataset"):
     dataset = Dataset(df)
     dataset.name = name
     dataset.path_to_annotations = path
-
     #Get the path without the filename 
     #dataset.path_to_annotations = "Alex ander"
-
     return dataset
+        
 
 def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], path_to_images="", name="dataset",):
     
