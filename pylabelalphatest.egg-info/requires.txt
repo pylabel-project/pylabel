@@ -1,2 +1,0 @@
-pandas
-bbox_visualizer
