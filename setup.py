@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='pylabelalphatest',
     packages=['pylabelalpha'],
-    version='0.1.1',
+    version='0.1.3',
     description='My first Python library',
     author='Me',
     license='MIT',

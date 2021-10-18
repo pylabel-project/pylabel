@@ -232,7 +232,7 @@ class Export:
                         "height_scaled",
                     ])
 
-    def ExportToCocoFormat(self, dataset, output_path=""):
+    def ExportToCoco(self, dataset, output_path=""):
         df = dataset.df
         df_outputI = []
         df_outputA = []
@@ -267,7 +267,7 @@ class Export:
             }]
 
             categories = [{
-            "id": df['cat_id'][i], 
+            "id": int(df['cat_id'][i]), 
             "name": df['cat_name'][i], 
             "supercategory": df['cat_supercategory'][i]
             }]
