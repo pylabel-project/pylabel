@@ -1,21 +1,24 @@
 import json
 import pandas as pd
-import pandas as pd
+import numpy as np
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
+import os 
+from pathlib import PurePath, Path
 
 class Export:
     #def  __init__(self, df):
     #    self.df = df 
 
-    def ExportToVoc(self, data, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False, write_to_file_=True, output_file_path_ = 'pascal_voc.xml'):
+    def ExportToVoc(self, dataset, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False, write_to_file_=True, output_file_path_ = 'pascal_voc.xml'):
+        data = dataset.df
+
         def voc_xml_file_creation(file_name, data, segmented=True, path=True, database=True, folder=True, occluded=True, write_to_file=False, output_file_path = 'pascal_voc.xml'):
             '''Note: the function will print no tags where the value consists of an empty string. 
             Required Parameter is the filename where all of the information to be converted is in a DataFrame (data param).
             Optional Parameters: Do you want to include Pascal VOC tags for your annotation for
                 segmented, path, database, folder, or occluded? This often depends on the Pascal version.
             Optional Parameters: Do you want to write to file? What do you want the output file name to be?'''
-            
             index = 0
             
             df_smaller = data[data['img_filename'] == file_name].reset_index()
@@ -183,8 +186,150 @@ class Export:
 
         #Loop through all images in the dataframe and call voc_xml_file_creation for each one
         for file_title in list(set(data.img_filename)):
-            path2 = output_file_path_.replace('.','_')+'_'+file_title.replace('.','_')+'.xml'
-            #print(path2)
+            print(file_title)
+            print(output_file_path_)
+            filename = file_title.replace('.','_')+'.xml'
+            path2 = Path(output_file_path_, filename)
+            print(path2)
             voc_xml_file_creation(file_title, data, segmented=segmented_, path=path_, database=database_, folder=folder_, occluded=occluded_, write_to_file=write_to_file_, output_file_path=str(path2))
             
         return()
+
+    def ExportToYoloV5(self, dataset):
+        #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
+        unique_images = dataset.df["img_filename"].unique()
+
+        yolo_dataset = dataset.df.copy(deep=True)
+        yolo_dataset.cat_id = yolo_dataset.cat_id.astype("Int64")
+        yolo_dataset["center_x_scaled"] = (yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"]*0.5))/yolo_dataset["img_width"]
+        yolo_dataset["center_y_scaled"] = (yolo_dataset["ann_bbox_ymin"] + (yolo_dataset["ann_bbox_height"]*0.5))/yolo_dataset["img_height"]
+        yolo_dataset["width_scaled"] = yolo_dataset["ann_bbox_width"] / yolo_dataset["img_width"]
+        yolo_dataset["height_scaled"] = yolo_dataset["ann_bbox_height"] / yolo_dataset["img_height"]
+        yolo_dataset[["cat_id", "center_x_scaled", "center_y_scaled", "width_scaled", "height_scaled"]]
+
+        #Create folders to store annotations
+        dest_folder = PurePath(dataset.path_to_annotations, yolo_dataset.iloc[0].img_folder)
+        print(dest_folder)
+
+        if str(dest_folder) != "":
+            os.makedirs(dest_folder, exist_ok=True)
+
+        for img_filename in unique_images:
+                df_single_img_annots = yolo_dataset.loc[yolo_dataset.img_filename == img_filename]
+                annot_txt_file = img_filename.split(".")[0] + ".txt"
+                destination = f"{dest_folder}/{annot_txt_file}"
+                df_single_img_annots.to_csv(
+                    destination,
+                    index=False,
+                    header=False,
+                    sep=" ",
+                    float_format="%.4f",
+                    columns=[
+                        "cat_id",
+                        "center_x_scaled",
+                        "center_y_scaled",
+                        "width_scaled",
+                        "height_scaled",
+                    ])
+
+    def ExportToCocoFormat(self, dataset, output_path=""):
+        df = dataset.df
+        df_outputI = []
+        df_outputA = []
+        df_outputC = []
+        list_i = []
+        list_c = []
+        json_list = []
+        
+        for i in range(0,df.shape[0]):
+            images = [{
+            "id": df['img_id'][i], 
+            "folder": df['img_folder'][i], 
+            "file_name": df['img_filename'][i], 
+            "path": df['img_path'][i], 
+            "width": df['img_width'][i], 
+            "height": df['img_height'][i], 
+            "depth": df['img_depth'][i]
+            }]
+        
+            annotations = [{
+            "image_id": df['img_id'][i], 
+            "id": df['id'][i], 
+            "segmented": df['ann_segmented'][i],
+            "bbox": [df['ann_bbox_xmin'][i], df['ann_bbox_ymin'][i], df['ann_bbox_width'][i], df['ann_bbox_height'][i]],  
+            "area": df['ann_area'][i], 
+            "segmentation": df['ann_segmentation'][i], 
+            "iscrowd": df['ann_iscrowd'][i], 
+            "pose": df['ann_pose'][i], 
+            "truncated": df['ann_truncated'][i],
+            "category_id": df['cat_id'][i],  
+            "difficult": df['ann_difficult'][i]
+            }]
+
+            categories = [{
+            "id": df['cat_id'][i], 
+            "name": df['cat_name'][i], 
+            "supercategory": df['cat_supercategory'][i]
+            }]
+            
+            if(list_c):
+                if (categories[0]["id"] in list_c or np.isnan(categories[0]["id"])):
+                    pass    
+                else:
+                    df_outputC.append(pd.DataFrame([categories]))
+            elif(~np.isnan(categories[0]["id"])):
+                df_outputC.append(pd.DataFrame([categories]))
+            else:
+                pass
+            list_c.append(categories[0]["id"])
+
+            if(list_i):
+                if (images[0]["id"] in list_i or np.isnan(images[0]["id"])):
+                    pass
+                else:
+                    df_outputI.append(pd.DataFrame([images]))
+            elif(~np.isnan(images[0]["id"])):
+                df_outputI.append(pd.DataFrame([images]))      
+            else:
+                pass
+            list_i.append(images[0]["id"])    
+
+            df_outputA.append(pd.DataFrame([annotations]))
+            
+        mergedI = pd.concat(df_outputI, ignore_index=True)
+        mergedA = pd.concat(df_outputA, ignore_index=True)
+        mergedC = pd.concat(df_outputC, ignore_index=True)
+        
+        resultI = mergedI[0].to_json(orient="split")
+        resultA = mergedA[0].to_json(orient="split")
+        resultC = mergedC[0].to_json(orient="split")
+
+        parsedI = json.loads(resultI)
+        del parsedI['index']
+        del parsedI['name']
+        parsedI['images'] = parsedI['data']
+        del parsedI['data']
+
+        parsedA = json.loads(resultA)
+        del parsedA['index']
+        del parsedA['name']
+        parsedA['annotations'] = parsedA['data']
+        del parsedA['data']
+
+        parsedC = json.loads(resultC)
+        del parsedC['index']
+        del parsedC['name']
+        parsedC['categories'] = parsedC['data']
+        del parsedC['data']
+
+        parsedI.update(parsedA)
+        parsedI.update(parsedC)
+        json_output = parsedI
+
+        if output_path == "":
+            output_path = Path(dataset.path_to_annotations, (dataset.name + ".json"))
+            
+        with open(output_path, 'w') as outfile:
+            json.dump(json_output, outfile)
+        print(f"Saved to: {output_path}")
+        #return json_output

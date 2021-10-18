@@ -3,14 +3,14 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 import os
 from pathlib import Path
-
+from pathlib import PurePath
 
 from pylabelalpha.constants import schema
 from pylabelalpha.dataset import Dataset
-
+import copy
 
 #These are the valid columns in the pylabel annotations table.              
-def ImportCoco(path, name=""):
+def ImportCoco(path, path_to_images="", name=""):
     """
     This function takes the path to an xml file in coco format as input. 
     It returns a dataframe in the schema used by pylable to store annotations. 
@@ -30,9 +30,9 @@ def ImportCoco(path, name=""):
     categories.columns = 'cat_' + categories.columns
 
     df = annotations
-    df[['ann_bbox_xmin','ann_bbox_ymax','ann_bbox_width','ann_bbox_height']] = pd.DataFrame(df.ann_bbox.tolist(), index= df.index)
+    df[['ann_bbox_xmin','ann_bbox_ymin','ann_bbox_width','ann_bbox_height']] = pd.DataFrame(df.ann_bbox.tolist(), index= df.index)
     df.insert(8, 'ann_bbox_xmax', df['ann_bbox_xmin'] + df['ann_bbox_width'] )
-    df.insert(10, 'ann_bbox_ymin', df['ann_bbox_ymax'] - df['ann_bbox_height'] )
+    df.insert(10, 'ann_bbox_ymax', df['ann_bbox_ymin'] + df['ann_bbox_height'] )
     
     #debug print(df.info())
 
@@ -60,9 +60,12 @@ def ImportCoco(path, name=""):
     else:
         dataset.name = name
 
+    dataset.path_to_annotations = PurePath(path).parent
+
+
     return dataset
 
-def ImportVOC(path, name="dataset"):
+def ImportVOC(path, path_to_images="", name="dataset"):
     #Create an empty dataframe
     df = pd.DataFrame(columns=schema) 
 
@@ -73,12 +76,14 @@ def ImportVOC(path, name="dataset"):
     img_id = 0
     cat_names = []
 
-    def GetValueOrBlank(element):
+    def GetValueOrBlank(element, user_input=""):
         """
         If an element is missing from the XML file reading the .text value will return an error.
         If the element does not exist return ""
         """
-        if element == None:
+        if user_input != "":
+            return user_input
+        elif element == None:
             return ""
         else:
             return element.text 
@@ -92,13 +97,12 @@ def ImportVOC(path, name="dataset"):
 
     # iterate over files in that directory
     for filename in os.scandir(path):
-        print(filename)
         if filename.is_file() and filename.name.endswith('.xml'):
             filepath = filename.path
             xml_data = open(filepath, 'r').read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
 
-            folder = GetValueOrBlank(root.find("folder"))
+            folder = GetValueOrBlank(root.find("folder"), user_input=path_to_images)
             filename = root.find("filename").text
             size = root.find("size")
             size_width = size.find("width").text
@@ -135,7 +139,7 @@ def ImportVOC(path, name="dataset"):
                 row["split"] = ""
 
                 #Add this row to the dict
-                d[row_id] = row
+                d[row_id] = copy.deepcopy(row)
                 #increment the rowid
                 row_id += 1
 
@@ -149,9 +153,14 @@ def ImportVOC(path, name="dataset"):
     df = df[schema]
     dataset = Dataset(df)
     dataset.name = name
+    dataset.path_to_annotations = path
+
+    #Get the path without the filename 
+    #dataset.path_to_annotations = "Alex ander"
+
     return dataset
 
-def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], name="dataset",):
+def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], path_to_images="", name="dataset",):
     
     def GetCatNameFromId(cat_id, cat_names):
         cat_id = int(cat_id)
@@ -181,11 +190,11 @@ def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], name="
                 row = {}
                 cat_id, x_center_norm, y_center_norm, width_norm, height_norm = line.split()
                 row["id"] = row_id
+                row["img_folder"] = path_to_images
                 row["img_filename"] = filename.name.replace("txt",img_ext)
                 row["img_id"] = img_id
                 row["img_width"] = img_width
                 row["img_height"] = img_height
-
 
                 row["ann_bbox_width"] = float(width_norm) * img_width
                 row["ann_bbox_height"] = float(height_norm) * img_height
@@ -209,4 +218,6 @@ def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], name="
     #Reorder columns
     dataset = Dataset(df)
     dataset.name = name
+    dataset.path_to_annotations = path
+
     return dataset
