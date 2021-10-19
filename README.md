@@ -20,4 +20,4 @@ Open directly in Google Colab:
 - [yolo2voc.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/yolo2voc.ipynb)
 
 ## About PyLabel 
-PyLabel is being developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabelalpha/package/issues).
+PyLabel is being developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabelalpha/package/issues). Please let us know how we can make PyLabel more useful. 
