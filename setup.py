@@ -1,11 +1,11 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='pylabeltest',
+    name='pylabel',
     packages=['pylabel'],
-    version='0.1.5',
-    description='My first Python library',
-    author='Me',
+    version='0.1.1',
+    description='Transform, analyze, and visualize computer vision annotations.',
+    author='PyLabel Project',
     license='MIT',
     install_requires=['pandas','bbox_visualizer'],
     setup_requires=['pytest-runner'],

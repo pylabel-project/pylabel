@@ -10,10 +10,11 @@ class Export:
     #def  __init__(self, df):
     #    self.df = df 
 
-    def ExportToVoc(self, dataset, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False, write_to_file_=True, output_file_path_ = 'pascal_voc.xml'):
+    def ExportToVoc(self, dataset, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False, write_to_file_=True, output_file_path_ = 'pascal_voc'):
         data = dataset.df
+        os.makedirs(output_file_path_, exist_ok=True)
 
-        def voc_xml_file_creation(file_name, data, segmented=True, path=True, database=True, folder=True, occluded=True, write_to_file=False, output_file_path = 'pascal_voc.xml'):
+        def voc_xml_file_creation(file_name, data, segmented=True, path=True, database=True, folder=True, occluded=True, write_to_file=False, output_file_path = 'pascal_voc'):
             '''Note: the function will print no tags where the value consists of an empty string. 
             Required Parameter is the filename where all of the information to be converted is in a DataFrame (data param).
             Optional Parameters: Do you want to include Pascal VOC tags for your annotation for
@@ -95,8 +96,7 @@ class Export:
                 
                 if write_to_file == True:
                     with open(output_file_path, "w") as f:
-                        f.write(pretty_xml_as_string)  
-                
+                        f.write(pretty_xml_as_string)                  
                 return(pretty_xml_as_string)
             
             else:
@@ -109,7 +109,6 @@ class Export:
                     folder_text = '<folder>'+flder_lkp+'</folder>'
                 else:
                     folder_text = ''
-                
                 
                 filename_text = '<filename>'+str(df_smaller.loc[index]['img_filename'])+'</filename>'
                 
@@ -167,8 +166,6 @@ class Export:
                     annotation_text_end = '</annotation>'
                     index = index + 1
 
-                    
-                
                     xmlstring = xmlstring + object_text_start + name_text  + pose_text  +truncated_text + \
                         difficult_text + occluded_text + bound_box_text_start  +xmin_text  + \
                         xmax_text  +ymin_text  +ymax_text  +bound_box_text_end  + \
@@ -186,13 +183,12 @@ class Export:
 
         #Loop through all images in the dataframe and call voc_xml_file_creation for each one
         for file_title in list(set(data.img_filename)):
-            print(file_title)
-            print(output_file_path_)
             filename = file_title.replace('.','_')+'.xml'
             path2 = Path(output_file_path_, filename)
-            print(path2)
             voc_xml_file_creation(file_title, data, segmented=segmented_, path=path_, database=database_, folder=folder_, occluded=occluded_, write_to_file=write_to_file_, output_file_path=str(path2))
             
+        print(f"Annotations written to {output_file_path_}")
+
         return()
 
     def ExportToYoloV5(self, dataset):
