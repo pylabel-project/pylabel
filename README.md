@@ -11,7 +11,7 @@ PyLabel is a Python package to help computer vision practitioners get labelled d
 -	**Split (Coming Soon):** Spilt image datasets into train, test, and val with stratification to get consistent class distribution across the split datasets.  
 
 ## Sample Notebooks
-See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pylabelalpha/notebook).
+See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pylabelalpha/notebook).<br>
 Open directly in Google Colab: 
 - [coco2voc.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/coco2voc.ipynb)
 - [coco2yolov5.ipynb](https://github.com/pylabelalpha/notebook/blob/main/coco2yolov5.ipynb)
