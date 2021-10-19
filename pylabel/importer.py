@@ -5,8 +5,8 @@ import os
 from pathlib import Path, PurePath
 import copy
 
-from pylabelalpha.constants import schema
-from pylabelalpha.dataset import Dataset
+from pylabel.constants import schema
+from pylabel.dataset import Dataset
 
 def _GetValueOrBlank(element, user_input=None):
     """

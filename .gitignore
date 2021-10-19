@@ -4,3 +4,4 @@ coco_instances_val2017.json
 mypythonlib.egg-info/
 dist/
 build/
+data/
