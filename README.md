@@ -14,7 +14,7 @@ PyLabel is a Python package to help computer vision practitioners get labelled d
 See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pylabelalpha/notebook).<br>
 Open directly in Google Colab: 
 - [coco2voc.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/coco2voc.ipynb)
-- [coco2yolov5.ipynb](https://github.com/pylabelalpha/notebook/blob/main/coco2yolov5.ipynb)
+- [coco2yolov5.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/coco2yolov5.ipynb)
 - [voc2coco.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/voc2coco.ipynb)
 - [yolo2coco.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/yolo2coco.ipynb)
 - [yolo2voc.ipynb](https://githubtocolab.com/pylabelalpha/notebook/blob/main/yolo2voc.ipynb)
