@@ -5,3 +5,5 @@ mypythonlib.egg-info/
 dist/
 build/
 data/
+.eggs/
+.pylabel.egg-info/
