@@ -7,7 +7,7 @@ PyLabel is a Python package to help computer vision practitioners get labelled d
 ## PyLabel capabilities: 
 -	**Import/Export:** Translate annotation formats. PyLabel currently supports Coco, VOC, and Yolo bounding box formats.
 -	**Analyze:** PyLabel can help you explore your visual datasets be providing summary statistics such as the count of images and classes to help you identify class imbalances. 
--	**Visualize:** Render images from your dataset with bounding boxes overlaid so you can confirm the accuracy of the annotations. 
+-	**Visualize:** Render images from your dataset with bounding boxes overlaid so you can confirm the accuracy of the annotations. PyLabel uses the [bbox-visualizer](https://github.com/shoumikchow/bbox-visualizer) package to draw bounding boxes. 
 -	**Split (Coming Soon):** Spilt image datasets into train, test, and val with stratification to get consistent class distribution across the split datasets.  
 
 ## Sample Notebooks
