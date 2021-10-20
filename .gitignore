@@ -7,3 +7,4 @@ build/
 data/
 .eggs/
 pylabel.egg-info/
+*.ipynbgit rm --cached *.ipynb
