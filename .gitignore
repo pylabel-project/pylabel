@@ -6,4 +6,4 @@ dist/
 build/
 data/
 .eggs/
-.pylabel.egg-info/
+pylabel.egg-info/
