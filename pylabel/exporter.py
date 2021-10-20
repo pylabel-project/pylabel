@@ -327,5 +327,4 @@ class Export:
             
         with open(output_path, 'w') as outfile:
             json.dump(json_output, outfile)
-        print(f"Saved to: {output_path}")
-        #return json_output
+        return output_path 

@@ -98,7 +98,6 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
             filepath = filename.path
             xml_data = open(filepath, 'r').read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
-            print(path_to_images)
             folder = _GetValueOrBlank(root.find("folder"), user_input=path_to_images)
             filename = root.find("filename").text
             size = root.find("size")
