@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import os
 from pathlib import Path, PurePath
 import copy
+import cv2
 
 from pylabel.constants import schema
 from pylabel.dataset import Dataset
@@ -155,15 +156,12 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
     return dataset
         
 
-def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], path_to_images="", name="dataset",):
+def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="dataset",):
     
     def GetCatNameFromId(cat_id, cat_names):
         cat_id = int(cat_id)
         if len(cat_names) > int(cat_id):
             return cat_names[cat_id]
-
-    img_width = int(img_width)
-    img_height = int(img_height)
 
     #Create an empty dataframe
     df = pd.DataFrame(columns=schema) 
@@ -183,13 +181,21 @@ def ImportYoloV5(path, img_width, img_height, img_ext="jpg",cat_names=[], path_t
 
             for line in file:
                 row = {}
+
                 cat_id, x_center_norm, y_center_norm, width_norm, height_norm = line.split()
                 row["id"] = row_id
                 row["img_folder"] = path_to_images
                 row["img_filename"] = filename.name.replace("txt",img_ext)
+
+                #Get the path to the image file to extract the height, width, and depth
+                image_path = PurePath(path, path_to_images, row["img_filename"])
+                im = cv2.imread(str(image_path))
+                img_height, img_width, img_depth =  im.shape
+
                 row["img_id"] = img_id
                 row["img_width"] = img_width
                 row["img_height"] = img_height
+                row["img_depth"] = img_depth
 
                 row["ann_bbox_width"] = float(width_norm) * img_width
                 row["ann_bbox_height"] = float(height_norm) * img_height

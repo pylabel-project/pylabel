@@ -18,7 +18,6 @@ class Visualize:
             df_single_img_annots = dataset.df.loc[dataset.df.img_filename == img_filename]
 
         full_image_path = str(Path(dataset.path_to_annotations, df_single_img_annots.iloc[0].img_folder, df_single_img_annots.iloc[0].img_filename))
-        print(full_image_path)
         img = cv2.imread(str(full_image_path))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 

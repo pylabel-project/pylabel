@@ -1,4 +1,5 @@
 import json
+from typing import List
 import pandas as pd
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -7,21 +8,40 @@ import os
 from pathlib import PurePath, Path
 
 class Export:
-    #def  __init__(self, df):
+          #def  __init__(self, df):
     #    self.df = df 
 
-    def ExportToVoc(self, dataset, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False, write_to_file_=True, output_file_path_ = 'pascal_voc'):
+    def ExportToVoc(self, dataset, output_path=None, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False):
         data = dataset.df
-        os.makedirs(output_file_path_, exist_ok=True)
 
-        def voc_xml_file_creation(file_name, data, segmented=True, path=True, database=True, folder=True, occluded=True, write_to_file=False, output_file_path = 'pascal_voc'):
-            '''Note: the function will print no tags where the value consists of an empty string. 
-            Required Parameter is the filename where all of the information to be converted is in a DataFrame (data param).
-            Optional Parameters: Do you want to include Pascal VOC tags for your annotation for
-                segmented, path, database, folder, or occluded? This often depends on the Pascal version.
-            Optional Parameters: Do you want to write to file? What do you want the output file name to be?'''
+        if output_path == None:
+            output_path = dataset.path_to_annotations
+        else:        
+            output_path = output_path
+
+        os.makedirs(output_path, exist_ok=True)
+
+        """ Writes annotation files to disk in VOC XML format and returns path to files.
+
+        By default, tags with empty values will not be included in the XML output. 
+        You can optionally choose to include them if they are required for your solution.
+
+        Args:
+            dataset (obj): 
+                A dataset object that contains the annotations and metadata.
+            output_path (str or None): 
+                This is where the annotation files will be written.
+                If not-specified then the path will be derived from the .path_to_annotations and
+                .name properties of the dataset object. 
+
+        Returns:
+            A list with 1 or more paths (strings) to annotations files.
+        """   
+        output_file_paths = []
+
+        def voc_xml_file_creation(data, file_name, output_file_path, segmented=True, path=True, database=True, folder=True, occluded=True):
+         
             index = 0
-            
             df_smaller = data[data['img_filename'] == file_name].reset_index()
             
             if len(df_smaller) == 1:
@@ -42,10 +62,6 @@ class Export:
                 else:
                     path_text = ''
                     
-                #db_lkp = str(df_smaller.loc[index]['Databases'])
-                #if database == True and db_lkp != '':
-                #    sources_text = '<source>'+'<database>'+ db_lkp +'</database>'+'</source>'
-                #else:
                 sources_text = ''
                 
                 size_text_start = '<size>'
@@ -67,10 +83,6 @@ class Export:
                 truncated_text = '<truncated>'+str(df_smaller.loc[index]['ann_truncated'])+'</truncated>'
                 difficult_text = '<difficult>'+str(df_smaller.loc[index]['ann_difficult'])+'</difficult>'
                 
-                #occ_lkp = str(df_smaller.loc[index]['Object Occluded'])
-                #if occluded==True and occ_lkp != '':
-                #    occluded_text = '<occluded>'+occ_lkp+'</occluded>'
-                #else:
                 occluded_text = ''
 
                 bound_box_text_start = '<bndbox>'
@@ -94,10 +106,10 @@ class Export:
                 dom = xml.dom.minidom.parseString(xmlstring)
                 pretty_xml_as_string = dom.toprettyxml()
                 
-                if write_to_file == True:
-                    with open(output_file_path, "w") as f:
-                        f.write(pretty_xml_as_string)                  
-                return(pretty_xml_as_string)
+                with open(output_file_path, "w") as f:
+                    f.write(pretty_xml_as_string)    
+
+                return output_file_path
             
             else:
 
@@ -175,25 +187,39 @@ class Export:
                 dom = xml.dom.minidom.parseString(xmlstring)
                 pretty_xml_as_string = dom.toprettyxml()
                 
-                if write_to_file == True:
-                    with open(output_file_path, "w") as f:
-                        f.write(pretty_xml_as_string)  
+                with open(output_file_path, "w") as f:
+                    f.write(pretty_xml_as_string)  
 
-                return(pretty_xml_as_string)
+                return output_file_path
 
         #Loop through all images in the dataframe and call voc_xml_file_creation for each one
         for file_title in list(set(data.img_filename)):
-            filename = file_title.replace('.','_')+'.xml'
-            path2 = Path(output_file_path_, filename)
-            voc_xml_file_creation(file_title, data, segmented=segmented_, path=path_, database=database_, folder=folder_, occluded=occluded_, write_to_file=write_to_file_, output_file_path=str(path2))
-            
-        print(f"Annotations written to {output_file_path_}")
 
-        return()
+            file_name = Path(file_title)
+            file_name = str(file_name.with_suffix('.xml'))
+            file_path = str(Path(output_path, file_name))
+            voc_file_path = voc_xml_file_creation(data, file_title, segmented=segmented_, path=path_, database=database_, folder=folder_, occluded=occluded_, output_file_path=file_path)
+            output_file_paths.append(voc_file_path)
 
-    def ExportToYoloV5(self, dataset):
+        return output_file_paths
+
+    def ExportToYoloV5(self, dataset, output_path=None):
+        """ Writes annotation files to disk and returns path to files.
+        
+        Args:
+            dataset (obj): 
+                A dataset object that contains the annotations and metadata.
+            output_path (str or None): 
+                This is where the annotation files will be written.
+                If not-specified then the path will be derived from the .path_to_annotations and
+                .name properties of the dataset object. 
+
+        Returns:
+            A list with 1 or more paths (strings) to annotations files.
+        """
         #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
         unique_images = dataset.df["img_filename"].unique()
+        output_file_paths = []
 
         yolo_dataset = dataset.df.copy(deep=True)
         yolo_dataset.cat_id = yolo_dataset.cat_id.astype("Int64")
@@ -204,11 +230,12 @@ class Export:
         yolo_dataset[["cat_id", "center_x_scaled", "center_y_scaled", "width_scaled", "height_scaled"]]
 
         #Create folders to store annotations
-        dest_folder = PurePath(dataset.path_to_annotations, yolo_dataset.iloc[0].img_folder)
-        print(dest_folder)
+        if output_path == None:
+            dest_folder = PurePath(dataset.path_to_annotations, yolo_dataset.iloc[0].img_folder)
+        else:
+            dest_folder = output_path
 
-        if str(dest_folder) != "":
-            os.makedirs(dest_folder, exist_ok=True)
+        os.makedirs(dest_folder, exist_ok=True)
 
         for img_filename in unique_images:
                 df_single_img_annots = yolo_dataset.loc[yolo_dataset.img_filename == img_filename]
@@ -227,8 +254,25 @@ class Export:
                         "width_scaled",
                         "height_scaled",
                     ])
+                output_file_paths.append(destination)
 
-    def ExportToCoco(self, dataset, output_path=""):
+        return output_file_paths
+
+    def ExportToCoco(self, dataset, output_path=None) -> List:
+        """ 
+        Writes annotation files to disk and returns path to files.
+
+        Args:
+            dataset (obj): 
+                A dataset object that contains the annotations and metadata.
+            output_path (str or None): 
+                This is where the annotation files will be written.
+                If not-specified then the path will be derived from the .path_to_annotations and
+                .name properties of the dataset object. 
+
+        Returns:
+            A list with 1 or more paths (strings) to annotations files.
+        """
         df = dataset.df
         df_outputI = []
         df_outputA = []
@@ -322,9 +366,9 @@ class Export:
         parsedI.update(parsedC)
         json_output = parsedI
 
-        if output_path == "":
+        if output_path == None:
             output_path = Path(dataset.path_to_annotations, (dataset.name + ".json"))
             
         with open(output_path, 'w') as outfile:
-            json.dump(json_output, outfile)
-        return output_path 
+            json.dump(obj=json_output, fp=outfile, indent=4)
+        return [str(output_path)] 
