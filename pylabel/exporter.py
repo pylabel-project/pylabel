@@ -7,15 +7,15 @@ import xml.dom.minidom
 import os 
 from pathlib import PurePath, Path
 
-class Export:
-          #def  __init__(self, df):
-    #    self.df = df 
-
-    def ExportToVoc(self, dataset, output_path=None, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False):
-        data = dataset.df
+class Export():
+    def  __init__(self, dataset=None):
+        self.dataset = dataset
+        
+    def ExportToVoc(self, output_path=None, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False):
+        ds = self.dataset
 
         if output_path == None:
-            output_path = dataset.path_to_annotations
+            output_path = ds.path_to_annotations
         else:        
             output_path = output_path
 
@@ -193,17 +193,17 @@ class Export:
                 return output_file_path
 
         #Loop through all images in the dataframe and call voc_xml_file_creation for each one
-        for file_title in list(set(data.img_filename)):
+        for file_title in list(set(self.dataset.df.img_filename)):
 
             file_name = Path(file_title)
             file_name = str(file_name.with_suffix('.xml'))
             file_path = str(Path(output_path, file_name))
-            voc_file_path = voc_xml_file_creation(data, file_title, segmented=segmented_, path=path_, database=database_, folder=folder_, occluded=occluded_, output_file_path=file_path)
+            voc_file_path = voc_xml_file_creation(ds.df, file_title, segmented=segmented_, path=path_, database=database_, folder=folder_, occluded=occluded_, output_file_path=file_path)
             output_file_paths.append(voc_file_path)
 
         return output_file_paths
 
-    def ExportToYoloV5(self, dataset, output_path=None):
+    def ExportToYoloV5(self, output_path=None):
         """ Writes annotation files to disk and returns path to files.
         
         Args:
@@ -217,11 +217,12 @@ class Export:
         Returns:
             A list with 1 or more paths (strings) to annotations files.
         """
+        ds = self.dataset
         #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
-        unique_images = dataset.df["img_filename"].unique()
+        unique_images = ds.df["img_filename"].unique()
         output_file_paths = []
 
-        yolo_dataset = dataset.df.copy(deep=True)
+        yolo_dataset = ds.df.copy(deep=True)
         yolo_dataset.cat_id = yolo_dataset.cat_id.astype("Int64")
         yolo_dataset["center_x_scaled"] = (yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"]*0.5))/yolo_dataset["img_width"]
         yolo_dataset["center_y_scaled"] = (yolo_dataset["ann_bbox_ymin"] + (yolo_dataset["ann_bbox_height"]*0.5))/yolo_dataset["img_height"]
@@ -231,7 +232,7 @@ class Export:
 
         #Create folders to store annotations
         if output_path == None:
-            dest_folder = PurePath(dataset.path_to_annotations, yolo_dataset.iloc[0].img_folder)
+            dest_folder = PurePath(ds.path_to_annotations, yolo_dataset.iloc[0].img_folder)
         else:
             dest_folder = output_path
 
@@ -258,7 +259,7 @@ class Export:
 
         return output_file_paths
 
-    def ExportToCoco(self, dataset, output_path=None) -> List:
+    def ExportToCoco(self, output_path=None) -> List:
         """ 
         Writes annotation files to disk and returns path to files.
 
@@ -273,7 +274,7 @@ class Export:
         Returns:
             A list with 1 or more paths (strings) to annotations files.
         """
-        df = dataset.df
+        df = self.dataset.df
         df_outputI = []
         df_outputA = []
         df_outputC = []
@@ -367,7 +368,7 @@ class Export:
         json_output = parsedI
 
         if output_path == None:
-            output_path = Path(dataset.path_to_annotations, (dataset.name + ".json"))
+            output_path = Path(self.dataset.path_to_annotations, (self.dataset.name + ".json"))
             
         with open(output_path, 'w') as outfile:
             json.dump(obj=json_output, fp=outfile, indent=4)

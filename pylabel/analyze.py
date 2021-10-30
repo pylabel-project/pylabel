@@ -1,16 +1,19 @@
 import pandas as pd
 
 class Analyze:
-    def  __init__(self, df):
-        self._df = df 
-        self.class_counts = self._df["cat_name"].value_counts(dropna=False)
-        self.num_classes = self._df["cat_name"].nunique()
-        self.classes = self._df["cat_name"].unique()
-        self.num_images = self._df["img_filename"].nunique()
-        self.split_counts = self._df["split"].value_counts(dropna=False)
-        self.split_pct = self._df["split"].value_counts(normalize=True, dropna=False)
+    def  __init__(self, dataset=None):
+        self.dataset = dataset 
+        ds = self.dataset
 
-    def ShowClassSplits(self, df, normalize=True):
+        self.class_counts = ds.df["cat_name"].value_counts(dropna=False)
+        self.num_classes = ds.df["cat_name"].nunique()
+        self.classes = ds.df["cat_name"].unique()
+        self.num_images = ds.df["img_filename"].nunique()
+        self.split_counts = ds.df["split"].value_counts(dropna=False)
+        self.split_pct = ds.df["split"].value_counts(normalize=True, dropna=False)
+
+    def ShowClassSplits(self, normalize=True):
+        ds = self.dataset
 
         def move_column_inplace(df, col, pos):
             """
@@ -19,12 +22,12 @@ class Analyze:
             col = df.pop(col)
             df.insert(pos, col.name, col)
 
-        df_value_counts = pd.DataFrame(df["cat_name"].value_counts(normalize=normalize), columns=["cat_name"])
+        df_value_counts = pd.DataFrame(ds.df["cat_name"].value_counts(normalize=normalize), columns=["cat_name"])
 
         df_value_counts.index.name = "cat_name"  
         df_value_counts.columns = ["all"]
 
-        split_df = df.groupby('split')
+        split_df = ds.df.groupby('split')
 
         if split_df.ngroups == 1:
             return df_value_counts
@@ -41,6 +44,3 @@ class Analyze:
             move_column_inplace(df_value_counts, 'train', 1)
 
         return df_value_counts
-
-
-

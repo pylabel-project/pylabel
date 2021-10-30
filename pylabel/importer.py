@@ -8,6 +8,7 @@ import cv2
 
 from pylabel.constants import schema
 from pylabel.dataset import Dataset
+from pylabel.exporter import Export
 
 def _GetValueOrBlank(element, user_input=None):
     """

@@ -2,6 +2,11 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit as sklearnGroupShuffleSplit
 
+def test(df):
+    df["new_col"] = np.nan
+    return df
+
+
 def GroupShuffleSplit(df_main, train_pct=.6, test_pct=.25, val_pct=.25, group_col = 'img_filename', random_state=None):
     """
     This function uses the GroupShuffleSplit command from sklearn. It can split into 3 groups (train,
