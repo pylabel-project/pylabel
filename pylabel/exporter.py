@@ -295,7 +295,7 @@ class Export():
         
             annotations = [{
             "image_id": df['img_id'][i], 
-            "id": df['id'][i], 
+            "id": df.index[i], 
             "segmented": df['ann_segmented'][i],
             "bbox": [df['ann_bbox_xmin'][i], df['ann_bbox_ymin'][i], df['ann_bbox_width'][i], df['ann_bbox_height'][i]],  
             "area": df['ann_area'][i], 

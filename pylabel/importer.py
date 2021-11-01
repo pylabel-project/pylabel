@@ -64,6 +64,7 @@ def ImportCoco(path, path_to_images=None, name=""):
 
     #Reorder columns
     df = df[schema]
+    df.index.name = "id"
 
     dataset = Dataset(df)
 
@@ -121,7 +122,6 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
             object = root.findall("object")
 
             for o in object:
-                row["id"] = row_id
                 row["cat_name"] = o.find("name").text
                 row["cat_id"] = GetCatId(row["cat_name"])
                 row["ann_pose"] = _GetValueOrBlank(o.find("pose"))
@@ -146,6 +146,7 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
 
     #Convert the dict with all of the annotation data to a dataframe
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
+    df.index.name = "id"
 
     #Reorder columns
     df = df[schema]
@@ -184,7 +185,6 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
                 row = {}
 
                 cat_id, x_center_norm, y_center_norm, width_norm, height_norm = line.split()
-                row["id"] = row_id
                 row["img_folder"] = path_to_images
                 row["img_filename"] = filename.name.replace("txt",img_ext)
 
@@ -216,6 +216,7 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
         img_id += 1
 
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
+    df.index.name = "id"
 
     #Reorder columns
     dataset = Dataset(df)
