@@ -223,6 +223,7 @@ class Export():
         output_file_paths = []
 
         yolo_dataset = ds.df.copy(deep=True)
+        yolo_dataset.cat_id = yolo_dataset.cat_id.str.strip()
         yolo_dataset.cat_id = yolo_dataset.cat_id.astype('float').astype('Int32')
         yolo_dataset["center_x_scaled"] = (yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"]*0.5))/yolo_dataset["img_width"]
         yolo_dataset["center_y_scaled"] = (yolo_dataset["ann_bbox_ymin"] + (yolo_dataset["ann_bbox_height"]*0.5))/yolo_dataset["img_height"]

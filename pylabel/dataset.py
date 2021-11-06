@@ -1,6 +1,8 @@
 from pylabel.analyze import Analyze
 from pylabel.exporter import Export
 from pylabel.visualize import Visualize
+from pylabel.labeler import Labeler
+
 
 from pylabel.splitter import GroupShuffleSplit, test
 from pylabel.splitter import StratifiedGroupShuffleSplit
@@ -17,5 +19,7 @@ class Dataset:
         self.export = Export(dataset=self)
         self.visualize = Visualize(dataset=self)
         self.analyze = Analyze(self)
+        self.labeler = Labeler(self)
+
         #self.splitter = Splitter(dataset=self)
 
