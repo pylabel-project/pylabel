@@ -11,7 +11,7 @@ class Labeler:
     def  __init__(self, dataset=None):
         self.dataset = dataset
 
-    def UseBBoxWidget(self, image=None):
+    def UseBBoxWidget(self, new_classes=None,image=None):
         """Display the bbox widget loaded with images and annotations from this dataset."""
         dataset = self.dataset
         widget_output = None
@@ -31,6 +31,8 @@ class Labeler:
             img_df_subset = img_df[['cat_name','ann_bbox_height','ann_bbox_width','ann_bbox_xmin','ann_bbox_ymin']]
             #Rename the columns to match the format used by jupyter_bbox_widget
             img_df_subset.columns = ['label', 'height', 'width', 'x', 'y']
+            #Drop rows that have NaN, invalid bounding boxes
+            img_df_subset = img_df_subset.dropna()
             bboxes_dict = img_df_subset.to_dict(orient='records')
             return bboxes_dict
 
@@ -44,6 +46,23 @@ class Labeler:
                 image_bytes = f.read()
             encoded = str(base64.b64encode(image_bytes), 'utf-8')
             return "data:image/jpg;base64,"+encoded
+
+        def GetCatId(cat, cat_dict):
+            from math import isnan
+            #Remove invalid entries
+            cat_dict.pop("", None)
+            cat_dict = {k: v for k, v in cat_dict.items() if not isnan(v)}
+            
+            if len(cat_dict)==0:
+                cat_id = 0
+            elif cat in list(cat_dict.keys()):
+                cat_id = cat_dict[cat]
+            else:
+                #Create a new cat id that 1+ the highest cat id value
+                new_cat_id = max([int(v) for v in cat_dict.values()]) + 1
+                new_cat_id = new_cat_id
+                cat_id = cat_dict.setdefault(cat, new_cat_id)
+            return str(cat_id)
 
         def on_submit():
             # save annotations for current image
@@ -65,6 +84,9 @@ class Labeler:
             categories  = dict(zip(dataset.df.cat_name, dataset.df.cat_id))
 
             widget_output['cat_id'] = widget_output['cat_name'].map(categories)  
+            
+            widget_output['cat_id'] = widget_output.cat_name.apply(GetCatId, cat_dict=categories)
+            
             widget_output.index.name = "id"
 
             img_df = dataset.df.loc[dataset.df['img_filename'] == img_filename]
@@ -96,10 +118,19 @@ class Labeler:
             # and use its output for creating inital bboxes
             w_bbox.bboxes = GetBBOXs(files[w_progress.value]) 
 
+
+        if new_classes:
+            classes = dataset.analyze.classes + new_classes
+        else: 
+            classes = dataset.analyze.classes 
+
+        #remove empty labels and duplicate labels
+        classes = list(set([c.strip() for c in classes if len(c.strip()) > 0]))
+
         #Load BBoxWidget for first load on page
         w_bbox = BBoxWidget(
             image=encode_image(file_paths[file_index]),
-            classes=dataset.analyze.classes.tolist(),
+            classes=classes,
             bboxes=bboxes_dict
         )
 

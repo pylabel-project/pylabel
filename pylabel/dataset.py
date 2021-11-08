@@ -7,6 +7,9 @@ from pylabel.labeler import Labeler
 from pylabel.splitter import GroupShuffleSplit, test
 from pylabel.splitter import StratifiedGroupShuffleSplit
 
+def FilterList(the_list):
+
+    the_list = [i for i in the_list if len(i.strip()) > 0]
 
 class Dataset:
     def __init__(self, df):

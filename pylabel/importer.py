@@ -224,3 +224,62 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
     dataset.path_to_annotations = path
 
     return dataset
+
+
+
+def ImportImagesOnly(path, ends_with=None, name="dataset"):
+    """Import a directory of images as a dataset with no annotations.
+    Then use PyLabel to annote the images.
+    
+        
+    Args:
+        path (str): 
+            The path to the directory with the images. 
+        ends_with, optional(tuple or None): 
+            Specify which file types to import. 
+            Use if there are files in the directly that you don't wnat to import.
+
+    Returns:
+        A dataset object with one row for each image and no annotations. 
+    """
+    #Create an empty dataframe
+    df = pd.DataFrame(columns=schema) 
+
+    # the dictionary to pass to pandas dataframe
+    d = {}
+
+    img_id = 0
+
+    # iterate over files in that directory
+    for filename in os.scandir(path):
+        if filename.is_file() and filename.name.endswith(ends_with):
+            filepath = filename.path
+            #file = open(filepath, 'r')  # Read file
+
+            row = {}
+            row["img_folder"] = ""
+            row["img_filename"] = filename.name
+            image_path = PurePath(path, row["img_filename"])
+            im = cv2.imread(str(image_path))
+            img_height, img_width, img_depth =  im.shape
+
+            row["img_id"] = img_id
+            row["img_width"] = img_width
+            row["img_height"] = img_height
+            row["img_depth"] = img_depth
+            row["cat_name"] = ''
+
+
+            #Add this row to the dict
+            d[img_id] = row
+            img_id += 1
+
+    df = pd.DataFrame.from_dict(d, "index", columns=schema)
+    df.index.name = "id"
+
+    #Reorder columns
+    dataset = Dataset(df)
+    dataset.name = name
+    dataset.path_to_annotations = path
+
+    return dataset

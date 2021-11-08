@@ -1,17 +1,18 @@
 import pandas as pd
+import numpy as np
 
 class Analyze:
+
     def  __init__(self, dataset=None):
         self.dataset = dataset 
         ds = self.dataset
-
         self.class_counts = ds.df["cat_name"].value_counts(dropna=False)
         self.num_classes = ds.df["cat_name"].nunique()
-        self.classes = ds.df["cat_name"].unique()
+        self.classes = list(ds.df["cat_name"].unique())
         self.num_images = ds.df["img_filename"].nunique()
         self.split_counts = ds.df["split"].value_counts(dropna=False)
         self.split_pct = ds.df["split"].value_counts(normalize=True, dropna=False)
-
+        
     def ShowClassSplits(self, normalize=True):
         ds = self.dataset
 
