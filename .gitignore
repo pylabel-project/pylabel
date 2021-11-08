@@ -10,4 +10,3 @@ pylabel.egg-info/
 *.ipynb
 pylabel/__pycache__/
 notebooks.sh
-voc2coco.ipynb
