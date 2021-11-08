@@ -16,13 +16,12 @@ PyLabel is a Python package to help computer vision practitioners get labelled d
 -	**Split (Coming Soon):** Spilt image datasets into train, test, and val with stratification to get consistent class distribution across the split datasets.  
 
 ## Sample Notebooks
-See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pylabel-project/samples/).<br>
-Open directly in Google Colab: 
-- [coco2voc.ipynb](https://githubtocolab.com/pylabel-project/samples/blob/main/coco2voc.ipynb)
-- [coco2yolov5.ipynb](https://githubtocolab.com/pylabel-project/samples/blob/main/coco2yolov5.ipynb)
-- [voc2coco.ipynb](https://githubtocolab.com/pylabel-project/samples/blob/main/voc2coco.ipynb)
-- [yolo2coco.ipynb](https://githubtocolab.com/pylabel-project/samples/blob/main/yolo2coco.ipynb)
-- [yolo2voc.ipynb](https://githubtocolab.com/pylabel-project/samples/blob/main/yolo2voc.ipynb)
+See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pylabel-project/samples/):<br>
+- [coco2voc.ipynb](https://github.com/pylabel-project/samples/blob/main/coco2voc.ipynb)
+- [coco2yolov5.ipynb](https://github.com/pylabel-project/samples/blob/main/coco2yolov5.ipynb)
+- [voc2coco.ipynb](https://github.com/pylabel-project/samples/blob/main/voc2coco.ipynb)
+- [yolo2coco.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo2coco.ipynb)
+- [yolo2voc.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo2voc.ipynb)
 
 ## About PyLabel 
 PyLabel is being developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabelalpha/package/issues). Please let us know how we can make PyLabel more useful. 
