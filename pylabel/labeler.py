@@ -11,7 +11,7 @@ class Labeler:
     def  __init__(self, dataset=None):
         self.dataset = dataset
 
-    def UseBBoxWidget(self, new_classes=None,image=None):
+    def UseBBoxWidget(self, new_classes=None,image=None, yolo_model=None):
         """Display the bbox widget loaded with images and annotations from this dataset."""
         dataset = self.dataset
         widget_output = None
@@ -118,6 +118,17 @@ class Labeler:
             # and use its output for creating inital bboxes
             w_bbox.bboxes = GetBBOXs(files[w_progress.value]) 
 
+        def on_predict(b):
+            image_file = file_paths[w_progress.value]
+            result = yolo_model(image_file)
+            result = result.pandas().xyxy[0] 
+            result["width"] = result.xmax - result.xmin
+            result["height"] = result.ymax - result.ymin
+            result.drop(['class','confidence','xmax','ymax'], axis=1, inplace=True)
+            result.columns = ['x','y', 'label','width','height']
+            result = result[['label','height','width','x','y']]
+            bboxes_dict = result.to_dict(orient='records')
+            w_bbox.bboxes=bboxes_dict
 
         if new_classes:
             classes = dataset.analyze.classes + new_classes
@@ -136,13 +147,18 @@ class Labeler:
 
         w_progress = widgets.IntProgress(value=file_index, max=len(files), description='Progress')
 
+        w_button = widgets.Button(description='Predict Labels')
+
         w_container = widgets.VBox([
             w_progress,
+            w_button,
             w_bbox,
         ])
 
         w_bbox.on_submit(on_submit)
         w_bbox.on_skip(on_skip)
+        w_button.on_click(on_predict)
+
 
         #Returning the container will show the widgets 
         return w_container
