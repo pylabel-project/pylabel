@@ -47,22 +47,23 @@ class Labeler:
             encoded = str(base64.b64encode(image_bytes), 'utf-8')
             return "data:image/jpg;base64,"+encoded
 
-        def GetCatId(cat, cat_dict):
+        def UpdateCategoryList(cat_dict, new_categories):
             from math import isnan
             #Remove invalid entries
             cat_dict.pop("", None)
-            cat_dict = {k: v for k, v in cat_dict.items() if not isnan(v)}
-            
-            if len(cat_dict)==0:
-                cat_id = 0
-            elif cat in list(cat_dict.keys()):
-                cat_id = cat_dict[cat]
-            else:
-                #Create a new cat id that 1+ the highest cat id value
-                new_cat_id = max([int(v) for v in cat_dict.values()]) + 1
-                new_cat_id = new_cat_id
-                cat_id = cat_dict.setdefault(cat, new_cat_id)
-            return str(cat_id)
+            #cat_dict = {k: v for k, v in cat_dict.items() if not isnan(v)}
+              
+            for cat in new_categories:
+              if len(cat_dict)==0:
+                  cat_dict[cat] = "0"
+              elif cat in list(cat_dict.keys()):
+                  continue
+              else:
+                  #Create a new cat id that 1+ the highest cat id value
+                  new_cat_id = max([int(v) for v in cat_dict.values()]) + 1
+                  cat_dict[cat] = str(new_cat_id)
+              
+            return cat_dict
 
         def on_submit():
             # save annotations for current image
@@ -74,7 +75,6 @@ class Labeler:
                                 "width": "ann_bbox_width", "x": "ann_bbox_xmin", "y": "ann_bbox_ymin"})
 
             img_filename = files[w_progress.value]
-
             widget_output["img_filename"] = str(img_filename)
             widget_output["img_filename"] = widget_output["img_filename"].astype('string')
             widget_output["cat_name"] = widget_output["cat_name"].astype('string')
@@ -83,9 +83,9 @@ class Labeler:
 
             categories  = dict(zip(dataset.df.cat_name, dataset.df.cat_id))
 
+            categories = UpdateCategoryList(categories, list(widget_output.cat_name))
+
             widget_output['cat_id'] = widget_output['cat_name'].map(categories)  
-            
-            widget_output['cat_id'] = widget_output.cat_name.apply(GetCatId, cat_dict=categories)
             
             widget_output.index.name = "id"
 
@@ -100,11 +100,9 @@ class Labeler:
 
             #Now we have a dataframe with output of the bbox widget 
             #Drop the current annotations for the image and add the the new ones
-            dataset.df.drop(dataset.df[dataset.df['img_filename'] == image].index, inplace = True)
+            dataset.df.drop(dataset.df[dataset.df['img_filename'] == img_filename].index, inplace = True)
             dataset.df.reset_index(drop=True, inplace=True)
-
             dataset.df = dataset.df.append(widget_output).reset_index(drop=True) 
-
             # move on to the next file
             on_skip()
 
@@ -146,7 +144,6 @@ class Labeler:
         )
 
         w_progress = widgets.IntProgress(value=file_index, max=len(files), description='Progress')
-
         w_button = widgets.Button(description='Predict Labels')
 
         w_container = widgets.VBox([
@@ -158,7 +155,6 @@ class Labeler:
         w_bbox.on_submit(on_submit)
         w_bbox.on_skip(on_skip)
         w_button.on_click(on_predict)
-
 
         #Returning the container will show the widgets 
         return w_container
