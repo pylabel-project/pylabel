@@ -127,6 +127,10 @@ class Labeler:
             result = result[['label','height','width','x','y']]
             bboxes_dict = result.to_dict(orient='records')
             w_bbox.bboxes=bboxes_dict
+            print(list(result["label"]))
+            #Add the predicted classes to the widget so they can be selected by the user
+            w_bbox.classes = list(set(w_bbox.classes + list(result["label"])))
+
 
         if new_classes:
             classes = dataset.analyze.classes + new_classes
