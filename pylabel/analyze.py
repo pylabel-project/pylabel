@@ -4,15 +4,26 @@ import numpy as np
 class Analyze:
 
     def  __init__(self, dataset=None):
-        self.dataset = dataset 
-        ds = self.dataset
-        self.class_counts = ds.df["cat_name"].value_counts(dropna=False)
-        self.num_classes = ds.df["cat_name"].nunique()
-        self.classes = list(ds.df["cat_name"].unique())
-        self.num_images = ds.df["img_filename"].nunique()
-        self.split_counts = ds.df["split"].value_counts(dropna=False)
-        self.split_pct = ds.df["split"].value_counts(normalize=True, dropna=False)
-        
+        self.dataset = dataset
+        #self.split_counts = ds.df["split"].value_counts(dropna=False)
+        #self.split_pct = ds.df["split"].value_counts(normalize=True, dropna=False)
+    
+    @property 
+    def classes(self):
+        return self.dataset.df["cat_name"].unique()
+
+    @property 
+    def class_counts(self):
+        return self.dataset.df["cat_name"].value_counts(dropna=False)
+
+    @property 
+    def num_classes(self):
+        return self.dataset.df["cat_name"].nunique()
+
+    @property 
+    def num_images(self):
+        return self.dataset.df["img_filename"].nunique()
+
     def ShowClassSplits(self, normalize=True):
         ds = self.dataset
 
