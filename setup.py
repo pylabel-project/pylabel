@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='pylabel',
     packages=['pylabel'],
-    version='0.1.9',
+    version='0.1.11',
     description='Transform, analyze, and visualize computer vision annotations.',
     author='PyLabel Project',
     license='MIT',

@@ -21,7 +21,7 @@ class Dataset:
         self.StratifiedGroupShuffleSplit = StratifiedGroupShuffleSplit
         self.export = Export(dataset=self)
         self.visualize = Visualize(dataset=self)
-        self.analyze = Analyze(self)
+        self.analyze = Analyze(dataset=self)
         self.labeler = Labeler(self)
 
         #self.splitter = Splitter(dataset=self)
