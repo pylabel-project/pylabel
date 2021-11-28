@@ -5,12 +5,15 @@ import numpy as np
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 import os 
+import yaml
+import shutil
+
 from pathlib import PurePath, Path
 
 class Export():
     def  __init__(self, dataset=None):
         self.dataset = dataset
-        
+
     def ExportToVoc(self, output_path=None, segmented_=False, path_=False, database_=False, folder_=False, occluded_=False):
         ds = self.dataset
 
@@ -203,26 +206,60 @@ class Export():
 
         return output_file_paths
 
-    def ExportToYoloV5(self, output_path=None):
+    def ExportToYoloV5(self, output_path=None, yaml_file=None, copy_images=False):
         """ Writes annotation files to disk and returns path to files.
         
         Args:
             dataset (obj): 
                 A dataset object that contains the annotations and metadata.
-            output_path (str or None): 
+            output_path (str): 
                 This is where the annotation files will be written.
                 If not-specified then the path will be derived from the .path_to_annotations and
-                .name properties of the dataset object. 
-
+                .name properties of the dataset object. If you are exporting images to train a model, the recommended path 
+                to use is 'training/labels'.  
+            yaml_file (str):
+                If a file name (string) is provided, a YOLOv5 YAML file will be created with entries for the files
+                and classes in this dataset. It will be created in the parent of the output_path directory. 
+                The recommended name for the YAML file is 'dataset.yaml'.
+            copy_images (boolean):
+                If True, then the annotated images will be copied to a directory next to the labels directory into 
+                a directory named 'images'. This will prepare your labels and images to be used as inputs to 
+                train a YOLOv5 model. 
         Returns:
-            A list with 1 or more paths (strings) to annotations files.
+            A list with 1 or more paths (strings) to annotations files. If a YAML file is created
+            then the first item in the list will be the path to the YAML file. 
         """
         ds = self.dataset
-        #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
-        unique_images = ds.df["img_filename"].unique()
-        output_file_paths = []
 
+        #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
         yolo_dataset = ds.df.copy(deep=True)
+
+        #Create all of the paths that will be used to manage the files in this dataset 
+        path_dict ={}
+
+        #The output path is the main path that will be used to create the other relative paths 
+        path = PurePath(output_path)
+        path_dict["label_path"] = output_path
+        #The /images directory should be next to the /labels directory 
+        path_dict["image_path"] = str(PurePath(path.parent, "images"))
+        #The root directory is in parent of the /labels and /images directories
+        path_dict["root_path"] = str(PurePath(path.parent))
+        #The YAML file should be in root directory
+        path_dict["yaml_path"] = str(PurePath(path_dict["root_path"], yaml_file))
+        #The root directory will usually be next to the yolov5 directory. 
+        #Specify the relative path 
+        path_dict["root_path_from_yolo_dir"] = str(PurePath("../"))
+        #If these default values to not match the users environment then they can manually edit the YAML file
+
+        if copy_images:
+            #Create the folder that the images will be copied to
+            Path(path_dict["image_path"]).mkdir(parents=True, exist_ok=True) 
+
+        #Drop rows that are not annotated
+        #Note, having zero annotates can still be considered annotated 
+        #in cases when are no objects in the image thats should be indentified
+        yolo_dataset = yolo_dataset.loc[yolo_dataset["annotated"] == 1]
+
         yolo_dataset.cat_id = yolo_dataset.cat_id.str.strip()
         yolo_dataset.cat_id = yolo_dataset.cat_id.astype('float').astype('Int32')
         yolo_dataset["center_x_scaled"] = (yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"]*0.5))/yolo_dataset["img_width"]
@@ -238,6 +275,9 @@ class Export():
             dest_folder = output_path
 
         os.makedirs(dest_folder, exist_ok=True)
+
+        unique_images = yolo_dataset["img_filename"].unique()
+        output_file_paths = []
 
         for img_filename in unique_images:
                 df_single_img_annots = yolo_dataset.loc[yolo_dataset.img_filename == img_filename]
@@ -257,6 +297,30 @@ class Export():
                         "height_scaled",
                     ])
                 output_file_paths.append(destination)
+
+                if copy_images:
+                    source_image_path = str(Path(ds.path_to_annotations, 
+                        df_single_img_annots.iloc[0].img_folder, 
+                        df_single_img_annots.iloc[0].img_filename))
+
+                    current_file = Path(source_image_path)
+                    assert current_file.is_file, f"File does not exist: {source_image_path}. Check img_folder column values."
+                    shutil.copy(str(source_image_path), str(PurePath(path_dict["image_path"], img_filename)))  
+
+        #Create YAML file
+        if yaml_file:
+            #Build a dict with all of the values that will go into the YAML file
+            dict_file = {}
+            dict_file["path"] = path_dict["root_path_from_yolo_dir"] 
+            dict_file["train"] = path_dict["image_path"]
+            dict_file["val"] = path_dict["image_path"]
+            dict_file["nc"] = ds.analyze.num_classes
+            dict_file["names"] = ds.analyze.classes
+
+            #Save the yamlfile
+            with open(path_dict["yaml_path"], 'w') as file:
+                documents = yaml.dump(dict_file, file)
+                output_file_paths = [path_dict["yaml_path"]] + output_file_paths
 
         return output_file_paths
 

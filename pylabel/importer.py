@@ -2,9 +2,11 @@ import json
 import pandas as pd
 import xml.etree.ElementTree as ET
 import os
+from os.path import exists
 from pathlib import Path, PurePath
 import copy
 import cv2
+import yaml
 
 from pylabel.constants import schema
 from pylabel.dataset import Dataset
@@ -65,6 +67,7 @@ def ImportCoco(path, path_to_images=None, name=""):
     #Reorder columns
     df = df[schema]
     df.index.name = "id"
+    df.annotated = 1
 
     dataset = Dataset(df)
 
@@ -147,6 +150,8 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
     #Convert the dict with all of the annotation data to a dataframe
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
     df.index.name = "id"
+    df.annotated = 1
+
 
     #Reorder columns
     df = df[schema]
@@ -190,6 +195,11 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
 
                 #Get the path to the image file to extract the height, width, and depth
                 image_path = PurePath(path, path_to_images, row["img_filename"])
+
+                #Check if there is a file at this location.
+                assert exists(image_path), f"File does not exist: {image_path}. Check path_to_images and img_ext arguments."
+
+                
                 im = cv2.imread(str(image_path))
                 img_height, img_width, img_depth =  im.shape
 
@@ -217,6 +227,7 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
 
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
     df.index.name = "id"
+    df.annotated = 1
 
     #Reorder columns
     dataset = Dataset(df)
@@ -224,7 +235,6 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
     dataset.path_to_annotations = path
 
     return dataset
-
 
 
 def ImportImagesOnly(path, ends_with=None, name="dataset"):
@@ -283,3 +293,77 @@ def ImportImagesOnly(path, ends_with=None, name="dataset"):
     dataset.path_to_annotations = path
 
     return dataset
+
+def yaml_reader(yaml_file):
+    """Import the YAML File for the YOLOv5 data as dict."""
+    with open(yaml_file) as file:
+        data = yaml.safe_load(file)
+    return(data)
+
+def ImportYoloV5WithYaml(yaml_file, split_type=None, image_ext="jpg", name="coco128", name_of_annotations_folder="labels", path_to_annotations=None):
+    """Convert the YAML file to the format needed for the YOLO import.
+    yaml_file: the file name of the yaml file to be imported.
+    split_type: if none, the full list, otherwise can be a list of the type of the data to be imported; 
+                training set, testing set or validation set: ['train','test','val']
+    path_to_annotations: the path to the annotations file; if path to annotations is none, file replaces name of images file from yaml file with annotations
+    image_ending: the image file extension
+    name: the type of format used"
+    name_of_annotations_folder="annotations"; change this to "labels" if your folder is called "labels"
+    make sure to define absolute path?
+    
+    As a note, the "path_to_images" variable in this code refers to the relative path relative to the path to annotations. 
+    It is different than the path to images specified in the YAML file. 
+    PyLabel uses the former to establish its pathing and the latter path to actually view the needed data.
+    """
+
+    path_to_annotations_copy = path_to_annotations
+    
+    if path_to_annotations == None:
+        path_to_annotations_defined=False
+    else:
+        path_to_annotations_defined=True
+    counter = 0
+    
+    data = yaml_reader(yaml_file)
+    yoloclasses = data['names']  
+    
+    iterated_list = list(data.keys())
+
+    for splitted in iterated_list:
+        if splitted in ['nc', 'names']:
+            pass
+        else:     
+            try:
+                path_to_images = data[splitted]
+            except:
+                raise Exception("split type not in the YAML file.")
+            #if counter > 0
+            # change PoA to new split type
+
+            #if 
+            if path_to_annotations == None or counter != 0:
+                # In case your folder is called labels or some thing else that doesn't jive with what we want you to call it.
+                if path_to_annotations_defined == True and counter > 0:
+                    path_to_annotations = str(PurePath(path_to_annotations_copy.replace(iterated_list[counter-1],splitted)))
+                
+                #This probably needs to be reworked but there's potentially an issue with resetting the path
+                # to annotations as we iterate through each split type.
+                elif name_of_annotations_folder != "labels" and counter > 0:
+                    path_to_annotations = str(PurePath(path_to_annotations.replace(iterated_list[counter-1],splitted)))
+                elif name_of_annotations_folder != "labels" and counter == 0:
+                    path_to_annotations = str(PurePath(path_to_images.replace('images',name_of_annotations_folder)))
+                else:
+                    path_to_annotations = str(PurePath(path_to_images.replace('images','labels')))
+
+                path_to_images = str(PurePath("../../images/",splitted))
+
+            if counter == 0:
+                dataset = ImportYoloV5(path=path_to_annotations, path_to_images=path_to_images, cat_names=yoloclasses, img_ext=image_ext)
+                dataset.df['split'] = splitted
+                counter += 1
+            else:      
+                dataset2 = ImportYoloV5(path=path_to_annotations, path_to_images=path_to_images, cat_names=yoloclasses, img_ext=image_ext)
+                dataset2.df['split'] = splitted
+                dataset.df = dataset.df.append(dataset2.df)
+                counter += 1
+    return(dataset)

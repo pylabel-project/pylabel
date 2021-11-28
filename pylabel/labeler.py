@@ -4,6 +4,7 @@ import ipywidgets as widgets
 from pathlib import PurePath
 from jupyter_bbox_widget import BBoxWidget
 from ipywidgets import Layout
+import numpy as np
 
 class Labeler:
     def  __init__(self, dataset=None):
@@ -41,6 +42,17 @@ class Labeler:
             bboxes_dict = img_df_subset.to_dict(orient='records')
             return bboxes_dict
 
+        def GetImageLabel(image):  
+            '''Returns the imagename or imagename + (not annotated)'''
+            #Make a dataframe with the annotations for a single image
+            img_df = dataset.df.loc[dataset.df['img_filename'] == image]
+            
+            if img_df.iloc[0].annotated == 1:
+                return image
+            else:
+                return f"{image} (not annotated)"
+            return 
+
         bboxes_dict = GetBBOXs(image)
 
         img_folder = dataset.df.loc[dataset.df['img_filename'] == image].iloc[0]["img_folder"]
@@ -76,39 +88,56 @@ class Labeler:
             global widget_output
             global file_index
 
-            widget_output = pd.DataFrame.from_dict(w_bbox.bboxes)
-            widget_output = widget_output.rename(columns={"label": "cat_name", "height": "ann_bbox_height", 
-                                "width": "ann_bbox_width", "x": "ann_bbox_xmin", "y": "ann_bbox_ymin"})
-
             img_filename = files[file_index]
+
+            widget_output = pd.DataFrame.from_dict(w_bbox.bboxes)
+
+            #Check if there are any bounding boxes for the current image:
+            if not widget_output.empty:
+            #If there are bounding boxes then add them to the dataset
+                widget_output = widget_output.rename(columns={"label": "cat_name", "height": "ann_bbox_height", 
+                            "width": "ann_bbox_width", "x": "ann_bbox_xmin", "y": "ann_bbox_ymin"})
+                
+                widget_output["ann_area"] = widget_output["ann_bbox_height"] * widget_output["ann_bbox_width"]
+                widget_output["cat_name"] = widget_output["cat_name"].astype('string')
+                categories  = dict(zip(dataset.df.cat_name, dataset.df.cat_id))
+                categories = UpdateCategoryList(categories, list(widget_output.cat_name))
+                widget_output['cat_id'] = widget_output['cat_name'].map(categories)
+
+            else:
+            #Build a entry in the table with empty bounding box columns
+                widget_output = pd.DataFrame([], columns=['cat_name','cat_id', 'ann_bbox_height',
+                  'ann_bbox_width','ann_bbox_xmin','ann_bbox_ymin','ann_area'])
+                
+                widget_output.loc[0] = ['',np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN] 
+
             widget_output["img_filename"] = str(img_filename)
             widget_output["img_filename"] = widget_output["img_filename"].astype('string')
-            widget_output["cat_name"] = widget_output["cat_name"].astype('string')
-
-            widget_output["ann_area"] = widget_output["ann_bbox_height"] * widget_output["ann_bbox_width"]
-
-            categories  = dict(zip(dataset.df.cat_name, dataset.df.cat_id))
-
-            categories = UpdateCategoryList(categories, list(widget_output.cat_name))
-
-            widget_output['cat_id'] = widget_output['cat_name'].map(categories)  
-            
             widget_output.index.name = "id"
 
             img_df = dataset.df.loc[dataset.df['img_filename'] == img_filename]
+
+            #Get the metadata associated with this image from the dataset
             metadata = img_df.iloc[0].to_frame().T
+
             metadata['img_filename'] = metadata['img_filename'].astype("string")
+
+            #Drop the fields that are in the widget_output dataframe
             metadata.drop(['cat_name', 'cat_id', 'ann_area', 'ann_bbox_height', 'ann_bbox_width', 'ann_bbox_xmin', 'ann_bbox_ymin'], axis=1, inplace=True)
-            
+      
             widget_output = widget_output.merge(metadata, left_on='img_filename', right_on='img_filename')
-            
             widget_output = widget_output[dataset.df.columns]
+            
+            #Set annotated = 1, which means the annotates have been reviewed and accepted 
+            widget_output["annotated"] = 1
 
             #Now we have a dataframe with output of the bbox widget 
             #Drop the current annotations for the image and add the the new ones
             dataset.df.drop(dataset.df[dataset.df['img_filename'] == img_filename].index, inplace = True)
             dataset.df.reset_index(drop=True, inplace=True)
+
             dataset.df = dataset.df.append(widget_output).reset_index(drop=True) 
+            
             # move on to the next file
             on_next(b)
 
@@ -121,6 +150,7 @@ class Labeler:
             w_bbox.image = encode_image(image_file)
             w_bbox.bboxes = GetBBOXs(files[file_index]) 
             progress_label.value = f"{file_index+1} / {len(files)}"
+            current_img_name_label.value = GetImageLabel(files[file_index])
 
         def on_back(b):
             global file_index
@@ -130,6 +160,8 @@ class Labeler:
             w_bbox.image = encode_image(image_file)
             w_bbox.bboxes = GetBBOXs(files[file_index]) 
             progress_label.value = f"{file_index+1} / {len(files)}"
+            current_img_name_label.value = GetImageLabel(files[file_index])
+
 
         def on_add_class(b):
             if new_class_text.value.strip() != '':
@@ -161,7 +193,7 @@ class Labeler:
 
         #remove empty labels and duplicate labels
         classes = list(set([c.strip() for c in classes if len(c.strip()) > 0]))
-
+        
         #Load BBoxWidget for first load on page
         w_bbox = BBoxWidget(
             image=encode_image(file_paths[file_index]),
@@ -174,6 +206,8 @@ class Labeler:
 
         left_arrow_btn = widgets.Button(icon = 'fa-arrow-left', layout=Layout(width='35px'))
         progress_label = widgets.Label(value=progress_txt)
+        current_img_name_label = widgets.Label(value=GetImageLabel(image))
+
         right_arrow_btn = widgets.Button(icon = 'fa-arrow-right', layout=Layout(width='35px'))
         save_btn = widgets.Button(icon = 'fa-check', description='Save',layout=Layout(width='70px'))
         predict_btn = widgets.Button(icon = 'fa-eye', description='Predict',layout=Layout(width='100px'))
@@ -182,14 +216,19 @@ class Labeler:
         new_class_text = widgets.Text(layout=Layout(width='200px'))
         plus_btn = widgets.Button(icon = 'fa-plus', layout=Layout(width='35px'))
 
-        button_row = widgets.HBox([
+        button_row_list = [
             left_arrow_btn, 
             progress_label,
             right_arrow_btn,
-            save_btn,
-            predict_btn,
-            train_btn 
-        ])
+            save_btn
+        ]
+
+        #If model arg is empty hide predict and train buttons
+        if yolo_model != None:
+            button_row_list = button_row_list + [predict_btn, train_btn]
+
+        button_row = widgets.HBox(button_row_list)
+        current_img_details_row = widgets.HBox([current_img_name_label])
 
         bottom_row = widgets.HBox([
             add_class_label,
@@ -197,7 +236,11 @@ class Labeler:
             plus_btn
         ])
 
-        pylabler = widgets.VBox([button_row, w_bbox,bottom_row])
+        pylabler = widgets.VBox([
+          current_img_details_row,
+          button_row, 
+          w_bbox,
+          bottom_row])
         
         save_btn.on_click(on_submit)
         left_arrow_btn.on_click(on_back)
