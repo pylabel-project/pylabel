@@ -225,7 +225,7 @@ class Labeler:
 
         #If model arg is empty hide predict and train buttons
         if yolo_model != None:
-            button_row_list = button_row_list + [predict_btn, train_btn]
+            button_row_list = button_row_list + [predict_btn] #train_btn
 
         button_row = widgets.HBox(button_row_list)
         current_img_details_row = widgets.HBox([current_img_name_label])

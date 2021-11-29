@@ -206,7 +206,7 @@ class Export():
 
         return output_file_paths
 
-    def ExportToYoloV5(self, output_path=None, yaml_file=None, copy_images=False):
+    def ExportToYoloV5(self, output_path=None, yaml_file=None, copy_images=False, use_splits=False):
         """ Writes annotation files to disk and returns path to files.
         
         Args:
@@ -225,6 +225,11 @@ class Export():
                 If True, then the annotated images will be copied to a directory next to the labels directory into 
                 a directory named 'images'. This will prepare your labels and images to be used as inputs to 
                 train a YOLOv5 model. 
+            use_splits (boolean):
+                If True, then the images and annotations will be moved into directories based on the values in the split column.
+                For example, if a row has the value split = "train" then the annotations for that row will be moved to directory 
+                /train. If a YAML file is specificied then the YAML file will use the splits to specify the folders user for the
+                train, val, and test datasets. 
         Returns:
             A list with 1 or more paths (strings) to annotations files. If a YAML file is created
             then the first item in the list will be the path to the YAML file. 
@@ -233,6 +238,9 @@ class Export():
 
         #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
         yolo_dataset = ds.df.copy(deep=True)
+        #Convert nan values in the split collumn from nan to '' because those are easier to with with when building paths
+        yolo_dataset.split = yolo_dataset.split.fillna('')
+
 
         #Create all of the paths that will be used to manage the files in this dataset 
         path_dict ={}
@@ -282,7 +290,15 @@ class Export():
         for img_filename in unique_images:
                 df_single_img_annots = yolo_dataset.loc[yolo_dataset.img_filename == img_filename]
                 annot_txt_file = img_filename.split(".")[0] + ".txt"
-                destination = f"{dest_folder}/{annot_txt_file}"
+                #Use the value of the split collumn to create a directory 
+                #The values should be train, val, test or '' 
+                if use_splits:
+                    split_dir = df_single_img_annots.iloc[0].split
+                else:
+                    split_dir = split_dir
+                destination = str(PurePath(dest_folder, split_dir, annot_txt_file))
+                Path(dest_folder, split_dir,).mkdir(parents=True, exist_ok=True) 
+
                 df_single_img_annots.to_csv(
                     destination,
                     index=False,
@@ -305,15 +321,34 @@ class Export():
 
                     current_file = Path(source_image_path)
                     assert current_file.is_file, f"File does not exist: {source_image_path}. Check img_folder column values."
-                    shutil.copy(str(source_image_path), str(PurePath(path_dict["image_path"], img_filename)))  
+                    Path(path_dict["image_path"], split_dir).mkdir(parents=True, exist_ok=True) 
+                    shutil.copy(str(source_image_path), str(PurePath(path_dict["image_path"], split_dir, img_filename)))  
 
         #Create YAML file
         if yaml_file:
+            #Make a set with all of the different values of the split column 
+            splits = set(yolo_dataset.split)
             #Build a dict with all of the values that will go into the YAML file
             dict_file = {}
             dict_file["path"] = path_dict["root_path_from_yolo_dir"] 
-            dict_file["train"] = path_dict["image_path"]
-            dict_file["val"] = path_dict["image_path"]
+
+            #If train is one of the splits, append train to path 
+
+            if use_splits and "train" in splits:
+                dict_file["train"] = str(PurePath(path_dict["image_path"],"train"))
+            else:
+                dict_file["train"] = path_dict["image_path"]
+
+            #If val is one of the splits, append val to path 
+            if use_splits and "val" in splits:
+                dict_file["val"] = str(PurePath(path_dict["image_path"], "val"))
+            else:
+                dict_file["val"] = path_dict["image_path"]
+
+            #If test is one of the splits, make a test param and add test to the path
+            if use_splits and "test" in splits:
+                dict_file["test"] = str(PurePath(path_dict["image_path"], "val"))
+
             dict_file["nc"] = ds.analyze.num_classes
             dict_file["names"] = ds.analyze.classes
 
