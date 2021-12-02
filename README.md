@@ -22,6 +22,7 @@ See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pyl
 - [voc2coco.ipynb](https://github.com/pylabel-project/samples/blob/main/voc2coco.ipynb)
 - [yolo2coco.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo2coco.ipynb)
 - [yolo2voc.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo2voc.ipynb)
+- [yolo_with_yaml_importer.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo_with_yaml_importer.ipynb) 
 
 ## About PyLabel 
 PyLabel is being developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabelalpha/package/issues). Please let us know how we can make PyLabel more useful. 
