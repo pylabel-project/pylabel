@@ -1,30 +1,34 @@
 # PyLabel 
 
-```pip install pylabel```
-<br><br>
-<img src="https://img.shields.io/pypi/dm/pylabel?style=plastic">
+```
+pip install pylabel
+```
+<img src="https://img.shields.io/pypi/dm/pylabel?style=plastic">&nbsp;&nbsp;&nbsp;<a href="https://colab.research.google.com/github/pylabel-project/samples/blob/main/coco2voc.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+<p><p>
+PyLabel is a Python package to help you prepare image datasets for computer vision models including PyTorch and YOLOv5. It can translate bounding box annotations between different formats. (For example, COCO to YOLO.) And it includes an AI-assisted labeling tool that runs in a Jupyter notebook. 
 
-PyLabel is a Python package to help computer vision practitioners get labelled data sets ready to be used in deep learning models. The core functionality is to translate bounding box annotations between different formats-for example, from coco to yolo. 
-
-## PyLabel capabilities: 
--	**Import/Export:** Translate annotation formats. PyLabel currently supports Coco, VOC, and Yolo bounding box formats. The task of converting formats can be accomplished with 2 commands--import and export. 
+-	**Translate:** Convert annotation formats with a single line of code: 
     ```
-    from pylabel import importer
-    dataset = importer.ImportCoco(path_to_annotations)
-    dataset.ExportToVOC()
+    importer.ImportCoco(path_to_annotations).ExportToYoloV5()
     ```
--	**Analyze:** PyLabel can help you explore your visual datasets be providing summary statistics such as the count of images and classes to help you identify class imbalances. 
--	**Visualize:** Render images from your dataset with bounding boxes overlaid so you can confirm the accuracy of the annotations. PyLabel uses the [bbox-visualizer](https://github.com/shoumikchow/bbox-visualizer) package to draw bounding boxes. 
--	**Split (Coming Soon):** Spilt image datasets into train, test, and val with stratification to get consistent class distribution across the split datasets.  
+-	**Analyze:** PyLabel stores annotatations in a pandas dataframe so you can easily perform analysis on image datasets. 
+-	**Visualize:** Render images from your dataset with bounding boxes overlaid so you can confirm the accuracy of the annotations. 
+-	**Split** Spilt: Divide image datasets into train, test, and val with stratification to get consistent class distribution.  <br><img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/pylabel_assets/train_test_split.png">
+-  **Label:** PyLabel also includes an image labeling tool that runs in a Jupyter notebook that can annotate images manually or perform automatic labeling using a pre-trained model.<br><br><img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/pylabel_assets/pylaber_screenshot.png" width=400>
 
-## Sample Notebooks
+
+
+## Tutorial Notebooks
 See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pylabel-project/samples/):<br>
-- [coco2voc.ipynb](https://github.com/pylabel-project/samples/blob/main/coco2voc.ipynb)
-- [coco2yolov5.ipynb](https://github.com/pylabel-project/samples/blob/main/coco2yolov5.ipynb)
-- [voc2coco.ipynb](https://github.com/pylabel-project/samples/blob/main/voc2coco.ipynb)
-- [yolo2coco.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo2coco.ipynb)
-- [yolo2voc.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo2voc.ipynb)
-- [yolo_with_yaml_importer.ipynb](https://github.com/pylabel-project/samples/blob/main/yolo_with_yaml_importer.ipynb) 
+- [Convert COCO to YOLO](https://github.com/pylabel-project/samples/blob/main/coco2yolov5.ipynb)
+- [Convert COCO to VOC](https://github.com/pylabel-project/samples/blob/main/coco2voc.ipynb)
+- [Convert VOC to COCO](https://github.com/pylabel-project/samples/blob/main/voc2coco.ipynb)
+- [Convert YOLO to COCO](https://github.com/pylabel-project/samples/blob/main/yolo2coco.ipynb)
+- [Convert YOLO to VOC](https://github.com/pylabel-project/samples/blob/main/yolo2voc.ipynb)
+- [Import a YOLO YAML File](https://github.com/pylabel-project/samples/blob/main/yolo_with_yaml_importer.ipynb) 
+- [Splitting Images Datasets into Train, Test, Val](https://github.com/pylabel-project/samples/blob/main/dataset_splitting.ipynb)
+- [Labeling Tool Demo with AI Assisted Labeling](https://github.com/pylabel-project/samples/blob/main/pylabeler.ipynb)
+
 
 ## About PyLabel 
 PyLabel is being developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabelalpha/package/issues). Please let us know how we can make PyLabel more useful. 
