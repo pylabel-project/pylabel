@@ -333,7 +333,6 @@ class Export():
             dict_file["path"] = path_dict["root_path_from_yolo_dir"] 
 
             #If train is one of the splits, append train to path 
-
             if use_splits and "train" in splits:
                 dict_file["train"] = str(PurePath(path_dict["image_path"],"train"))
             else:
@@ -343,11 +342,12 @@ class Export():
             if use_splits and "val" in splits:
                 dict_file["val"] = str(PurePath(path_dict["image_path"], "val"))
             else:
-                dict_file["val"] = path_dict["image_path"]
+            #If there is no val split, use the train split as the val split
+                dict_file["val"] = dict_file["train"] 
 
             #If test is one of the splits, make a test param and add test to the path
             if use_splits and "test" in splits:
-                dict_file["test"] = str(PurePath(path_dict["image_path"], "val"))
+                dict_file["test"] = str(PurePath(path_dict["image_path"], "test"))
 
             dict_file["nc"] = ds.analyze.num_classes
             dict_file["names"] = ds.analyze.classes
