@@ -1,6 +1,8 @@
 # PyLabel 
 
 ```pip install pylabel```
+<br><br>
+<img src="https://img.shields.io/pypi/dm/pylabel?style=plastic">
 
 PyLabel is a Python package to help computer vision practitioners get labelled data sets ready to be used in deep learning models. The core functionality is to translate bounding box annotations between different formats-for example, from coco to yolo. 
 
