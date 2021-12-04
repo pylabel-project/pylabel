@@ -472,4 +472,4 @@ class Export():
             
         with open(output_path, 'w') as outfile:
             json.dump(obj=json_output, fp=outfile, indent=4)
-        return [str(output_path)] 
+        return [str(output_path)]

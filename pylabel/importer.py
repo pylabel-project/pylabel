@@ -69,6 +69,13 @@ def ImportCoco(path, path_to_images=None, name=""):
     df.index.name = "id"
     df.annotated = 1
 
+    #These should be strings
+    df.cat_id = df.cat_id.astype(str)
+
+    #These should be integers
+    df.img_width = df.img_width.astype(int)
+    df.img_height = df.img_height.astype(int)
+
     dataset = Dataset(df)
 
     #Assign the filemame (without extension) as the name of the dataset
@@ -152,6 +159,12 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
     df.index.name = "id"
     df.annotated = 1
 
+    #These should be strings
+    df.cat_id = df.cat_id.astype(str)
+
+    #These should be integers
+    df.img_width = df.img_width.astype(int)
+    df.img_height = df.img_height.astype(int)
 
     #Reorder columns
     df = df[schema]
@@ -228,6 +241,13 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
     df.index.name = "id"
     df.annotated = 1
+
+    #These should be strings
+    df.cat_id = df.cat_id.astype(str)
+
+    #These should be integers
+    df.img_width = df.img_width.astype(int)
+    df.img_height = df.img_height.astype(int)
 
     #Reorder columns
     dataset = Dataset(df)
