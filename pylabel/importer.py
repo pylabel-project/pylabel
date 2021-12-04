@@ -35,8 +35,20 @@ def ImportCoco(path, path_to_images=None, name=""):
     #Store the 3 sections of the json as seperate json arrays
     images = pd.json_normalize(annotations_json["images"])
     images.columns = 'img_' + images.columns
+    try:
+        images["img_folder"]
+    except:
+        images["img_folder"] = ""
+    #print(images)
     images["img_folder"] = _GetValueOrBlank(images["img_folder"], path_to_images)
-    images = images.astype({'img_width': 'int64','img_height': 'int64','img_depth': 'int64'})
+    astype_dict = {'img_width': 'int64','img_height': 'int64','img_depth': 'int64'}
+    astype_keys = list(astype_dict.keys())
+    for element in astype_keys:
+        if element not in images.columns:
+            astype_dict.pop(element)
+    #print(astype_dict)
+    #images = images.astype({'img_width': 'int64','img_height': 'int64','img_depth': 'int64'})
+    images = images.astype(astype_dict)
 
     annotations = pd.json_normalize(annotations_json["annotations"])
     annotations.columns = 'ann_' + annotations.columns
