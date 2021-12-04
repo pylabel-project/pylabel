@@ -206,7 +206,7 @@ class Export():
 
         return output_file_paths
 
-    def ExportToYoloV5(self, output_path=None, yaml_file=None, copy_images=False, use_splits=False):
+    def ExportToYoloV5(self, output_path='training/labels', yaml_file='dataset.yaml', copy_images=False, use_splits=False):
         """ Writes annotation files to disk and returns path to files.
         
         Args:
@@ -295,7 +295,7 @@ class Export():
                 if use_splits:
                     split_dir = df_single_img_annots.iloc[0].split
                 else:
-                    split_dir = split_dir
+                    split_dir = '' 
                 destination = str(PurePath(dest_folder, split_dir, annot_txt_file))
                 Path(dest_folder, split_dir,).mkdir(parents=True, exist_ok=True) 
 
@@ -472,4 +472,4 @@ class Export():
             
         with open(output_path, 'w') as outfile:
             json.dump(obj=json_output, fp=outfile, indent=4)
-        return [str(output_path)]
+        return [str(output_path)] 

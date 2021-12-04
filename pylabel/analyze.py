@@ -11,7 +11,7 @@ class Analyze:
     @property 
     def classes(self):
         cat_names = list(self.dataset.df.cat_name.unique())
-        return [i for i in cat_names if i.strip() != '']
+        return [i for i in cat_names if str(i).strip() != '']
 
     @property 
     def class_counts(self):
@@ -20,7 +20,7 @@ class Analyze:
     @property 
     def num_classes(self):
         cat_names = list(self.dataset.df.cat_name.unique())
-        return len([i for i in cat_names if i.strip() != ''])
+        return len([i for i in cat_names if str(i).strip() != ''])
         
     @property 
     def num_images(self):
