@@ -40,7 +40,11 @@ def ImportCoco(path, path_to_images=None, name=""):
     except:
         images["img_folder"] = ""
     #print(images)
-    images["img_folder"] = _GetValueOrBlank(images["img_folder"], path_to_images)
+
+    #If the user has specified a different image folder then use that one
+    if path_to_images != None:
+        images["img_folder"] = path_to_images
+
     astype_dict = {'img_width': 'int64','img_height': 'int64','img_depth': 'int64'}
     astype_keys = list(astype_dict.keys())
     for element in astype_keys:
