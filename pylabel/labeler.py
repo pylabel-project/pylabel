@@ -192,7 +192,7 @@ class Labeler:
             classes = dataset.analyze.classes 
 
         #remove empty labels and duplicate labels
-        classes = list(set([c.strip() for c in classes if len(c.strip()) > 0]))
+        classes = list(set([str(c).strip() for c in classes if len(str(c).strip()) > 0]))
         
         #Load BBoxWidget for first load on page
         w_bbox = BBoxWidget(
