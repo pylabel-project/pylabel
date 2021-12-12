@@ -22,4 +22,3 @@ class Dataset:
         self.analyze = Analyze(dataset=self)
         self.labeler = Labeler(self)
         self.splitter = Split(dataset=self)
-

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit as sklearnGroupShuffleSplit
+from pylabel.constants import schema
 
 class Split():
     def  __init__(self, dataset=None):
@@ -10,17 +11,18 @@ class Split():
         """Unsplit the dataset by setting all values of the split column to null."""
         self.dataset.df["split"] = np.nan
 
-    def GroupShuffleSplit(df_main, train_pct=.6, test_pct=.25, val_pct=.25, group_col = 'img_filename', random_state=None):
+    def GroupShuffleSplit(self, train_pct=.5, test_pct=.25, val_pct=.25, group_col = 'img_filename', random_state=None):
         """
         This function uses the GroupShuffleSplit command from sklearn. It can split into 3 groups (train,
         test, and val) by applying the command twice. 
         """
-
+        df_main = self.dataset.df
         gss = sklearnGroupShuffleSplit(n_splits=1, train_size=train_pct)
         train_indexes, test_indexes = next(gss.split(X=df_main, y=df_main[group_col], groups=df_main.index.values))
 
         df_main.loc[train_indexes,'split'] = "train"
         df_main.loc[test_indexes,'split'] = "test"
+        self.dataset.df = df_main
 
         if val_pct:
             df_train = df_main.loc[df_main['split'] == 'train']
@@ -31,20 +33,19 @@ class Split():
             test_indexes_2, val_indexes_2 = next(gss2.split(X=df_test, y=df_test[group_col], groups=df_test.index.values))
             df_test.loc[test_indexes_2,'split'] = "test"
             df_test.loc[val_indexes_2,'split'] = "val"
-            return df_train.append(df_test)
-
-        else:
-            return df_main
+            self.dataset.df = df_train.append(df_test)
+        self.dataset.df = self.dataset.df.reset_index(drop=True)
+        self.dataset.df = self.dataset.df[schema]
 
     #Written with the help of https://stackoverflow.com/questions/56872664/complex-dataset-split-stratifiedgroupshufflesplit 
-    def StratifiedGroupShuffleSplit(df_main, train_pct=.7, test_pct=.3, val_pct=.0, weight=0.01, 
+    def StratifiedGroupShuffleSplit(self, train_pct=.7, test_pct=.3, val_pct=.0, weight=0.01, 
         group_col = 'img_filename', cat_col = 'cat_name', batch_size=1):
         """
         This function will 'split" the dataframe by setting the split collumn equal to 
         train, test, or val. When a split dataset is exported the annotations will be split into
         seperate groups so that can be used used in model training, testing, and validation.
         """
-
+        df_main = self.dataset.df
         df_main = df_main.reindex(np.random.permutation(df_main.index)) # shuffle dataset
 
         # create empty train, val and test datasets
@@ -146,4 +147,6 @@ class Split():
         
         assert df.shape == df_main.shape, "Output shape does not match input shape. Data loss has occured."
 
-        return df
+        self.dataset.df = df
+        self.dataset.df = self.dataset.df.reset_index(drop=True)
+        self.dataset.df = self.dataset.df[schema]
