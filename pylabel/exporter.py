@@ -238,8 +238,9 @@ class Export():
 
         #Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py 
         yolo_dataset = ds.df.copy(deep=True)
-        #Convert nan values in the split collumn from nan to '' because those are easier to with with when building paths
+        #Convert nan values in the split column from nan to '' because those are easier to with with when building paths
         yolo_dataset.split = yolo_dataset.split.fillna('')
+        
 
 
         #Create all of the paths that will be used to manage the files in this dataset 
@@ -374,7 +375,12 @@ class Export():
         Returns:
             A list with 1 or more paths (strings) to annotations files.
         """
-        df = self.dataset.df
+        #Copy the dataframe in the dataset so the original dataset doesn't change when you apply the export tranformations
+        df = self.dataset.df.copy(deep=True)
+        #Most the 
+        df['cat_id'] = df['cat_id'].astype('int') 
+        df['ann_iscrowd'] = df['ann_iscrowd'].fillna(0)
+
         df_outputI = []
         df_outputA = []
         df_outputC = []
