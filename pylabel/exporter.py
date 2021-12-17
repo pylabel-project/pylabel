@@ -360,7 +360,7 @@ class Export():
 
         return output_file_paths
 
-    def ExportToCoco(self, output_path=None) -> List:
+    def ExportToCoco(self, output_path=None, index_base=1) -> List:
         """ 
         Writes annotation files to disk and returns path to files.
 
@@ -377,9 +377,13 @@ class Export():
         """
         #Copy the dataframe in the dataset so the original dataset doesn't change when you apply the export tranformations
         df = self.dataset.df.copy(deep=True)
-        #Most the 
+        #Tweak dataset for standardized output
         df['cat_id'] = df['cat_id'].astype('int') 
         df['ann_iscrowd'] = df['ann_iscrowd'].fillna(0)
+        #Map cat_ids to the range [index_base, index_base + num_cats)
+        unique_ids = np.sort(df['cat_id'].unique())
+        ids_dict = dict((v, k) for k, v in enumerate(unique_ids, index_base))
+        df['cat_id'] = df['cat_id'].map(ids_dict)
 
         df_outputI = []
         df_outputA = []
