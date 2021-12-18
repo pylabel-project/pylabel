@@ -7,6 +7,7 @@ import xml.dom.minidom
 import os 
 import yaml
 import shutil
+from pylabel.shared import _ReindexCatIds
 
 from pathlib import PurePath, Path
 
@@ -206,7 +207,7 @@ class Export():
 
         return output_file_paths
 
-    def ExportToYoloV5(self, output_path='training/labels', yaml_file='dataset.yaml', copy_images=False, use_splits=False):
+    def ExportToYoloV5(self, output_path='training/labels', yaml_file='dataset.yaml', copy_images=False, use_splits=False, cat_id_index=None):
         """ Writes annotation files to disk and returns path to files.
         
         Args:
@@ -230,6 +231,13 @@ class Export():
                 For example, if a row has the value split = "train" then the annotations for that row will be moved to directory 
                 /train. If a YAML file is specificied then the YAML file will use the splits to specify the folders user for the
                 train, val, and test datasets. 
+            cat_id_index (int):
+                Reindex the cat_id values so that that they start from an int (usually 0 or 1) and 
+                then increment the cat_ids to index + number of categories continuously. 
+                It's useful if the cat_ids are not continuous in the original dataset. 
+                Some models like Yolo require starting from 0 and others like Detectron require starting from 1.
+
+
         Returns:
             A list with 1 or more paths (strings) to annotations files. If a YAML file is created
             then the first item in the list will be the path to the YAML file. 
@@ -268,9 +276,12 @@ class Export():
         #Note, having zero annotates can still be considered annotated 
         #in cases when are no objects in the image thats should be indentified
         yolo_dataset = yolo_dataset.loc[yolo_dataset["annotated"] == 1]
+        yolo_dataset['cat_id'] = yolo_dataset['cat_id'].astype('int') 
 
-        yolo_dataset.cat_id = yolo_dataset.cat_id.str.strip()
-        yolo_dataset.cat_id = yolo_dataset.cat_id.astype('float').astype('Int32')
+        if cat_id_index != None:
+            assert isinstance(cat_id_index, int), "cat_id_index must be an int."
+            _ReindexCatIds(yolo_dataset, cat_id_index)
+
         yolo_dataset["center_x_scaled"] = (yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"]*0.5))/yolo_dataset["img_width"]
         yolo_dataset["center_y_scaled"] = (yolo_dataset["ann_bbox_ymin"] + (yolo_dataset["ann_bbox_height"]*0.5))/yolo_dataset["img_height"]
         yolo_dataset["width_scaled"] = yolo_dataset["ann_bbox_width"] / yolo_dataset["img_width"]
@@ -360,17 +371,22 @@ class Export():
 
         return output_file_paths
 
-    def ExportToCoco(self, output_path=None, index_base=1) -> List:
+    def ExportToCoco(self, output_path=None, cat_id_index=None) -> List:
         """ 
         Writes annotation files to disk and returns path to files.
 
         Args:
             dataset (obj): 
                 A dataset object that contains the annotations and metadata.
-            output_path (str or None): 
+            output_path (str): 
                 This is where the annotation files will be written.
                 If not-specified then the path will be derived from the .path_to_annotations and
                 .name properties of the dataset object. 
+            cat_id_index (int):
+                Reindex the cat_id values so that that they start from an int (usually 0 or 1) and 
+                then increment the cat_ids to index + number of categories continuously. 
+                It's useful if the cat_ids are not continuous in the original dataset. 
+                Some models like Yolo require starting from 0 and others like Detectron require starting from 1.
 
         Returns:
             A list with 1 or more paths (strings) to annotations files.
@@ -380,10 +396,10 @@ class Export():
         #Tweak dataset for standardized output
         df['cat_id'] = df['cat_id'].astype('int') 
         df['ann_iscrowd'] = df['ann_iscrowd'].fillna(0)
-        #Map cat_ids to the range [index_base, index_base + num_cats)
-        unique_ids = np.sort(df['cat_id'].unique())
-        ids_dict = dict((v, k) for k, v in enumerate(unique_ids, index_base))
-        df['cat_id'] = df['cat_id'].map(ids_dict)
+
+        if cat_id_index != None:
+            assert isinstance(cat_id_index, int), "cat_id_index must be an int."
+            _ReindexCatIds(df, cat_id_index)
 
         df_outputI = []
         df_outputA = []

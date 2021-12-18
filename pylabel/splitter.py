@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit as sklearnGroupShuffleSplit
-from pylabel.constants import schema
+from pylabel.shared import schema
 
 class Split():
     def  __init__(self, dataset=None):

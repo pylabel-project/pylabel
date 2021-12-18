@@ -8,7 +8,7 @@ import copy
 import cv2
 import yaml
 
-from pylabel.constants import schema
+from pylabel.shared import schema
 from pylabel.dataset import Dataset
 from pylabel.exporter import Export
 
@@ -273,21 +273,20 @@ def ImportYoloV5(path, img_ext="jpg",cat_names=[], path_to_images="", name="data
     return dataset
 
 
-def ImportImagesOnly(path, ends_with=None, name="dataset"):
+def ImportImagesOnly(path, name="dataset"):
     """Import a directory of images as a dataset with no annotations.
-    Then use PyLabel to annote the images.
+    Then use PyLabel to annote the images. Will import images with these extensions:
+    ('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')
     
-        
     Args:
         path (str): 
             The path to the directory with the images. 
-        ends_with, optional(tuple or None): 
-            Specify which file types to import. 
-            Use if there are files in the directly that you don't wnat to import.
-
+        name (str):
+            Descriptive name, which is used when outputting files.
     Returns:
         A dataset object with one row for each image and no annotations. 
     """
+
     #Create an empty dataframe
     df = pd.DataFrame(columns=schema) 
 
@@ -298,15 +297,19 @@ def ImportImagesOnly(path, ends_with=None, name="dataset"):
 
     # iterate over files in that directory
     for filename in os.scandir(path):
-        if filename.is_file() and filename.name.endswith(ends_with):
-            filepath = filename.path
-            #file = open(filepath, 'r')  # Read file
-
+        if filename.is_file() and filename.name.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
             row = {}
             row["img_folder"] = ""
             row["img_filename"] = filename.name
             image_path = PurePath(path, row["img_filename"])
             im = cv2.imread(str(image_path))
+
+            try:
+                #If the file is not an image then this will fail 
+                im.shape
+            except:
+                raise ValueError(f"Error reading file '{image_path}'. Exclude non-image files by using the ends_width param.") 
+
             img_height, img_width, img_depth =  im.shape
 
             row["img_id"] = img_id
@@ -314,7 +317,6 @@ def ImportImagesOnly(path, ends_with=None, name="dataset"):
             row["img_height"] = img_height
             row["img_depth"] = img_depth
             row["cat_name"] = ''
-
 
             #Add this row to the dict
             d[img_id] = row
