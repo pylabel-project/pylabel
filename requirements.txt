@@ -8,3 +8,4 @@ jupyter_bbox_widget
 pyyaml
 pytest
 pytest-lazy-fixture
+black
