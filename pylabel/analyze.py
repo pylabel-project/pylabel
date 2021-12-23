@@ -13,6 +13,12 @@ class Analyze:
         cat_names = list(self.dataset.df.cat_name.unique())
         return [i for i in cat_names if str(i).strip() != '']
 
+    @property
+    def class_ids(self):
+        cat_ids = list(self.dataset.df.cat_id.astype('int').unique())
+        cat_ids.sort()
+        return cat_ids
+
     @property 
     def class_counts(self):
         return self.dataset.df["cat_name"].value_counts(dropna=False)
