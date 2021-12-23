@@ -10,9 +10,12 @@ class Analyze:
     
     @property 
     def classes(self):
-        cat_names = list(self.dataset.df.cat_name.unique())
-        return [i for i in cat_names if str(i).strip() != '']
+        """Return list of cat names sorted by cat_id value"""
+        categories  = dict(zip(self.dataset.df.cat_name, self.dataset.df.cat_id.astype('int')))
+        categories = sorted(categories.items(), key=lambda x: x[1])
+        return [c[0] for c in categories if str(c[0]).strip() != '']
 
+ 
     @property
     def class_ids(self):
         cat_ids = list(self.dataset.df.cat_id.astype('int').unique())
