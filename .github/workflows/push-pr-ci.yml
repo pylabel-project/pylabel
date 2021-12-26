@@ -27,5 +27,5 @@ jobs:
     - name: Test notebooks with pytest + nbmake
       run: |
         git clone https://github.com/pylabel-project/samples.git
-        mv samples/*.ipynb .
+        mv samples/*.ipynb ..
         pytest --nbmake  "dataset_splitting.ipynb" "coco2voc.ipynb" "yolo2coco.ipynb" "yolo2voc.ipynb"
