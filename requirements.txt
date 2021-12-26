@@ -9,3 +9,4 @@ pyyaml
 pytest
 pytest-lazy-fixture
 black
+nbmake
