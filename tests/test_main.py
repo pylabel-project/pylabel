@@ -2,7 +2,6 @@ import pytest
 from pylabel import importer
 import pandas as pd
 
-
 # Test the importing
 # Create a dataset
 @pytest.fixture()
@@ -158,9 +157,15 @@ def test_num_classes(coco_dataset):
     ), "analyze.num_images should return an int"
 
 
-def test_classes(coco_dataset):
+def test_classes_coco(coco_dataset):
     assert isinstance(
         coco_dataset.analyze.classes, list
+    ), "analyze.classes should return a list"
+
+
+def test_classes_unlabeled(unlabeled_dataset):
+    assert isinstance(
+        unlabeled_dataset.analyze.classes, list
     ), "analyze.classes should return a list"
 
 
@@ -169,6 +174,3 @@ def test_export_coco(coco_dataset):
     assert isinstance(
         path_to_coco_export[0], str
     ), "ExportToCoco should return a list with one or more strings."
-
-
-# Add tests for non-labeled datasets
