@@ -1,5 +1,5 @@
 .. PyLabel documentation master file, created by
-   sphinx-quickstart on Sat Dec 18 15:34:02 2021.
+   sphinx-quickstart on Wed Dec 29 08:47:55 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
