@@ -17,7 +17,8 @@
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -26,6 +27,7 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
             <a href="index.html" class="icon icon-home"> PyLabel
+            <img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/arrow_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -35,23 +37,23 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">pylabel package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-pylabel.analyze">pylabel.analyze module</a></li>
-<li><a class="reference internal" href="#module-pylabel.dataset">pylabel.dataset module</a></li>
-<li><a class="reference internal" href="#module-pylabel.exporter">pylabel.exporter module</a></li>
-<li><a class="reference internal" href="#module-pylabel.importer">pylabel.importer module</a></li>
-<li><a class="reference internal" href="#module-pylabel.labeler">pylabel.labeler module</a></li>
-<li><a class="reference internal" href="#module-pylabel.shared">pylabel.shared module</a></li>
-<li><a class="reference internal" href="#module-pylabel.splitter">pylabel.splitter module</a></li>
-<li><a class="reference internal" href="#module-pylabel.visualize">pylabel.visualize module</a></li>
-<li><a class="reference internal" href="#module-pylabel">Module contents</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pylabel package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.analyze">pylabel.analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.dataset">pylabel.dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.exporter">pylabel.exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.importer">pylabel.importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.labeler">pylabel.labeler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.shared">pylabel.shared module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.splitter">pylabel.splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel.visualize">pylabel.visualize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pylabel">Module contents</a></li>
 </ul>
 </li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -77,60 +79,126 @@
            <div itemprop="articleBody">
              
   <section id="pylabel-package">
-<h1>pylabel package<a class="headerlink" href="#pylabel-package" title="Permalink to this headline"></a></h1>
+<h1>pylabel package<a class="headerlink" href="#pylabel-package" title="Permalink to this headline">¶</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="module-pylabel.analyze">
-<span id="pylabel-analyze-module"></span><h2>pylabel.analyze module<a class="headerlink" href="#module-pylabel.analyze" title="Permalink to this headline"></a></h2>
+<span id="pylabel-analyze-module"></span><h2>pylabel.analyze module<a class="headerlink" href="#module-pylabel.analyze" title="Permalink to this headline">¶</a></h2>
+<p>The analyze module analyzes the contents of the dataset and provides summary statistics
+such as the count of images and classes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.analyze.</span></span><span class="sig-name descname"><span class="pre">Analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/analyze.html#Analyze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.analyze.Analyze" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.analyze.</span></span><span class="sig-name descname"><span class="pre">Analyze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/analyze.html#Analyze"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.analyze.Analyze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze.ShowClassSplits">
-<span class="sig-name descname"><span class="pre">ShowClassSplits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/analyze.html#Analyze.ShowClassSplits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.analyze.Analyze.ShowClassSplits" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">ShowClassSplits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/analyze.html#Analyze.ShowClassSplits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.analyze.Analyze.ShowClassSplits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the distribution of classes across train, val, and
+test splits of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize</strong> (<em>bool</em>) – Defaults to True.
+If True, then will return the relative frequencies of the classes between 0 and 1.
+If False, then will return the absolute counts of each class.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze.class_counts">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">class_counts</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.class_counts" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">class_counts</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.class_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts the numbers of instances of each class in the dataset. Uses the Pandas value_counts
+method and returns a Pandas Series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pandas Series</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">class_counts</span>
+<span class="go">squirrel  50</span>
+<span class="go">nut       100</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze.class_ids">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">class_ids</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.class_ids" title="Permalink to this definition"></a></dt>
-<dd><p>Return sorted list of cat ids</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">class_ids</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.class_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sorted list of all cat ids in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">class_ids</span>
+<span class="go">[0,1]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze.classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.classes" title="Permalink to this definition"></a></dt>
-<dd><p>Return list of cat names sorted by cat_id value</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of all cat names in the dataset sorted by cat_id value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">classes</span>
+<span class="go">[&quot;Squirrel&quot;, &quot;Nut&quot;]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze.num_classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_classes</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.num_classes" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_classes</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.num_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts the unique number of classes in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Int</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">num_classes</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pylabel.analyze.Analyze.num_images">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_images</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.num_images" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_images</span></span><a class="headerlink" href="#pylabel.analyze.Analyze.num_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts the number of images in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Int</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">num_images</span>
+<span class="go">100</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-pylabel.dataset">
-<span id="pylabel-dataset-module"></span><h2>pylabel.dataset module<a class="headerlink" href="#module-pylabel.dataset" title="Permalink to this headline"></a></h2>
+<span id="pylabel-dataset-module"></span><h2>pylabel.dataset module<a class="headerlink" href="#module-pylabel.dataset" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.dataset.Dataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.dataset.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.Dataset" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.dataset.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.Dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.dataset.Dataset.ReindexCatIds">
-<span class="sig-name descname"><span class="pre">ReindexCatIds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cat_id_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#Dataset.ReindexCatIds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.Dataset.ReindexCatIds" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ReindexCatIds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cat_id_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#Dataset.ReindexCatIds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.Dataset.ReindexCatIds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reindex the values of the cat_id column so that that they start from an int (usually 0 or 1) and
 then increment the cat_ids to index + number of categories.
 It’s useful if the cat_ids are not continuous, especially for dataset subsets,
@@ -142,20 +210,20 @@ like Detectron require starting from 1.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.dataset.FilterList">
-<span class="sig-prename descclassname"><span class="pre">pylabel.dataset.</span></span><span class="sig-name descname"><span class="pre">FilterList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">the_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#FilterList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.FilterList" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.dataset.</span></span><span class="sig-name descname"><span class="pre">FilterList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">the_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#FilterList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.FilterList" title="Permalink to this definition">¶</a></dt>
 <dd><p>To do: Check why this code is here</p>
 </dd></dl>
 
 </section>
 <section id="module-pylabel.exporter">
-<span id="pylabel-exporter-module"></span><h2>pylabel.exporter module<a class="headerlink" href="#module-pylabel.exporter" title="Permalink to this headline"></a></h2>
+<span id="pylabel-exporter-module"></span><h2>pylabel.exporter module<a class="headerlink" href="#module-pylabel.exporter" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.exporter.Export">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.exporter.</span></span><span class="sig-name descname"><span class="pre">Export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/exporter.html#Export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.exporter.</span></span><span class="sig-name descname"><span class="pre">Export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/exporter.html#Export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.exporter.Export.ExportToCoco">
-<span class="sig-name descname"><span class="pre">ExportToCoco</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_id_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="_modules/pylabel/exporter.html#Export.ExportToCoco"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export.ExportToCoco" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ExportToCoco</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_id_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span></span></span><a class="reference internal" href="_modules/pylabel/exporter.html#Export.ExportToCoco"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export.ExportToCoco" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes annotation files to disk and returns path to files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -178,12 +246,12 @@ Some models like Yolo require starting from 0 and others like Detectron require 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.exporter.Export.ExportToVoc">
-<span class="sig-name descname"><span class="pre">ExportToVoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmented_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occluded_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/exporter.html#Export.ExportToVoc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export.ExportToVoc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ExportToVoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmented_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occluded_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/exporter.html#Export.ExportToVoc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export.ExportToVoc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.exporter.Export.ExportToYoloV5">
-<span class="sig-name descname"><span class="pre">ExportToYoloV5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'training/labels'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_id_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/exporter.html#Export.ExportToYoloV5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export.ExportToYoloV5" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ExportToYoloV5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'training/labels'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_id_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/exporter.html#Export.ExportToYoloV5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.exporter.Export.ExportToYoloV5" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes annotation files to disk and returns path to files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -220,17 +288,17 @@ then the first item in the list will be the path to the YAML file.</p>
 
 </section>
 <section id="module-pylabel.importer">
-<span id="pylabel-importer-module"></span><h2>pylabel.importer module<a class="headerlink" href="#module-pylabel.importer" title="Permalink to this headline"></a></h2>
+<span id="pylabel-importer-module"></span><h2>pylabel.importer module<a class="headerlink" href="#module-pylabel.importer" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.importer.ImportCoco">
-<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportCoco</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportCoco"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportCoco" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportCoco</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportCoco"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportCoco" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function takes the path to an xml file in coco format as input.
 It returns a dataframe in the schema used by pylable to store annotations.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.importer.ImportImagesOnly">
-<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportImagesOnly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportImagesOnly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportImagesOnly" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportImagesOnly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportImagesOnly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportImagesOnly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Import a directory of images as a dataset with no annotations.
 Then use PyLabel to annote the images. Will import images with these extensions:
 (‘.png’, ‘.jpg’, ‘.jpeg’, ‘.tiff’, ‘.bmp’, ‘.gif’)</p>
@@ -249,17 +317,17 @@ Then use PyLabel to annote the images. Will import images with these extensions:
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.importer.ImportVOC">
-<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportVOC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportVOC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportVOC" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportVOC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportVOC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportVOC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.importer.ImportYoloV5">
-<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportYoloV5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jpg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportYoloV5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportYoloV5" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportYoloV5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jpg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dataset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportYoloV5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportYoloV5" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.importer.ImportYoloV5WithYaml">
-<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportYoloV5WithYaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jpg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'coco128'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_of_annotations_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'labels'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportYoloV5WithYaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportYoloV5WithYaml" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">ImportYoloV5WithYaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_ext</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jpg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'coco128'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_of_annotations_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'labels'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#ImportYoloV5WithYaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.ImportYoloV5WithYaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the YAML file to the format needed for the YOLO import.
 yaml_file: the file name of the yaml file to be imported.
 split_type: if none, the full list, otherwise can be a list of the type of the data to be imported;</p>
@@ -278,20 +346,20 @@ PyLabel uses the former to establish its pathing and the latter path to actually
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pylabel.importer.yaml_reader">
-<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">yaml_reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#yaml_reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.yaml_reader" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pylabel.importer.</span></span><span class="sig-name descname"><span class="pre">yaml_reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/importer.html#yaml_reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.importer.yaml_reader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Import the YAML File for the YOLOv5 data as dict.</p>
 </dd></dl>
 
 </section>
 <section id="module-pylabel.labeler">
-<span id="pylabel-labeler-module"></span><h2>pylabel.labeler module<a class="headerlink" href="#module-pylabel.labeler" title="Permalink to this headline"></a></h2>
+<span id="pylabel-labeler-module"></span><h2>pylabel.labeler module<a class="headerlink" href="#module-pylabel.labeler" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.labeler.Labeler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.labeler.</span></span><span class="sig-name descname"><span class="pre">Labeler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/labeler.html#Labeler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.labeler.Labeler" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.labeler.</span></span><span class="sig-name descname"><span class="pre">Labeler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/labeler.html#Labeler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.labeler.Labeler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.labeler.Labeler.StartPyLaber">
-<span class="sig-name descname"><span class="pre">StartPyLaber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yolo_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/labeler.html#Labeler.StartPyLaber"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.labeler.Labeler.StartPyLaber" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">StartPyLaber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yolo_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/labeler.html#Labeler.StartPyLaber"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.labeler.Labeler.StartPyLaber" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the bbox widget loaded with images and annotations from this dataset.</p>
 </dd></dl>
 
@@ -299,24 +367,24 @@ PyLabel uses the former to establish its pathing and the latter path to actually
 
 </section>
 <section id="module-pylabel.shared">
-<span id="pylabel-shared-module"></span><h2>pylabel.shared module<a class="headerlink" href="#module-pylabel.shared" title="Permalink to this headline"></a></h2>
+<span id="pylabel-shared-module"></span><h2>pylabel.shared module<a class="headerlink" href="#module-pylabel.shared" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="module-pylabel.splitter">
-<span id="pylabel-splitter-module"></span><h2>pylabel.splitter module<a class="headerlink" href="#module-pylabel.splitter" title="Permalink to this headline"></a></h2>
+<span id="pylabel-splitter-module"></span><h2>pylabel.splitter module<a class="headerlink" href="#module-pylabel.splitter" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.splitter.Split">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.splitter.</span></span><span class="sig-name descname"><span class="pre">Split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.splitter.</span></span><span class="sig-name descname"><span class="pre">Split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.splitter.Split.GroupShuffleSplit">
-<span class="sig-name descname"><span class="pre">GroupShuffleSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'img_filename'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split.GroupShuffleSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split.GroupShuffleSplit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">GroupShuffleSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'img_filename'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split.GroupShuffleSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split.GroupShuffleSplit" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function uses the GroupShuffleSplit command from sklearn. It can split into 3 groups (train,
 test, and val) by applying the command twice.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.splitter.Split.StratifiedGroupShuffleSplit">
-<span class="sig-name descname"><span class="pre">StratifiedGroupShuffleSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'img_filename'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cat_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split.StratifiedGroupShuffleSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split.StratifiedGroupShuffleSplit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">StratifiedGroupShuffleSplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'img_filename'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cat_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cat_name'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split.StratifiedGroupShuffleSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split.StratifiedGroupShuffleSplit" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function will ‘split” the dataframe by setting the split collumn equal to
 train, test, or val. When a split dataset is exported the annotations will be split into
 seperate groups so that can be used used in model training, testing, and validation.</p>
@@ -324,7 +392,7 @@ seperate groups so that can be used used in model training, testing, and validat
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.splitter.Split.UnSplit">
-<span class="sig-name descname"><span class="pre">UnSplit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split.UnSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split.UnSplit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">UnSplit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/splitter.html#Split.UnSplit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.splitter.Split.UnSplit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unsplit the dataset by setting all values of the split column to null.</p>
 </dd></dl>
 
@@ -332,14 +400,14 @@ seperate groups so that can be used used in model training, testing, and validat
 
 </section>
 <section id="module-pylabel.visualize">
-<span id="pylabel-visualize-module"></span><h2>pylabel.visualize module<a class="headerlink" href="#module-pylabel.visualize" title="Permalink to this headline"></a></h2>
+<span id="pylabel-visualize-module"></span><h2>pylabel.visualize module<a class="headerlink" href="#module-pylabel.visualize" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.visualize.Visualize">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.visualize.</span></span><span class="sig-name descname"><span class="pre">Visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/visualize.html#Visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.visualize.Visualize" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.visualize.</span></span><span class="sig-name descname"><span class="pre">Visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/visualize.html#Visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.visualize.Visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pylabel.visualize.Visualize.ShowBoundingBoxes">
-<span class="sig-name descname"><span class="pre">ShowBoundingBoxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">&lt;module</span> <span class="pre">'PIL.Image'</span> <span class="pre">from</span> <span class="pre">'/Users/alex/Code/package/penv/lib/python3.8/site-packages/PIL/Image.py'&gt;</span></span></span><a class="reference internal" href="_modules/pylabel/visualize.html#Visualize.ShowBoundingBoxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.visualize.Visualize.ShowBoundingBoxes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ShowBoundingBoxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">&lt;module</span> <span class="pre">'PIL.Image'</span> <span class="pre">from</span> <span class="pre">'/Users/alex/Code/package/penv/lib/python3.8/site-packages/PIL/Image.py'&gt;</span></span></span><a class="reference internal" href="_modules/pylabel/visualize.html#Visualize.ShowBoundingBoxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.visualize.Visualize.ShowBoundingBoxes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enter a filename or index number and return the image with the bounding boxes drawn.</p>
 </dd></dl>
 
@@ -347,14 +415,16 @@ seperate groups so that can be used used in model training, testing, and validat
 
 </section>
 <section id="module-pylabel">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabel" title="Permalink to this headline"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylabel" title="Permalink to this headline">¶</a></h2>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 
