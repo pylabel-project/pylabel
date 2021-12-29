@@ -3,10 +3,16 @@ penv/
 coco_instances_val2017.json
 mypythonlib.egg-info/
 dist/
-build/
+./build/
 data/
 .eggs/
 pylabel.egg-info/
 *.ipynb
 pylabel/__pycache__/
 notebooks.sh
+training/
+annotations/
+images/
+roadsign_splitdata.zip
+road_sign_data.yaml
+BCCD_Dataset/

@@ -1,0 +1,7 @@
+names:
+- stop
+- crosswalk
+nc: 2
+path: ..
+train: images
+val: images
