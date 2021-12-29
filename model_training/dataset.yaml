@@ -1,9 +1,0 @@
-names:
-- RBC
-- WBC
-- Platelets
-nc: 3
-path: ..
-test: model_training/images/test
-train: model_training/images/train
-val: model_training/images/val
