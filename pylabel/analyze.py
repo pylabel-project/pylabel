@@ -1,3 +1,6 @@
+"""The analyze module analyzes the contents of the dataset and provides summary statistics 
+such as the count of images and classes. """
+
 import pandas as pd
 import numpy as np
 
@@ -10,7 +13,15 @@ class Analyze:
 
     @property
     def classes(self):
-        """Return list of cat names sorted by cat_id value"""
+        """Returns list of all cat names in the dataset sorted by cat_id value.
+
+        Returns:
+            List
+
+        Example:
+            >>> dataset.analyze.classes
+            ["Squirrel", "Nut"]
+        """
         filtered_df = self.dataset.df[self.dataset.df["cat_id"].notnull()]
         categories = dict(zip(filtered_df.cat_name, filtered_df.cat_id.astype("int")))
         categories = sorted(categories.items(), key=lambda x: x[1])
@@ -18,7 +29,15 @@ class Analyze:
 
     @property
     def class_ids(self):
-        """Return sorted list of cat ids"""
+        """Returns a sorted list of all cat ids in the dataset.
+
+        Returns:
+            List
+
+        Example:
+            >>> dataset.analyze.class_ids
+            [0,1]
+        """
         filtered_df = self.dataset.df[self.dataset.df["cat_id"].notnull()]
         cat_ids = list(filtered_df.cat_id.astype("int").unique())
         cat_ids.sort()
@@ -26,18 +45,53 @@ class Analyze:
 
     @property
     def class_counts(self):
+        """Counts the numbers of instances of each class in the dataset. Uses the Pandas value_counts
+        method and returns a Pandas Series.
+
+        Returns:
+            Pandas Series
+        Example:
+            >>> dataset.analyze.class_counts
+            squirrel  50
+            nut       100
+        """
         return self.dataset.df["cat_name"].value_counts(dropna=False)
 
     @property
     def num_classes(self):
+        """Counts the unique number of classes in the dataset.
+
+        Returns:
+            Int
+        Example:
+            >>> dataset.analyze.num_classes
+            2
+        """
         cat_names = list(self.dataset.df.cat_name.unique())
         return len([i for i in cat_names if str(i).strip() != ""])
 
     @property
     def num_images(self):
+        """Counts the number of images in the dataset.
+
+        Returns:
+            Int
+        Example:
+            >>> dataset.analyze.num_images
+            100
+        """
         return self.dataset.df["img_filename"].nunique()
 
     def ShowClassSplits(self, normalize=True):
+        """Show the distribution of classes across train, val, and
+        test splits of the dataset.
+
+        Args:
+            normalize (bool): Defaults to True.
+                If True, then will return the relative frequencies of the classes between 0 and 1.
+                If False, then will return the absolute counts of each class.
+
+        """
         ds = self.dataset
 
         def move_column_inplace(df, col, pos):
