@@ -170,6 +170,20 @@
 <span class="sd">                If True, then will return the relative frequencies of the classes between 0 and 1.</span>
 <span class="sd">                If False, then will return the absolute counts of each class.</span>
 
+<span class="sd">        Returns:</span>
+<span class="sd">            Pandas Dataframe</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.analyze.ShowClassSplits(normalize=True)</span>
+<span class="sd">            cat_name  all  train  test  dev</span>
+<span class="sd">            squirrel  .66  .64    .65   .63</span>
+<span class="sd">            nut       .34  .34    .35   .37</span>
+
+<span class="sd">            &gt;&gt;&gt; dataset.analyze.ShowClassSplits(normalize=False)</span>
+<span class="sd">            cat_name  all  train  test  dev</span>
+<span class="sd">            squirrel  66   64     65    63</span>
+<span class="sd">            nut       34   34     35    37</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
 

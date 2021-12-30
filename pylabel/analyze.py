@@ -91,6 +91,20 @@ class Analyze:
                 If True, then will return the relative frequencies of the classes between 0 and 1.
                 If False, then will return the absolute counts of each class.
 
+        Returns:
+            Pandas Dataframe
+
+        Examples:
+            >>> dataset.analyze.ShowClassSplits(normalize=True)
+            cat_name  all  train  test  dev
+            squirrel  .66  .64    .65   .63
+            nut       .34  .34    .35   .37
+
+            >>> dataset.analyze.ShowClassSplits(normalize=False)
+            cat_name  all  train  test  dev
+            squirrel  66   64     65    63
+            nut       34   34     35    37
+
         """
         ds = self.dataset
 

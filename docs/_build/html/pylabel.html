@@ -102,7 +102,23 @@ test splits of the dataset.</p>
 If True, then will return the relative frequencies of the classes between 0 and 1.
 If False, then will return the absolute counts of each class.</p>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pandas Dataframe</p>
+</dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">ShowClassSplits</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">cat_name  all  train  test  dev</span>
+<span class="go">squirrel  .66  .64    .65   .63</span>
+<span class="go">nut       .34  .34    .35   .37</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">ShowClassSplits</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">cat_name  all  train  test  dev</span>
+<span class="go">squirrel  66   64     65    63</span>
+<span class="go">nut       34   34     35    37</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py property">
@@ -192,6 +208,8 @@ method and returns a Pandas Series.</p>
 </section>
 <section id="module-pylabel.dataset">
 <span id="pylabel-dataset-module"></span><h2>pylabel.dataset module<a class="headerlink" href="#module-pylabel.dataset" title="Permalink to this headline">¶</a></h2>
+<p>The dataset is the primary object that you will interactive with when using PyLabel.
+All other modules are sub-modules of the dataset object.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pylabel.dataset.Dataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pylabel.dataset.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.Dataset" title="Permalink to this definition">¶</a></dt>
@@ -204,14 +222,95 @@ then increment the cat_ids to index + number of categories.
 It’s useful if the cat_ids are not continuous, especially for dataset subsets,
 or combined multiple datasets. Some models like Yolo require starting from 0 and others
 like Detectron require starting from 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cat_id_index</strong> (<em>int</em>) – Defaults to 0.
+The cat ids will increment sequentially the cat_index value. For example if there are 10
+classes then the cat_ids will be a range from 0-9.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">class_ids</span>
+<span class="go">    [1,2,4,5,6,7,8,9,11,12]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">ReindexCatIds</span><span class="p">(</span><span class="n">cat_id_index</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">class_ids</span>
+<span class="go">    [0,1,2,3,4,5,6,7,8,9]</span>
+</pre></div>
+</div>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.analyze">
+<span class="sig-name descname"><span class="pre">analyze</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>See pylabel.analyze module.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pylabel.dataset.FilterList">
-<span class="sig-prename descclassname"><span class="pre">pylabel.dataset.</span></span><span class="sig-name descname"><span class="pre">FilterList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">the_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pylabel/dataset.html#FilterList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pylabel.dataset.FilterList" title="Permalink to this definition">¶</a></dt>
-<dd><p>To do: Check why this code is here</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.df">
+<span class="sig-name descname"><span class="pre">df</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.df" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dataframe where annotations are stored. This dataframe can be read directly
+to query the contents of the dataset. You can also edit this dataframe to filter records or edit the
+annotations as needed.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Pandas Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.export">
+<span class="sig-name descname"><span class="pre">export</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>See pylabel.export module.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.labeler">
+<span class="sig-name descname"><span class="pre">labeler</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.labeler" title="Permalink to this definition">¶</a></dt>
+<dd><p>See pylabel.labeler module.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default is ‘dataset’. A friendly name for your dataset that is used as part of the filename(s)
+when exporting annotation files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.path_to_annotations">
+<span class="sig-name descname"><span class="pre">path_to_annotations</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.path_to_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default is ‘’. The path to the annotation files associated with the dataset. When importing,
+this will be path to the directory where the annotations are stored.  By default, annotations will be exported
+to the same directory. Changing this value will change where the annotations are exported to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.splitter">
+<span class="sig-name descname"><span class="pre">splitter</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.splitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>See pylabel.splitter module.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pylabel.dataset.Dataset.visualize">
+<span class="sig-name descname"><span class="pre">visualize</span></span><a class="headerlink" href="#pylabel.dataset.Dataset.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>See pylabel.visualize module.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>

@@ -77,38 +77,69 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pylabel.dataset</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pylabel.analyze</span> <span class="kn">import</span> <span class="n">Analyze</span>
+<span></span><span class="sd">&quot;&quot;&quot;The dataset is the primary object that you will interactive with when using PyLabel.</span>
+<span class="sd">All other modules are sub-modules of the dataset object. </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pylabel.analyze</span> <span class="kn">import</span> <span class="n">Analyze</span>
 <span class="kn">from</span> <span class="nn">pylabel.exporter</span> <span class="kn">import</span> <span class="n">Export</span>
 <span class="kn">from</span> <span class="nn">pylabel.visualize</span> <span class="kn">import</span> <span class="n">Visualize</span>
 <span class="kn">from</span> <span class="nn">pylabel.labeler</span> <span class="kn">import</span> <span class="n">Labeler</span>
 <span class="kn">from</span> <span class="nn">pylabel.splitter</span> <span class="kn">import</span> <span class="n">Split</span>
 <span class="kn">from</span> <span class="nn">pylabel.shared</span> <span class="kn">import</span> <span class="n">_ReindexCatIds</span>
 
-
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<div class="viewcode-block" id="FilterList"><a class="viewcode-back" href="../../pylabel.html#pylabel.dataset.FilterList">[docs]</a><span class="k">def</span> <span class="nf">FilterList</span><span class="p">(</span><span class="n">the_list</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;To do: Check why this code is here&quot;&quot;&quot;</span>
-    <span class="n">the_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">the_list</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../pylabel.html#pylabel.dataset.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="sd">&quot;&quot;&quot;Pandas Dataframe: The dataframe where annotations are stored. This dataframe can be read directly</span>
+<span class="sd">        to query the contents of the dataset. You can also edit this dataframe to filter records or edit the </span>
+<span class="sd">        annotations as needed. </span>
+
+<span class="sd">        Example: </span>
+<span class="sd">            &gt;&gt;&gt; dataset.df</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;dataset&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_annotations</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>    
+        <span class="sd">&quot;&quot;&quot;string: Default is &#39;dataset&#39;. A friendly name for your dataset that is used as part of the filename(s)</span>
+<span class="sd">        when exporting annotation files. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path_to_annotations</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;string: Default is &#39;&#39;. The path to the annotation files associated with the dataset. When importing, </span>
+<span class="sd">        this will be path to the directory where the annotations are stored.  By default, annotations will be exported</span>
+<span class="sd">        to the same directory. Changing this value will change where the annotations are exported to.  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">export</span> <span class="o">=</span> <span class="n">Export</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;See pylabel.export module.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">visualize</span> <span class="o">=</span> <span class="n">Visualize</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;See pylabel.visualize module.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">analyze</span> <span class="o">=</span> <span class="n">Analyze</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;See pylabel.analyze module.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">labeler</span> <span class="o">=</span> <span class="n">Labeler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;See pylabel.labeler module.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">splitter</span> <span class="o">=</span> <span class="n">Split</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;See pylabel.splitter module.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Dataset.ReindexCatIds"><a class="viewcode-back" href="../../pylabel.html#pylabel.dataset.Dataset.ReindexCatIds">[docs]</a>    <span class="k">def</span> <span class="nf">ReindexCatIds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Reindex the values of the cat_id column so that that they start from an int (usually 0 or 1) and </span>
-<span class="sd">        then increment the cat_ids to index + number of categories. </span>
-<span class="sd">        It&#39;s useful if the cat_ids are not continuous, especially for dataset subsets, </span>
-<span class="sd">        or combined multiple datasets. Some models like Yolo require starting from 0 and others </span>
+<span class="sd">        Reindex the values of the cat_id column so that that they start from an int (usually 0 or 1) and</span>
+<span class="sd">        then increment the cat_ids to index + number of categories.</span>
+<span class="sd">        It&#39;s useful if the cat_ids are not continuous, especially for dataset subsets,</span>
+<span class="sd">        or combined multiple datasets. Some models like Yolo require starting from 0 and others</span>
 <span class="sd">        like Detectron require starting from 1.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cat_id_index (int): Defaults to 0.</span>
+<span class="sd">                The cat ids will increment sequentially the cat_index value. For example if there are 10</span>
+<span class="sd">                classes then the cat_ids will be a range from 0-9.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.analyze.class_ids</span>
+<span class="sd">                [1,2,4,5,6,7,8,9,11,12]</span>
+<span class="sd">            &gt;&gt;&gt; dataset.ReindexCatIds(cat_id_index) = 0</span>
+<span class="sd">            &gt;&gt;&gt; dataset.analyze.class_ids</span>
+<span class="sd">                [0,1,2,3,4,5,6,7,8,9]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cat_id_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;cat_id_index must be an int.&quot;</span>
         <span class="n">_ReindexCatIds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="p">)</span></div></div>
