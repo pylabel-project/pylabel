@@ -1,3 +1,5 @@
+"""PyLabel currently supports exporting annotations in COCO, YOLO, and VOC PASCAL formats."""
+
 import json
 from typing import List
 import pandas as pd
@@ -25,6 +27,34 @@ class Export:
         folder_=False,
         occluded_=False,
     ):
+        """Writes annotation files to disk in VOC XML format and returns path to files.
+
+        By default, tags with empty values will not be included in the XML output.
+        You can optionally choose to include them if they are required for your solution.
+
+        Args:
+            output_path (str):
+                This is where the annotation files will be written.
+                If not-specified then the path will be derived from the .path_to_annotations and
+                .name properties of the dataset object.
+            segmented_ (bool) :
+                Defaults to False. Set to true to include this field in the XML schema of the output files.
+            path_ (bool) :
+                Defaults to False. Set to true to include this field in the XML schema of the output files.
+            database_ (bool) :
+                Defaults to False. Set to true to include this field in the XML schema of the output files.
+            folder_ (bool) :
+                Defaults to False. Set to true to include this field in the XML schema of the output files.
+            occluded_ (bool) :
+                Defaults to False. Set to true to include this field in the XML schema of the output files.
+
+        Returns:
+            A list with 1 or more paths (strings) to annotations files.
+
+        Example:
+            >>> dataset.export.ExportToVoc()
+            ['data/voc_annotations/000000000322.xml', ...]
+        """
         ds = self.dataset
 
         if output_path == None:
@@ -34,22 +64,6 @@ class Export:
 
         os.makedirs(output_path, exist_ok=True)
 
-        """ Writes annotation files to disk in VOC XML format and returns path to files.
-
-        By default, tags with empty values will not be included in the XML output. 
-        You can optionally choose to include them if they are required for your solution.
-
-        Args:
-            dataset (obj): 
-                A dataset object that contains the annotations and metadata.
-            output_path (str or None): 
-                This is where the annotation files will be written.
-                If not-specified then the path will be derived from the .path_to_annotations and
-                .name properties of the dataset object. 
-
-        Returns:
-            A list with 1 or more paths (strings) to annotations files.
-        """
         output_file_paths = []
 
         def voc_xml_file_creation(
@@ -360,11 +374,10 @@ class Export:
         use_splits=False,
         cat_id_index=None,
     ):
-        """Writes annotation files to disk and returns path to files.
+        """Writes annotation files to disk in YOLOv5 format and returns the paths to files.
 
         Args:
-            dataset (obj):
-                A dataset object that contains the annotations and metadata.
+
             output_path (str):
                 This is where the annotation files will be written.
                 If not-specified then the path will be derived from the .path_to_annotations and
@@ -387,12 +400,17 @@ class Export:
                 Reindex the cat_id values so that that they start from an int (usually 0 or 1) and
                 then increment the cat_ids to index + number of categories continuously.
                 It's useful if the cat_ids are not continuous in the original dataset.
-                Some models like Yolo require starting from 0 and others like Detectron require starting from 1.
-
+                Yolo requires the set of annotations to start at 0 when training a model.
 
         Returns:
             A list with 1 or more paths (strings) to annotations files. If a YAML file is created
             then the first item in the list will be the path to the YAML file.
+
+        Examples:
+            >>> dataset.export.ExportToYoloV5(output_path='training/labels',
+            >>>     yaml_file='dataset.yaml', cat_id_index=0)
+            ['training/dataset.yaml', 'training/labels/frame_0002.txt', ...]
+
         """
         ds = self.dataset
 
@@ -556,17 +574,14 @@ class Export:
 
         return output_file_paths
 
-    def ExportToCoco(self, output_path=None, cat_id_index=None) -> List:
+    def ExportToCoco(self, output_path=None, cat_id_index=None):
         """
-        Writes annotation files to disk and returns path to files.
+        Writes COCO annotation files to disk (in JSON format) and returns the path to files.
 
         Args:
-            dataset (obj):
-                A dataset object that contains the annotations and metadata.
             output_path (str):
-                This is where the annotation files will be written.
-                If not-specified then the path will be derived from the .path_to_annotations and
-                .name properties of the dataset object.
+                This is where the annotation files will be written. If not-specified then the path will be derived from the path_to_annotations and
+                name properties of the dataset object.
             cat_id_index (int):
                 Reindex the cat_id values so that that they start from an int (usually 0 or 1) and
                 then increment the cat_ids to index + number of categories continuously.
@@ -575,6 +590,11 @@ class Export:
 
         Returns:
             A list with 1 or more paths (strings) to annotations files.
+
+        Example:
+            >>> dataset.exporter.ExportToCoco()
+            ['data/labels/dataset.json']
+
         """
         # Copy the dataframe in the dataset so the original dataset doesn't change when you apply the export tranformations
         df = self.dataset.df.copy(deep=True)

@@ -35,7 +35,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation :</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../pylabel.html">pylabel package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#submodules">Submodules</a></li>
@@ -77,7 +77,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pylabel.exporter</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="sd">&quot;&quot;&quot;PyLabel currently supports exporting annotations in COCO, YOLO, and VOC PASCAL formats.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -104,6 +106,34 @@
         <span class="n">folder_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">occluded_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes annotation files to disk in VOC XML format and returns path to files.</span>
+
+<span class="sd">        By default, tags with empty values will not be included in the XML output.</span>
+<span class="sd">        You can optionally choose to include them if they are required for your solution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_path (str):</span>
+<span class="sd">                This is where the annotation files will be written.</span>
+<span class="sd">                If not-specified then the path will be derived from the .path_to_annotations and</span>
+<span class="sd">                .name properties of the dataset object.</span>
+<span class="sd">            segmented_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            path_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            database_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            folder_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            occluded_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list with 1 or more paths (strings) to annotations files.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.export.ExportToVoc()</span>
+<span class="sd">            [&#39;data/voc_annotations/000000000322.xml&#39;, ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
 
         <span class="k">if</span> <span class="n">output_path</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
@@ -113,22 +143,6 @@
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="sd">&quot;&quot;&quot; Writes annotation files to disk in VOC XML format and returns path to files.</span>
-
-<span class="sd">        By default, tags with empty values will not be included in the XML output. </span>
-<span class="sd">        You can optionally choose to include them if they are required for your solution.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dataset (obj): </span>
-<span class="sd">                A dataset object that contains the annotations and metadata.</span>
-<span class="sd">            output_path (str or None): </span>
-<span class="sd">                This is where the annotation files will be written.</span>
-<span class="sd">                If not-specified then the path will be derived from the .path_to_annotations and</span>
-<span class="sd">                .name properties of the dataset object. </span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A list with 1 or more paths (strings) to annotations files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">output_file_paths</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="nf">voc_xml_file_creation</span><span class="p">(</span>
@@ -439,11 +453,10 @@
         <span class="n">use_splits</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">cat_id_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes annotation files to disk and returns path to files.</span>
+        <span class="sd">&quot;&quot;&quot;Writes annotation files to disk in YOLOv5 format and returns the paths to files.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dataset (obj):</span>
-<span class="sd">                A dataset object that contains the annotations and metadata.</span>
+
 <span class="sd">            output_path (str):</span>
 <span class="sd">                This is where the annotation files will be written.</span>
 <span class="sd">                If not-specified then the path will be derived from the .path_to_annotations and</span>
@@ -466,12 +479,17 @@
 <span class="sd">                Reindex the cat_id values so that that they start from an int (usually 0 or 1) and</span>
 <span class="sd">                then increment the cat_ids to index + number of categories continuously.</span>
 <span class="sd">                It&#39;s useful if the cat_ids are not continuous in the original dataset.</span>
-<span class="sd">                Some models like Yolo require starting from 0 and others like Detectron require starting from 1.</span>
-
+<span class="sd">                Yolo requires the set of annotations to start at 0 when training a model.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list with 1 or more paths (strings) to annotations files. If a YAML file is created</span>
 <span class="sd">            then the first item in the list will be the path to the YAML file.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.export.ExportToYoloV5(output_path=&#39;training/labels&#39;,</span>
+<span class="sd">            &gt;&gt;&gt;     yaml_file=&#39;dataset.yaml&#39;, cat_id_index=0)</span>
+<span class="sd">            [&#39;training/dataset.yaml&#39;, &#39;training/labels/frame_0002.txt&#39;, ...]</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
 
@@ -635,17 +653,14 @@
 
         <span class="k">return</span> <span class="n">output_file_paths</span></div>
 
-<div class="viewcode-block" id="Export.ExportToCoco"><a class="viewcode-back" href="../../pylabel.html#pylabel.exporter.Export.ExportToCoco">[docs]</a>    <span class="k">def</span> <span class="nf">ExportToCoco</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<div class="viewcode-block" id="Export.ExportToCoco"><a class="viewcode-back" href="../../pylabel.html#pylabel.exporter.Export.ExportToCoco">[docs]</a>    <span class="k">def</span> <span class="nf">ExportToCoco</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Writes annotation files to disk and returns path to files.</span>
+<span class="sd">        Writes COCO annotation files to disk (in JSON format) and returns the path to files.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dataset (obj):</span>
-<span class="sd">                A dataset object that contains the annotations and metadata.</span>
 <span class="sd">            output_path (str):</span>
-<span class="sd">                This is where the annotation files will be written.</span>
-<span class="sd">                If not-specified then the path will be derived from the .path_to_annotations and</span>
-<span class="sd">                .name properties of the dataset object.</span>
+<span class="sd">                This is where the annotation files will be written. If not-specified then the path will be derived from the path_to_annotations and</span>
+<span class="sd">                name properties of the dataset object.</span>
 <span class="sd">            cat_id_index (int):</span>
 <span class="sd">                Reindex the cat_id values so that that they start from an int (usually 0 or 1) and</span>
 <span class="sd">                then increment the cat_ids to index + number of categories continuously.</span>
@@ -654,6 +669,11 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list with 1 or more paths (strings) to annotations files.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.exporter.ExportToCoco()</span>
+<span class="sd">            [&#39;data/labels/dataset.json&#39;]</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Copy the dataframe in the dataset so the original dataset doesn&#39;t change when you apply the export tranformations</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
