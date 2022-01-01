@@ -5,8 +5,9 @@
 <img src="https://img.shields.io/pypi/dm/pylabel?style=plastic"></a>
 &nbsp;&nbsp;
 
+<a href="https://colab.research.google.com/github/pylabel-project/samples/blob/main/coco2voc.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 [![Documentation Status](https://readthedocs.org/projects/pylabel/badge/?version=latest)](https://pylabel.readthedocs.io/en/latest/?badge=latest)
-&nbsp;&nbsp;&nbsp;<a href="https://colab.research.google.com/github/pylabel-project/samples/blob/main/coco2voc.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+&nbsp;&nbsp;&nbsp;
 
 <p><p>
 PyLabel is a Python package to help you prepare image datasets for computer vision models including PyTorch and YOLOv5. It can translate bounding box annotations between different formats. (For example, COCO to YOLO.) And it includes an AI-assisted labeling tool that runs in a Jupyter notebook. 
