@@ -4,9 +4,11 @@
 <img alt="PyPI" src="https://img.shields.io/pypi/v/pylabel?color=gre">&nbsp;&nbsp;
 <img src="https://img.shields.io/pypi/dm/pylabel?style=plastic"></a>
 &nbsp;&nbsp;
-
 <a href="https://colab.research.google.com/github/pylabel-project/samples/blob/main/coco2voc.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-[![Documentation Status](https://readthedocs.org/projects/pylabel/badge/?version=latest)](https://pylabel.readthedocs.io/en/latest/?badge=latest)
+
+<a href='https://pylabel.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/pylabel/badge/?version=latest' alt='Documentation Status' />
+</a>
 &nbsp;&nbsp;&nbsp;
 
 <p><p>
