@@ -51,6 +51,11 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Integrations :</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pylabel-project/samples/blob/main/albumentations.ipynb">Albumentations</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pylabel-project/samples/blob/main/pylabel2azure_custom_vision.ipynb">Azure Custom Vision</a></li>
+</ul>
 
         </div>
       </div>
@@ -229,16 +234,24 @@
                 <span class="n">bound_box_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;bndbox&gt;&quot;</span>
 
                 <span class="n">xmin_text</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;&lt;xmin&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/xmin&gt;&quot;</span>
+                    <span class="s2">&quot;&lt;xmin&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/xmin&gt;&quot;</span>
                 <span class="p">)</span>
                 <span class="n">xmax_text</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;&lt;xmax&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/xmax&gt;&quot;</span>
+                    <span class="s2">&quot;&lt;xmax&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/xmax&gt;&quot;</span>
                 <span class="p">)</span>
                 <span class="n">ymin_text</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;&lt;ymin&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/ymin&gt;&quot;</span>
+                    <span class="s2">&quot;&lt;ymin&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/ymin&gt;&quot;</span>
                 <span class="p">)</span>
                 <span class="n">ymax_text</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;&lt;ymax&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/ymax&gt;&quot;</span>
+                    <span class="s2">&quot;&lt;ymax&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/ymax&gt;&quot;</span>
                 <span class="p">)</span>
 
                 <span class="n">bound_box_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/bndbox&gt;&quot;</span>
@@ -375,22 +388,22 @@
 
                     <span class="n">xmin_text</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="s2">&quot;&lt;xmin&gt;&quot;</span>
-                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
                         <span class="o">+</span> <span class="s2">&quot;&lt;/xmin&gt;&quot;</span>
                     <span class="p">)</span>
                     <span class="n">xmax_text</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="s2">&quot;&lt;xmax&gt;&quot;</span>
-                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
                         <span class="o">+</span> <span class="s2">&quot;&lt;/xmax&gt;&quot;</span>
                     <span class="p">)</span>
                     <span class="n">ymin_text</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="s2">&quot;&lt;ymin&gt;&quot;</span>
-                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
                         <span class="o">+</span> <span class="s2">&quot;&lt;/ymin&gt;&quot;</span>
                     <span class="p">)</span>
                     <span class="n">ymax_text</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="s2">&quot;&lt;ymax&gt;&quot;</span>
-                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
                         <span class="o">+</span> <span class="s2">&quot;&lt;/ymax&gt;&quot;</span>
                     <span class="p">)</span>
 
