@@ -150,16 +150,24 @@ class Export:
                 bound_box_text_start = "<bndbox>"
 
                 xmin_text = (
-                    "<xmin>" + str(df_smaller.loc[index]["ann_bbox_xmin"]) + "</xmin>"
+                    "<xmin>"
+                    + str(df_smaller.loc[index]["ann_bbox_xmin"].astype("int"))
+                    + "</xmin>"
                 )
                 xmax_text = (
-                    "<xmax>" + str(df_smaller.loc[index]["ann_bbox_xmax"]) + "</xmax>"
+                    "<xmax>"
+                    + str(df_smaller.loc[index]["ann_bbox_xmax"].astype("int"))
+                    + "</xmax>"
                 )
                 ymin_text = (
-                    "<ymin>" + str(df_smaller.loc[index]["ann_bbox_ymin"]) + "</ymin>"
+                    "<ymin>"
+                    + str(df_smaller.loc[index]["ann_bbox_ymin"].astype("int"))
+                    + "</ymin>"
                 )
                 ymax_text = (
-                    "<ymax>" + str(df_smaller.loc[index]["ann_bbox_ymax"]) + "</ymax>"
+                    "<ymax>"
+                    + str(df_smaller.loc[index]["ann_bbox_ymax"].astype("int"))
+                    + "</ymax>"
                 )
 
                 bound_box_text_end = "</bndbox>"
@@ -296,22 +304,22 @@ class Export:
 
                     xmin_text = (
                         "<xmin>"
-                        + str(df_smaller.loc[index]["ann_bbox_xmin"])
+                        + str(df_smaller.loc[index]["ann_bbox_xmin"].astype("int"))
                         + "</xmin>"
                     )
                     xmax_text = (
                         "<xmax>"
-                        + str(df_smaller.loc[index]["ann_bbox_xmax"])
+                        + str(df_smaller.loc[index]["ann_bbox_xmax"].astype("int"))
                         + "</xmax>"
                     )
                     ymin_text = (
                         "<ymin>"
-                        + str(df_smaller.loc[index]["ann_bbox_ymin"])
+                        + str(df_smaller.loc[index]["ann_bbox_ymin"].astype("int"))
                         + "</ymin>"
                     )
                     ymax_text = (
                         "<ymax>"
-                        + str(df_smaller.loc[index]["ann_bbox_ymax"])
+                        + str(df_smaller.loc[index]["ann_bbox_ymax"].astype("int"))
                         + "</ymax>"
                     )
 
