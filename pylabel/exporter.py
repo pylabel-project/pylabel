@@ -452,7 +452,7 @@ class Export:
         # Note, having zero annotates can still be considered annotated
         # in cases when are no objects in the image thats should be indentified
         yolo_dataset = yolo_dataset.loc[yolo_dataset["annotated"] == 1]
-        yolo_dataset["cat_id"] = yolo_dataset["cat_id"].astype("int")
+        yolo_dataset["cat_id"] = yolo_dataset["cat_id"].astype(pd.Int32Dtype())
 
         if cat_id_index != None:
             assert isinstance(cat_id_index, int), "cat_id_index must be an int."
