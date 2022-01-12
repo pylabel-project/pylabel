@@ -90,7 +90,7 @@ class Analyze:
             Dict
 
         Example:
-            >>> dataset.analyze.class_name_id_map()
+            >>> dataset.analyze.class_name_id_map
             {('Squirrel', 0),('Nut', 1)}
         """
         return dict(zip(self.dataset.df.cat_name, self.dataset.df.cat_id))
