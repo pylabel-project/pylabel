@@ -693,9 +693,9 @@ class Export:
         mergedA = pd.concat(df_outputA, ignore_index=True)
         mergedC = pd.concat(df_outputC, ignore_index=True)
 
-        resultI = mergedI[0].to_json(orient="split")
-        resultA = mergedA[0].to_json(orient="split")
-        resultC = mergedC[0].to_json(orient="split")
+        resultI = mergedI[0].to_json(orient="split", default_handler=str)
+        resultA = mergedA[0].to_json(orient="split", default_handler=str)
+        resultC = mergedC[0].to_json(orient="split", default_handler=str)
 
         parsedI = json.loads(resultI)
         del parsedI["index"]
