@@ -22,4 +22,4 @@ with zipfile.ZipFile("data/coco128.zip", "r") as zip_ref:
 # Download sample notebooks so they can be tested using nbmake
 os.system("rm -rf samples")
 os.system("git clone https://github.com/pylabel-project/samples.git")
-os.system("mv samples/*.ipynb .")
+os.system("cp samples/*.ipynb .")

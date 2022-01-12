@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pylabel.labeler &mdash; PyLabel 0.1.30 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> PyLabel
+            <img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/arrow_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation :</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylabel.html">pylabel package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.analyze">pylabel.analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.dataset">pylabel.dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.exporter">pylabel.exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.importer">pylabel.importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.labeler">pylabel.labeler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.shared">pylabel.shared module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.splitter">pylabel.splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.visualize">pylabel.visualize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyLabel</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pylabel.labeler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pylabel.labeler</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">new_class</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">PurePath</span>
+<span class="kn">from</span> <span class="nn">jupyter_bbox_widget</span> <span class="kn">import</span> <span class="n">BBoxWidget</span>
+<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span class="n">Layout</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="Labeler"><a class="viewcode-back" href="../../pylabel.html#pylabel.labeler.Labeler">[docs]</a><span class="k">class</span> <span class="nc">Labeler</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+
+<div class="viewcode-block" id="Labeler.StartPyLaber"><a class="viewcode-back" href="../../pylabel.html#pylabel.labeler.Labeler.StartPyLaber">[docs]</a>    <span class="k">def</span> <span class="nf">StartPyLaber</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yolo_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the bbox widget loaded with images and annotations from this dataset.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;google.colab&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_ipython</span><span class="p">()):</span>
+            <span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">output</span>
+
+            <span class="n">output</span><span class="o">.</span><span class="n">enable_custom_widget_manager</span><span class="p">()</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="n">widget_output</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">files</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">img_filename</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">global</span> <span class="n">file_index</span>
+
+        <span class="k">if</span> <span class="n">image</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">file_index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_index</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">GetBBOXs</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+            <span class="c1"># Make a dataframe with the annotations for a single image</span>
+            <span class="n">img_df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">image</span><span class="p">]</span>
+            <span class="n">img_df_subset</span> <span class="o">=</span> <span class="n">img_df</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;cat_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">]</span>
+            <span class="c1"># Rename the columns to match the format used by jupyter_bbox_widget</span>
+            <span class="n">img_df_subset</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Drop rows that have NaN, invalid bounding boxes</span>
+            <span class="n">img_df_subset</span> <span class="o">=</span> <span class="n">img_df_subset</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+            <span class="n">bboxes_dict</span> <span class="o">=</span> <span class="n">img_df_subset</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">bboxes_dict</span>
+
+        <span class="k">def</span> <span class="nf">GetImageLabel</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Returns the imagename or imagename + (not annotated)&quot;&quot;&quot;</span>
+            <span class="c1"># Make a dataframe with the annotations for a single image</span>
+            <span class="n">img_df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">image</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">img_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">annotated</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">image</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image</span><span class="si">}</span><span class="s2"> (not annotated)&quot;</span>
+            <span class="k">return</span>
+
+        <span class="n">bboxes_dict</span> <span class="o">=</span> <span class="n">GetBBOXs</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="n">img_folder</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">image</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span>
+            <span class="s2">&quot;img_folder&quot;</span>
+        <span class="p">]</span>
+
+        <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">path_to_annotations</span><span class="p">,</span> <span class="n">img_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span>
+        <span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">encode_image</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">encoded</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">),</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;data:image/jpg;base64,&quot;</span> <span class="o">+</span> <span class="n">encoded</span>
+
+        <span class="k">def</span> <span class="nf">UpdateCategoryList</span><span class="p">(</span><span class="n">cat_dict</span><span class="p">,</span> <span class="n">new_categories</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">isnan</span>
+
+            <span class="c1"># Remove invalid entries</span>
+            <span class="n">cat_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="c1"># cat_dict = {k: v for k, v in cat_dict.items() if not isnan(v)}</span>
+
+            <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">new_categories</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">cat_dict</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+                <span class="k">elif</span> <span class="n">cat</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">cat_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Create a new cat id that 1+ the highest cat id value</span>
+                    <span class="n">new_cat_id</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cat_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">cat_dict</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_cat_id</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">cat_dict</span>
+
+        <span class="k">def</span> <span class="nf">on_submit</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="c1"># save annotations for current image</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+            <span class="k">global</span> <span class="n">widget_output</span>
+            <span class="k">global</span> <span class="n">file_index</span>
+
+            <span class="n">img_filename</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="n">file_index</span><span class="p">]</span>
+
+            <span class="n">widget_output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">w_bbox</span><span class="o">.</span><span class="n">bboxes</span><span class="p">)</span>
+
+            <span class="c1"># Check if there are any bounding boxes for the current image:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">widget_output</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="c1"># If there are bounding boxes then add them to the dataset</span>
+                <span class="n">widget_output</span> <span class="o">=</span> <span class="n">widget_output</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cat_name&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+                <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;ann_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+                <span class="n">categories</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">cat_name</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">cat_id</span><span class="p">))</span>
+                <span class="n">categories</span> <span class="o">=</span> <span class="n">UpdateCategoryList</span><span class="p">(</span>
+                    <span class="n">categories</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">widget_output</span><span class="o">.</span><span class="n">cat_name</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Build a entry in the table with empty bounding box columns</span>
+                <span class="n">widget_output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="p">[],</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                        <span class="s2">&quot;cat_name&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;cat_id&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ann_area&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+
+                <span class="n">widget_output</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span>
+                <span class="p">]</span>
+
+            <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">img_filename</span><span class="p">)</span>
+            <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="s2">&quot;string&quot;</span>
+            <span class="p">)</span>
+            <span class="n">widget_output</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+
+            <span class="n">img_df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">img_filename</span><span class="p">]</span>
+
+            <span class="c1"># Get the metadata associated with this image from the dataset</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">img_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Drop the fields that are in the widget_output dataframe</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;cat_name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;cat_id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">widget_output</span> <span class="o">=</span> <span class="n">widget_output</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">metadata</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;img_filename&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;img_filename&quot;</span>
+            <span class="p">)</span>
+            <span class="n">widget_output</span> <span class="o">=</span> <span class="n">widget_output</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+            <span class="c1"># Set annotated = 1, which means the annotates have been reviewed and accepted</span>
+            <span class="n">widget_output</span><span class="p">[</span><span class="s2">&quot;annotated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="c1"># Now we have a dataframe with output of the bbox widget</span>
+            <span class="c1"># Drop the current annotations for the image and add the the new ones</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">img_filename</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">widget_output</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># move on to the next file</span>
+            <span class="n">on_next</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">on_next</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="k">global</span> <span class="n">file_index</span>
+
+            <span class="n">file_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># open new image in the widget</span>
+            <span class="n">image_file</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">file_index</span><span class="p">]</span>
+            <span class="n">w_bbox</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">encode_image</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span>
+            <span class="n">w_bbox</span><span class="o">.</span><span class="n">bboxes</span> <span class="o">=</span> <span class="n">GetBBOXs</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">file_index</span><span class="p">])</span>
+            <span class="n">progress_label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_index</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">current_img_name_label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">GetImageLabel</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">file_index</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">on_back</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="k">global</span> <span class="n">file_index</span>
+            <span class="n">file_index</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="c1"># open new image in the widget</span>
+            <span class="n">image_file</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">file_index</span><span class="p">]</span>
+            <span class="n">w_bbox</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">encode_image</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span>
+            <span class="n">w_bbox</span><span class="o">.</span><span class="n">bboxes</span> <span class="o">=</span> <span class="n">GetBBOXs</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">file_index</span><span class="p">])</span>
+            <span class="n">progress_label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_index</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">current_img_name_label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">GetImageLabel</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="n">file_index</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">on_add_class</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">new_class_text</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">class_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">w_bbox</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+                <span class="n">class_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_class_text</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">w_bbox</span><span class="o">.</span><span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">class_list</span><span class="p">))</span>
+                <span class="n">new_class_text</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">on_predict</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="k">global</span> <span class="n">file_index</span>
+            <span class="n">image_file</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="n">file_index</span><span class="p">]</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">yolo_model</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">pandas</span><span class="p">()</span><span class="o">.</span><span class="n">xyxy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">xmin</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">ymin</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="s2">&quot;xmax&quot;</span><span class="p">,</span> <span class="s2">&quot;ymax&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[[</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span>
+            <span class="n">bboxes_dict</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
+            <span class="n">w_bbox</span><span class="o">.</span><span class="n">bboxes</span> <span class="o">=</span> <span class="n">bboxes_dict</span>
+            <span class="c1"># Add the predicted classes to the widget so they can be selected by the user</span>
+            <span class="n">w_bbox</span><span class="o">.</span><span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">w_bbox</span><span class="o">.</span><span class="n">classes</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])))</span>
+
+        <span class="k">if</span> <span class="n">new_classes</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">classes</span> <span class="o">+</span> <span class="n">new_classes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">classes</span>
+
+        <span class="c1"># remove empty labels and duplicate labels</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Load BBoxWidget for first load on page</span>
+        <span class="n">w_bbox</span> <span class="o">=</span> <span class="n">BBoxWidget</span><span class="p">(</span>
+            <span class="n">image</span><span class="o">=</span><span class="n">encode_image</span><span class="p">(</span><span class="n">file_paths</span><span class="p">[</span><span class="n">file_index</span><span class="p">]),</span>
+            <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">,</span>
+            <span class="n">bboxes</span><span class="o">=</span><span class="n">bboxes_dict</span><span class="p">,</span>
+            <span class="n">hide_buttons</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">progress_txt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_index</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">left_arrow_btn</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;fa-arrow-left&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;35px&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">progress_label</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">progress_txt</span><span class="p">)</span>
+        <span class="n">current_img_name_label</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">GetImageLabel</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+
+        <span class="n">right_arrow_btn</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;fa-arrow-right&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;35px&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">save_btn</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;fa-check&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Save&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;70px&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">predict_btn</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;fa-eye&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Predict&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;100px&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">train_btn</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span>
+            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;fa-refresh&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Train&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;100px&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">add_class_label</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;Add class:&quot;</span><span class="p">)</span>
+        <span class="n">new_class_text</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;200px&quot;</span><span class="p">))</span>
+        <span class="n">plus_btn</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">icon</span><span class="o">=</span><span class="s2">&quot;fa-plus&quot;</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">Layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="s2">&quot;35px&quot;</span><span class="p">))</span>
+
+        <span class="n">button_row_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">left_arrow_btn</span><span class="p">,</span> <span class="n">progress_label</span><span class="p">,</span> <span class="n">right_arrow_btn</span><span class="p">,</span> <span class="n">save_btn</span><span class="p">]</span>
+
+        <span class="c1"># If model arg is empty hide predict and train buttons</span>
+        <span class="k">if</span> <span class="n">yolo_model</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">button_row_list</span> <span class="o">=</span> <span class="n">button_row_list</span> <span class="o">+</span> <span class="p">[</span><span class="n">predict_btn</span><span class="p">]</span>  <span class="c1"># train_btn</span>
+
+        <span class="n">button_row</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">(</span><span class="n">button_row_list</span><span class="p">)</span>
+        <span class="n">current_img_details_row</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">current_img_name_label</span><span class="p">])</span>
+
+        <span class="n">bottom_row</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">add_class_label</span><span class="p">,</span> <span class="n">new_class_text</span><span class="p">,</span> <span class="n">plus_btn</span><span class="p">])</span>
+
+        <span class="n">pylabler</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">VBox</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">current_img_details_row</span><span class="p">,</span> <span class="n">button_row</span><span class="p">,</span> <span class="n">w_bbox</span><span class="p">,</span> <span class="n">bottom_row</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">save_btn</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">on_submit</span><span class="p">)</span>
+        <span class="n">left_arrow_btn</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">on_back</span><span class="p">)</span>
+        <span class="n">right_arrow_btn</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">on_next</span><span class="p">)</span>
+        <span class="n">predict_btn</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">on_predict</span><span class="p">)</span>
+        <span class="n">plus_btn</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">on_add_class</span><span class="p">)</span>
+        <span class="n">new_class_text</span><span class="o">.</span><span class="n">on_submit</span><span class="p">(</span><span class="n">on_add_class</span><span class="p">)</span>
+
+        <span class="c1"># Returning the container will show the widgets</span>
+        <span class="k">return</span> <span class="n">pylabler</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, PyLabel Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

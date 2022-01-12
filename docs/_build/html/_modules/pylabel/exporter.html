@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pylabel.exporter &mdash; PyLabel 0.1.30 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> PyLabel
+            <img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/arrow_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation :</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylabel.html">pylabel package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.analyze">pylabel.analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.dataset">pylabel.dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.exporter">pylabel.exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.importer">pylabel.importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.labeler">pylabel.labeler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.shared">pylabel.shared module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.splitter">pylabel.splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.visualize">pylabel.visualize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Integrations :</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pylabel-project/samples/blob/main/albumentations.ipynb">Albumentations</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/pylabel-project/samples/blob/main/pylabel2azure_custom_vision.ipynb">Azure Custom Vision</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyLabel</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pylabel.exporter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pylabel.exporter</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;PyLabel currently supports exporting annotations in COCO, YOLO, and VOC PASCAL formats.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">import</span> <span class="nn">xml.dom.minidom</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">pylabel.shared</span> <span class="kn">import</span> <span class="n">_ReindexCatIds</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">PurePath</span><span class="p">,</span> <span class="n">Path</span>
+
+
+<div class="viewcode-block" id="Export"><a class="viewcode-back" href="../../pylabel.html#pylabel.exporter.Export">[docs]</a><span class="k">class</span> <span class="nc">Export</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+
+<div class="viewcode-block" id="Export.ExportToVoc"><a class="viewcode-back" href="../../pylabel.html#pylabel.exporter.Export.ExportToVoc">[docs]</a>    <span class="k">def</span> <span class="nf">ExportToVoc</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">segmented_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">path_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">database_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">folder_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">occluded_</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes annotation files to disk in VOC XML format and returns path to files.</span>
+
+<span class="sd">        By default, tags with empty values will not be included in the XML output.</span>
+<span class="sd">        You can optionally choose to include them if they are required for your solution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_path (str):</span>
+<span class="sd">                This is where the annotation files will be written.</span>
+<span class="sd">                If not-specified then the path will be derived from the .path_to_annotations and</span>
+<span class="sd">                .name properties of the dataset object.</span>
+<span class="sd">            segmented_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            path_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            database_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            folder_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+<span class="sd">            occluded_ (bool) :</span>
+<span class="sd">                Defaults to False. Set to true to include this field in the XML schema of the output files.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list with 1 or more paths (strings) to annotations files.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.export.ExportToVoc()</span>
+<span class="sd">            [&#39;data/voc_annotations/000000000322.xml&#39;, ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
+
+        <span class="k">if</span> <span class="n">output_path</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">path_to_annotations</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">output_file_paths</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span> <span class="nf">voc_xml_file_creation</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">file_name</span><span class="p">,</span>
+            <span class="n">output_file_path</span><span class="p">,</span>
+            <span class="n">segmented</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">folder</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">occluded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">):</span>
+
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">df_smaller</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">file_name</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_smaller</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># print(&#39;test&#39;)</span>
+                <span class="n">annotation_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;annotation&gt;&quot;</span>
+
+                <span class="n">flder_lkp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_folder&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">folder</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">flder_lkp</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">folder_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;folder&gt;&quot;</span> <span class="o">+</span> <span class="n">flder_lkp</span> <span class="o">+</span> <span class="s2">&quot;&lt;/folder&gt;&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">folder_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">filename_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;filename&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_filename&quot;</span><span class="p">])</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/filename&gt;&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">pth_lkp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_path&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">pth_lkp</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">path_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;path&gt;&quot;</span> <span class="o">+</span> <span class="n">pth_lkp</span> <span class="o">+</span> <span class="s2">&quot;&lt;/path&gt;&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">sources_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">size_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;size&gt;&quot;</span>
+                <span class="n">width_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;width&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_width&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/width&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">height_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;height&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_height&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/height&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">depth_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;depth&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_depth&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/depth&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">size_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/size&gt;&quot;</span>
+
+                <span class="n">seg_lkp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_segmented&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">segmented</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">seg_lkp</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">segmented_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;segmented&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_segmented&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/segmented&gt;&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">segmented_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">object_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;object&gt;&quot;</span>
+
+                <span class="n">name_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;name&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;cat_name&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/name&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">pose_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;pose&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_pose&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/pose&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">truncated_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;truncated&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_truncated&quot;</span><span class="p">])</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/truncated&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">difficult_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;difficult&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_difficult&quot;</span><span class="p">])</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/difficult&gt;&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">occluded_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">bound_box_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;bndbox&gt;&quot;</span>
+
+                <span class="n">xmin_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;xmin&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/xmin&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">xmax_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;xmax&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/xmax&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">ymin_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;ymin&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/ymin&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">ymax_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;ymax&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/ymax&gt;&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">bound_box_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/bndbox&gt;&quot;</span>
+                <span class="n">object_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/object&gt;&quot;</span>
+                <span class="n">annotation_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/annotation&gt;&quot;</span>
+
+                <span class="n">xmlstring</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">annotation_text_start</span>
+                    <span class="o">+</span> <span class="n">folder_text</span>
+                    <span class="o">+</span> <span class="n">filename_text</span>
+                    <span class="o">+</span> <span class="n">path_text</span>
+                    <span class="o">+</span> <span class="n">sources_text</span>
+                    <span class="o">+</span> <span class="n">size_text_start</span>
+                    <span class="o">+</span> <span class="n">width_text</span>
+                    <span class="o">+</span> <span class="n">height_text</span>
+                    <span class="o">+</span> <span class="n">depth_text</span>
+                    <span class="o">+</span> <span class="n">size_text_end</span>
+                    <span class="o">+</span> <span class="n">segmented_text</span>
+                    <span class="o">+</span> <span class="n">object_text_start</span>
+                    <span class="o">+</span> <span class="n">name_text</span>
+                    <span class="o">+</span> <span class="n">pose_text</span>
+                    <span class="o">+</span> <span class="n">truncated_text</span>
+                    <span class="o">+</span> <span class="n">difficult_text</span>
+                    <span class="o">+</span> <span class="n">occluded_text</span>
+                    <span class="o">+</span> <span class="n">bound_box_text_start</span>
+                    <span class="o">+</span> <span class="n">xmin_text</span>
+                    <span class="o">+</span> <span class="n">xmax_text</span>
+                    <span class="o">+</span> <span class="n">ymin_text</span>
+                    <span class="o">+</span> <span class="n">ymax_text</span>
+                    <span class="o">+</span> <span class="n">bound_box_text_end</span>
+                    <span class="o">+</span> <span class="n">object_text_end</span>
+                    <span class="o">+</span> <span class="n">annotation_text_end</span>
+                <span class="p">)</span>
+                <span class="n">dom</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">dom</span><span class="o">.</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">xmlstring</span><span class="p">)</span>
+                <span class="n">pretty_xml_as_string</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">()</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pretty_xml_as_string</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">output_file_path</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># print(&#39;test&#39;)</span>
+                <span class="n">annotation_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;annotation&gt;&quot;</span>
+
+                <span class="n">flder_lkp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_folder&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">folder</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">flder_lkp</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">folder_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;folder&gt;&quot;</span> <span class="o">+</span> <span class="n">flder_lkp</span> <span class="o">+</span> <span class="s2">&quot;&lt;/folder&gt;&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">folder_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">filename_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;filename&gt;&quot;</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_filename&quot;</span><span class="p">])</span>
+                    <span class="o">+</span> <span class="s2">&quot;&lt;/filename&gt;&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">pth_lkp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_path&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">pth_lkp</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">path_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;path&gt;&quot;</span> <span class="o">+</span> <span class="n">pth_lkp</span> <span class="o">+</span> <span class="s2">&quot;&lt;/path&gt;&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="c1"># db_lkp = str(df_smaller.loc[index][&#39;Databases&#39;])</span>
+                <span class="c1"># if database == True and db_lkp != &#39;&#39;:</span>
+                <span class="c1">#    sources_text = &#39;&lt;source&gt;&#39;+&#39;&lt;database&gt;&#39;+ db_lkp +&#39;&lt;/database&gt;&#39;+&#39;&lt;/source&gt;&#39;</span>
+                <span class="c1"># else:</span>
+                <span class="n">sources_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">size_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;size&gt;&quot;</span>
+                <span class="n">width_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;width&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_width&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/width&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">height_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;height&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_height&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/height&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">depth_text</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;&lt;depth&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;img_depth&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/depth&gt;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">size_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/size&gt;&quot;</span>
+
+                <span class="n">seg_lkp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_segmented&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">segmented</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">seg_lkp</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">segmented_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;segmented&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_segmented&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/segmented&gt;&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">segmented_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">xmlstring</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">annotation_text_start</span>
+                    <span class="o">+</span> <span class="n">folder_text</span>
+                    <span class="o">+</span> <span class="n">filename_text</span>
+                    <span class="o">+</span> <span class="n">path_text</span>
+                    <span class="o">+</span> <span class="n">sources_text</span>
+                    <span class="o">+</span> <span class="n">size_text_start</span>
+                    <span class="o">+</span> <span class="n">width_text</span>
+                    <span class="o">+</span> <span class="n">height_text</span>
+                    <span class="o">+</span> <span class="n">depth_text</span>
+                    <span class="o">+</span> <span class="n">size_text_end</span>
+                    <span class="o">+</span> <span class="n">segmented_text</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_smaller</span><span class="p">)):</span>
+                    <span class="n">object_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;object&gt;&quot;</span>
+
+                    <span class="n">name_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;name&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;cat_name&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/name&gt;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">pose_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;pose&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_pose&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&lt;/pose&gt;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">truncated_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;truncated&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_truncated&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/truncated&gt;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">difficult_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;difficult&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_difficult&quot;</span><span class="p">])</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/difficult&gt;&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># occ_lkp = str(df_smaller.loc[index][&#39;Object Occluded&#39;])</span>
+                    <span class="c1"># if occluded==True and occ_lkp != &#39;&#39;:</span>
+                    <span class="c1">#    occluded_text = &#39;&lt;occluded&gt;&#39;+occ_lkp+&#39;&lt;/occluded&gt;&#39;</span>
+                    <span class="c1"># else:</span>
+                    <span class="n">occluded_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                    <span class="n">bound_box_text_start</span> <span class="o">=</span> <span class="s2">&quot;&lt;bndbox&gt;&quot;</span>
+
+                    <span class="n">xmin_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;xmin&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/xmin&gt;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">xmax_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;xmax&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/xmax&gt;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">ymin_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;ymin&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/ymin&gt;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">ymax_text</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;&lt;ymax&gt;&quot;</span>
+                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">df_smaller</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="s2">&quot;&lt;/ymax&gt;&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="n">bound_box_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/bndbox&gt;&quot;</span>
+                    <span class="n">object_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/object&gt;&quot;</span>
+                    <span class="n">annotation_text_end</span> <span class="o">=</span> <span class="s2">&quot;&lt;/annotation&gt;&quot;</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
+
+                    <span class="n">xmlstring</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">xmlstring</span>
+                        <span class="o">+</span> <span class="n">object_text_start</span>
+                        <span class="o">+</span> <span class="n">name_text</span>
+                        <span class="o">+</span> <span class="n">pose_text</span>
+                        <span class="o">+</span> <span class="n">truncated_text</span>
+                        <span class="o">+</span> <span class="n">difficult_text</span>
+                        <span class="o">+</span> <span class="n">occluded_text</span>
+                        <span class="o">+</span> <span class="n">bound_box_text_start</span>
+                        <span class="o">+</span> <span class="n">xmin_text</span>
+                        <span class="o">+</span> <span class="n">xmax_text</span>
+                        <span class="o">+</span> <span class="n">ymin_text</span>
+                        <span class="o">+</span> <span class="n">ymax_text</span>
+                        <span class="o">+</span> <span class="n">bound_box_text_end</span>
+                        <span class="o">+</span> <span class="n">object_text_end</span>
+                    <span class="p">)</span>
+
+                <span class="n">xmlstring</span> <span class="o">=</span> <span class="n">xmlstring</span> <span class="o">+</span> <span class="n">annotation_text_end</span>
+                <span class="n">dom</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">dom</span><span class="o">.</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">xmlstring</span><span class="p">)</span>
+                <span class="n">pretty_xml_as_string</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">()</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pretty_xml_as_string</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">output_file_path</span>
+
+        <span class="c1"># Loop through all images in the dataframe and call voc_xml_file_creation for each one</span>
+        <span class="k">for</span> <span class="n">file_title</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">img_filename</span><span class="p">)):</span>
+
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_title</span><span class="p">)</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_name</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.xml&quot;</span><span class="p">))</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+            <span class="n">voc_file_path</span> <span class="o">=</span> <span class="n">voc_xml_file_creation</span><span class="p">(</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                <span class="n">file_title</span><span class="p">,</span>
+                <span class="n">segmented</span><span class="o">=</span><span class="n">segmented_</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">database_</span><span class="p">,</span>
+                <span class="n">folder</span><span class="o">=</span><span class="n">folder_</span><span class="p">,</span>
+                <span class="n">occluded</span><span class="o">=</span><span class="n">occluded_</span><span class="p">,</span>
+                <span class="n">output_file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">output_file_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">voc_file_path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output_file_paths</span></div>
+
+<div class="viewcode-block" id="Export.ExportToYoloV5"><a class="viewcode-back" href="../../pylabel.html#pylabel.exporter.Export.ExportToYoloV5">[docs]</a>    <span class="k">def</span> <span class="nf">ExportToYoloV5</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;training/labels&quot;</span><span class="p">,</span>
+        <span class="n">yaml_file</span><span class="o">=</span><span class="s2">&quot;dataset.yaml&quot;</span><span class="p">,</span>
+        <span class="n">copy_images</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_splits</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cat_id_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes annotation files to disk in YOLOv5 format and returns the paths to files.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            output_path (str):</span>
+<span class="sd">                This is where the annotation files will be written.</span>
+<span class="sd">                If not-specified then the path will be derived from the .path_to_annotations and</span>
+<span class="sd">                .name properties of the dataset object. If you are exporting images to train a model, the recommended path</span>
+<span class="sd">                to use is &#39;training/labels&#39;.</span>
+<span class="sd">            yaml_file (str):</span>
+<span class="sd">                If a file name (string) is provided, a YOLOv5 YAML file will be created with entries for the files</span>
+<span class="sd">                and classes in this dataset. It will be created in the parent of the output_path directory.</span>
+<span class="sd">                The recommended name for the YAML file is &#39;dataset.yaml&#39;.</span>
+<span class="sd">            copy_images (boolean):</span>
+<span class="sd">                If True, then the annotated images will be copied to a directory next to the labels directory into</span>
+<span class="sd">                a directory named &#39;images&#39;. This will prepare your labels and images to be used as inputs to</span>
+<span class="sd">                train a YOLOv5 model.</span>
+<span class="sd">            use_splits (boolean):</span>
+<span class="sd">                If True, then the images and annotations will be moved into directories based on the values in the split column.</span>
+<span class="sd">                For example, if a row has the value split = &quot;train&quot; then the annotations for that row will be moved to directory</span>
+<span class="sd">                /train. If a YAML file is specificied then the YAML file will use the splits to specify the folders user for the</span>
+<span class="sd">                train, val, and test datasets.</span>
+<span class="sd">            cat_id_index (int):</span>
+<span class="sd">                Reindex the cat_id values so that that they start from an int (usually 0 or 1) and</span>
+<span class="sd">                then increment the cat_ids to index + number of categories continuously.</span>
+<span class="sd">                It&#39;s useful if the cat_ids are not continuous in the original dataset.</span>
+<span class="sd">                Yolo requires the set of annotations to start at 0 when training a model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list with 1 or more paths (strings) to annotations files. If a YAML file is created</span>
+<span class="sd">            then the first item in the list will be the path to the YAML file.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.export.ExportToYoloV5(output_path=&#39;training/labels&#39;,</span>
+<span class="sd">            &gt;&gt;&gt;     yaml_file=&#39;dataset.yaml&#39;, cat_id_index=0)</span>
+<span class="sd">            [&#39;training/dataset.yaml&#39;, &#39;training/labels/frame_0002.txt&#39;, ...]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
+
+        <span class="c1"># Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py</span>
+        <span class="n">yolo_dataset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Convert nan values in the split column from nan to &#39;&#39; because those are easier to with with when building paths</span>
+        <span class="n">yolo_dataset</span><span class="o">.</span><span class="n">split</span> <span class="o">=</span> <span class="n">yolo_dataset</span><span class="o">.</span><span class="n">split</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create all of the paths that will be used to manage the files in this dataset</span>
+        <span class="n">path_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># The output path is the main path that will be used to create the other relative paths</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">PurePath</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;label_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_path</span>
+        <span class="c1"># The /images directory should be next to the /labels directory</span>
+        <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">))</span>
+        <span class="c1"># The root directory is in parent of the /labels and /images directories</span>
+        <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;root_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+        <span class="c1"># The YAML file should be in root directory</span>
+        <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;yaml_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;root_path&quot;</span><span class="p">],</span> <span class="n">yaml_file</span><span class="p">))</span>
+        <span class="c1"># The root directory will usually be next to the yolov5 directory.</span>
+        <span class="c1"># Specify the relative path</span>
+        <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;root_path_from_yolo_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="s2">&quot;../&quot;</span><span class="p">))</span>
+        <span class="c1"># If these default values to not match the users environment then they can manually edit the YAML file</span>
+
+        <span class="k">if</span> <span class="n">copy_images</span><span class="p">:</span>
+            <span class="c1"># Create the folder that the images will be copied to</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Drop rows that are not annotated</span>
+        <span class="c1"># Note, having zero annotates can still be considered annotated</span>
+        <span class="c1"># in cases when are no objects in the image thats should be indentified</span>
+        <span class="n">yolo_dataset</span> <span class="o">=</span> <span class="n">yolo_dataset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;annotated&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cat_id_index</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cat_id_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;cat_id_index must be an int.&quot;</span>
+            <span class="n">_ReindexCatIds</span><span class="p">(</span><span class="n">yolo_dataset</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="p">)</span>
+
+        <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;center_x_scaled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;img_width&quot;</span><span class="p">]</span>
+        <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;center_y_scaled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;img_height&quot;</span><span class="p">]</span>
+        <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;width_scaled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;img_width&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;height_scaled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;img_height&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">yolo_dataset</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;cat_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;center_x_scaled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;center_y_scaled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;width_scaled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;height_scaled&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Create folders to store annotations</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dest_folder</span> <span class="o">=</span> <span class="n">PurePath</span><span class="p">(</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">path_to_annotations</span><span class="p">,</span> <span class="n">yolo_dataset</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">img_folder</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dest_folder</span> <span class="o">=</span> <span class="n">output_path</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dest_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">unique_images</span> <span class="o">=</span> <span class="n">yolo_dataset</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">output_file_paths</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">img_filename</span> <span class="ow">in</span> <span class="n">unique_images</span><span class="p">:</span>
+            <span class="n">df_single_img_annots</span> <span class="o">=</span> <span class="n">yolo_dataset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">yolo_dataset</span><span class="o">.</span><span class="n">img_filename</span> <span class="o">==</span> <span class="n">img_filename</span>
+            <span class="p">]</span>
+            <span class="n">annot_txt_file</span> <span class="o">=</span> <span class="n">img_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span>
+            <span class="c1"># Use the value of the split collumn to create a directory</span>
+            <span class="c1"># The values should be train, val, test or &#39;&#39;</span>
+            <span class="k">if</span> <span class="n">use_splits</span><span class="p">:</span>
+                <span class="n">split_dir</span> <span class="o">=</span> <span class="n">df_single_img_annots</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">split_dir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">dest_folder</span><span class="p">,</span> <span class="n">split_dir</span><span class="p">,</span> <span class="n">annot_txt_file</span><span class="p">))</span>
+            <span class="n">Path</span><span class="p">(</span>
+                <span class="n">dest_folder</span><span class="p">,</span>
+                <span class="n">split_dir</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">df_single_img_annots</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">destination</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+                <span class="n">float_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;cat_id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;center_x_scaled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;center_y_scaled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;width_scaled&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;height_scaled&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">output_file_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">copy_images</span><span class="p">:</span>
+                <span class="n">source_image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">Path</span><span class="p">(</span>
+                        <span class="n">ds</span><span class="o">.</span><span class="n">path_to_annotations</span><span class="p">,</span>
+                        <span class="n">df_single_img_annots</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">img_folder</span><span class="p">,</span>
+                        <span class="n">df_single_img_annots</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">img_filename</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">current_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">source_image_path</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">current_file</span><span class="o">.</span><span class="n">is_file</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;File does not exist: </span><span class="si">{</span><span class="n">source_image_path</span><span class="si">}</span><span class="s2">. Check img_folder column values.&quot;</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">],</span> <span class="n">split_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span>
+                    <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">source_image_path</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">],</span> <span class="n">split_dir</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">)),</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Create YAML file</span>
+        <span class="k">if</span> <span class="n">yaml_file</span><span class="p">:</span>
+            <span class="c1"># Make a set with all of the different values of the split column</span>
+            <span class="n">splits</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">yolo_dataset</span><span class="o">.</span><span class="n">split</span><span class="p">)</span>
+            <span class="c1"># Build a dict with all of the values that will go into the YAML file</span>
+            <span class="n">dict_file</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;root_path_from_yolo_dir&quot;</span><span class="p">]</span>
+
+            <span class="c1"># If train is one of the splits, append train to path</span>
+            <span class="k">if</span> <span class="n">use_splits</span> <span class="ow">and</span> <span class="s2">&quot;train&quot;</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">:</span>
+                <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">],</span> <span class="s2">&quot;train&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">]</span>
+
+            <span class="c1"># If val is one of the splits, append val to path</span>
+            <span class="k">if</span> <span class="n">use_splits</span> <span class="ow">and</span> <span class="s2">&quot;val&quot;</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">:</span>
+                <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">],</span> <span class="s2">&quot;val&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If there is no val split, use the train split as the val split</span>
+                <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+
+            <span class="c1"># If test is one of the splits, make a test param and add test to the path</span>
+            <span class="k">if</span> <span class="n">use_splits</span> <span class="ow">and</span> <span class="s2">&quot;test&quot;</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">:</span>
+                <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;image_path&quot;</span><span class="p">],</span> <span class="s2">&quot;test&quot;</span><span class="p">))</span>
+
+            <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;nc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">num_classes</span>
+            <span class="n">dict_file</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">analyze</span><span class="o">.</span><span class="n">classes</span>
+
+            <span class="c1"># Save the yamlfile</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;yaml_path&quot;</span><span class="p">],</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">documents</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">dict_file</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                <span class="n">output_file_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_dict</span><span class="p">[</span><span class="s2">&quot;yaml_path&quot;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">output_file_paths</span>
+
+        <span class="k">return</span> <span class="n">output_file_paths</span></div>
+
+<div class="viewcode-block" id="Export.ExportToCoco"><a class="viewcode-back" href="../../pylabel.html#pylabel.exporter.Export.ExportToCoco">[docs]</a>    <span class="k">def</span> <span class="nf">ExportToCoco</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes COCO annotation files to disk (in JSON format) and returns the path to files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_path (str):</span>
+<span class="sd">                This is where the annotation files will be written. If not-specified then the path will be derived from the path_to_annotations and</span>
+<span class="sd">                name properties of the dataset object.</span>
+<span class="sd">            cat_id_index (int):</span>
+<span class="sd">                Reindex the cat_id values so that that they start from an int (usually 0 or 1) and</span>
+<span class="sd">                then increment the cat_ids to index + number of categories continuously.</span>
+<span class="sd">                It&#39;s useful if the cat_ids are not continuous in the original dataset.</span>
+<span class="sd">                Some models like Yolo require starting from 0 and others like Detectron require starting from 1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list with 1 or more paths (strings) to annotations files.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; dataset.exporter.ExportToCoco()</span>
+<span class="sd">            [&#39;data/labels/dataset.json&#39;]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Copy the dataframe in the dataset so the original dataset doesn&#39;t change when you apply the export tranformations</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Tweak dataset for standardized output</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_iscrowd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_iscrowd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cat_id_index</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cat_id_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;cat_id_index must be an int.&quot;</span>
+            <span class="n">_ReindexCatIds</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cat_id_index</span><span class="p">)</span>
+
+        <span class="n">df_outputI</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">df_outputA</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">df_outputC</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_i</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">list_c</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">json_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_id&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;folder&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_path&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_width&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_height&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_depth&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+
+            <span class="n">annotations</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;image_id&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;img_id&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;segmented&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_segmented&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;bbox&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_area&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;segmentation&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_segmentation&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;iscrowd&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_iscrowd&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_pose&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;truncated&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_truncated&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;category_id&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;difficult&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_difficult&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+
+            <span class="n">categories</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;supercategory&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;cat_supercategory&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">list_c</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">categories</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">list_c</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">categories</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_outputC</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">categories</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">categories</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
+                <span class="n">df_outputC</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">categories</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">list_c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">categories</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">list_i</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">list_i</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_outputI</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">images</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
+                <span class="n">df_outputI</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">images</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">list_i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+
+            <span class="n">df_outputA</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">annotations</span><span class="p">]))</span>
+
+        <span class="n">mergedI</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outputI</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mergedA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outputA</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mergedC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outputC</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">resultI</span> <span class="o">=</span> <span class="n">mergedI</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">)</span>
+        <span class="n">resultA</span> <span class="o">=</span> <span class="n">mergedA</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">)</span>
+        <span class="n">resultC</span> <span class="o">=</span> <span class="n">mergedC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;split&quot;</span><span class="p">)</span>
+
+        <span class="n">parsedI</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resultI</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">parsedI</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">parsedI</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">parsedI</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsedI</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">parsedI</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+        <span class="n">parsedA</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resultA</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">parsedA</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">parsedA</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">parsedA</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsedA</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">parsedA</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+        <span class="n">parsedC</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resultC</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">parsedC</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">parsedC</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">parsedC</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsedC</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">parsedC</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+        <span class="n">parsedI</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parsedA</span><span class="p">)</span>
+        <span class="n">parsedI</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parsedC</span><span class="p">)</span>
+        <span class="n">json_output</span> <span class="o">=</span> <span class="n">parsedI</span>
+
+        <span class="k">if</span> <span class="n">output_path</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">path_to_annotations</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">outfile</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">)]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, PyLabel Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

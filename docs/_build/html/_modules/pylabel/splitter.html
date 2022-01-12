@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pylabel.splitter &mdash; PyLabel 0.1.30 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> PyLabel
+            <img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/arrow_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation :</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylabel.html">pylabel package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.analyze">pylabel.analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.dataset">pylabel.dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.exporter">pylabel.exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.importer">pylabel.importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.labeler">pylabel.labeler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.shared">pylabel.shared module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.splitter">pylabel.splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.visualize">pylabel.visualize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyLabel</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pylabel.splitter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pylabel.splitter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GroupShuffleSplit</span> <span class="k">as</span> <span class="n">sklearnGroupShuffleSplit</span>
+<span class="kn">from</span> <span class="nn">pylabel.shared</span> <span class="kn">import</span> <span class="n">schema</span>
+
+<div class="viewcode-block" id="Split"><a class="viewcode-back" href="../../pylabel.html#pylabel.splitter.Split">[docs]</a><span class="k">class</span> <span class="nc">Split</span><span class="p">():</span>
+    <span class="k">def</span>  <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+
+<div class="viewcode-block" id="Split.UnSplit"><a class="viewcode-back" href="../../pylabel.html#pylabel.splitter.Split.UnSplit">[docs]</a>    <span class="k">def</span> <span class="nf">UnSplit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unsplit the dataset by setting all values of the split column to null.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;split&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+<div class="viewcode-block" id="Split.GroupShuffleSplit"><a class="viewcode-back" href="../../pylabel.html#pylabel.splitter.Split.GroupShuffleSplit">[docs]</a>    <span class="k">def</span> <span class="nf">GroupShuffleSplit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_pct</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">test_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.25</span><span class="p">,</span> <span class="n">group_col</span> <span class="o">=</span> <span class="s1">&#39;img_filename&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function uses the GroupShuffleSplit command from sklearn. It can split into 3 groups (train,</span>
+<span class="sd">        test, and val) by applying the command twice. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_main</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span>
+        <span class="n">gss</span> <span class="o">=</span> <span class="n">sklearnGroupShuffleSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">train_pct</span><span class="p">)</span>
+        <span class="n">train_indexes</span><span class="p">,</span> <span class="n">test_indexes</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gss</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">df_main</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">df_main</span><span class="p">[</span><span class="n">group_col</span><span class="p">],</span> <span class="n">groups</span><span class="o">=</span><span class="n">df_main</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+
+        <span class="n">df_main</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">train_indexes</span><span class="p">,</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;train&quot;</span>
+        <span class="n">df_main</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">test_indexes</span><span class="p">,</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;test&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df_main</span>
+
+        <span class="k">if</span> <span class="n">val_pct</span><span class="p">:</span>
+            <span class="n">df_train</span> <span class="o">=</span> <span class="n">df_main</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_main</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+            <span class="n">df_test</span> <span class="o">=</span> <span class="n">df_main</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_main</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">]</span>
+            <span class="n">df_test</span> <span class="o">=</span> <span class="n">df_test</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="n">second_split_pct</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">test_pct</span><span class="o">/</span><span class="p">(</span><span class="n">test_pct</span><span class="o">+</span><span class="n">val_pct</span><span class="p">))</span>
+            <span class="n">gss2</span> <span class="o">=</span> <span class="n">sklearnGroupShuffleSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">second_split_pct</span><span class="p">)</span>
+            <span class="n">test_indexes_2</span><span class="p">,</span> <span class="n">val_indexes_2</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gss2</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">df_test</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">df_test</span><span class="p">[</span><span class="n">group_col</span><span class="p">],</span> <span class="n">groups</span><span class="o">=</span><span class="n">df_test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+            <span class="n">df_test</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">test_indexes_2</span><span class="p">,</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;test&quot;</span>
+            <span class="n">df_test</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">val_indexes_2</span><span class="p">,</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;val&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_test</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span></div>
+
+    <span class="c1">#Written with the help of https://stackoverflow.com/questions/56872664/complex-dataset-split-stratifiedgroupshufflesplit </span>
+<div class="viewcode-block" id="Split.StratifiedGroupShuffleSplit"><a class="viewcode-back" href="../../pylabel.html#pylabel.splitter.Split.StratifiedGroupShuffleSplit">[docs]</a>    <span class="k">def</span> <span class="nf">StratifiedGroupShuffleSplit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_pct</span><span class="o">=</span><span class="mf">.7</span><span class="p">,</span> <span class="n">test_pct</span><span class="o">=</span><span class="mf">.3</span><span class="p">,</span> <span class="n">val_pct</span><span class="o">=</span><span class="mf">.0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
+        <span class="n">group_col</span> <span class="o">=</span> <span class="s1">&#39;img_filename&#39;</span><span class="p">,</span> <span class="n">cat_col</span> <span class="o">=</span> <span class="s1">&#39;cat_name&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function will &#39;split&quot; the dataframe by setting the split collumn equal to </span>
+<span class="sd">        train, test, or val. When a split dataset is exported the annotations will be split into</span>
+<span class="sd">        seperate groups so that can be used used in model training, testing, and validation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_main</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span>
+        <span class="n">df_main</span> <span class="o">=</span> <span class="n">df_main</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">df_main</span><span class="o">.</span><span class="n">index</span><span class="p">))</span> <span class="c1"># shuffle dataset</span>
+
+        <span class="c1"># create empty train, val and test datasets</span>
+        <span class="n">df_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">df_val</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">df_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="n">subject_grouped_df_main</span> <span class="o">=</span> <span class="n">df_main</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">group_col</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">category_grouped_df_main</span> <span class="o">=</span> <span class="n">df_main</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cat_col</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()[[</span><span class="n">group_col</span><span class="p">]]</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">df_main</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+
+        <span class="c1">#Check inputs </span>
+        <span class="k">assert</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">weight</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;Weight must be between 0 and 1&quot;</span>
+        <span class="n">total_splits</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">train_pct</span><span class="p">)</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">test_pct</span><span class="p">)</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_pct</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">total_splits</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;Sum of train_pct, test_pct, and val_pct must equal 1.&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">batch_size</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">batch_size</span> <span class="o">&lt;=</span> <span class="n">subject_grouped_df_main</span><span class="o">.</span><span class="n">ngroups</span> <span class="o">/</span> <span class="mi">10</span> <span class="p">),</span> \
+            <span class="s2">&quot;Batch must be greater than 1 and less than 1/10 count of groups&quot;</span>
+
+        <span class="k">def</span> <span class="nf">calc_mse_loss</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="n">grouped_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cat_col</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()[[</span><span class="n">group_col</span><span class="p">]]</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+            <span class="n">df_temp</span> <span class="o">=</span> <span class="n">category_grouped_df_main</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">grouped_df</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="n">cat_col</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">lsuffix</span> <span class="o">=</span> <span class="s1">&#39;_main&#39;</span><span class="p">)</span>
+            <span class="n">df_temp</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">df_temp</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_temp</span><span class="p">[</span><span class="s1">&#39;img_filename_main&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_temp</span><span class="p">[</span><span class="n">group_col</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">mse_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">df_temp</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">mse_loss</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#counter for all items in dataset</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#counter for the batches</span>
+        <span class="n">batch_df</span> <span class="o">=</span> <span class="n">df_main</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">subject_grouped_df_main</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">df_train</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">df_val</span> <span class="o">=</span> <span class="n">df_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_test</span> <span class="o">=</span> <span class="n">df_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
+
+            <span class="c1">#Add groups to the </span>
+            <span class="n">batch_df</span> <span class="o">=</span> <span class="n">batch_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">batch_size</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">subject_grouped_df_main</span><span class="o">.</span><span class="n">ngroups</span><span class="o">-</span><span class="mi">3</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+
+            <span class="n">mse_loss_diff_train</span> <span class="o">=</span> <span class="n">calc_mse_loss</span><span class="p">(</span><span class="n">df_train</span><span class="p">)</span> <span class="o">-</span> <span class="n">calc_mse_loss</span><span class="p">(</span><span class="n">df_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">mse_loss_diff_val</span> <span class="o">=</span> <span class="n">calc_mse_loss</span><span class="p">(</span><span class="n">df_val</span><span class="p">)</span> <span class="o">-</span> <span class="n">calc_mse_loss</span><span class="p">(</span><span class="n">df_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">mse_loss_diff_test</span> <span class="o">=</span> <span class="n">calc_mse_loss</span><span class="p">(</span><span class="n">df_test</span><span class="p">)</span> <span class="o">-</span> <span class="n">calc_mse_loss</span><span class="p">(</span><span class="n">df_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="n">total_records</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_train</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_val</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_test</span><span class="p">)</span>
+
+            <span class="n">len_diff_train</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_pct</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_train</span><span class="p">)</span><span class="o">/</span><span class="n">total_records</span><span class="p">))</span>
+            <span class="n">len_diff_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">val_pct</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_val</span><span class="p">)</span><span class="o">/</span><span class="n">total_records</span><span class="p">))</span>
+            <span class="n">len_diff_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_pct</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_test</span><span class="p">)</span><span class="o">/</span><span class="n">total_records</span><span class="p">))</span> 
+
+            <span class="n">len_loss_diff_train</span> <span class="o">=</span> <span class="n">len_diff_train</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">len_diff_train</span><span class="p">)</span>
+            <span class="n">len_loss_diff_val</span> <span class="o">=</span> <span class="n">len_diff_val</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">len_diff_val</span><span class="p">)</span>
+            <span class="n">len_loss_diff_test</span> <span class="o">=</span> <span class="n">len_diff_test</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">len_diff_test</span><span class="p">)</span>
+
+            <span class="n">loss_train</span> <span class="o">=</span> <span class="p">(</span><span class="n">weight</span> <span class="o">*</span> <span class="n">mse_loss_diff_train</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">len_loss_diff_train</span><span class="p">)</span>
+            <span class="n">loss_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">weight</span> <span class="o">*</span> <span class="n">mse_loss_diff_val</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">len_loss_diff_val</span><span class="p">)</span>
+            <span class="n">loss_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">weight</span> <span class="o">*</span> <span class="n">mse_loss_diff_test</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">len_loss_diff_test</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">loss_train</span><span class="p">,</span><span class="n">loss_val</span><span class="p">,</span><span class="n">loss_test</span><span class="p">)</span> <span class="o">==</span> <span class="n">loss_train</span><span class="p">):</span>
+                <span class="n">df_train</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">loss_train</span><span class="p">,</span><span class="n">loss_val</span><span class="p">,</span><span class="n">loss_test</span><span class="p">)</span> <span class="o">==</span> <span class="n">loss_val</span><span class="p">):</span>
+                <span class="n">df_val</span> <span class="o">=</span> <span class="n">df_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_test</span> <span class="o">=</span> <span class="n">df_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1">#print (&quot;Group &quot; + str(i) + &quot;. loss_train: &quot; + str(loss_train) + &quot; | &quot; + &quot;loss_val: &quot; + str(loss_val) + &quot; | &quot; + &quot;loss_test: &quot; + str(loss_test) + &quot; | &quot;)</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1">#Reset the batch</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">batch_df</span> <span class="o">=</span> <span class="n">df_main</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+
+
+        <span class="c1">######</span>
+        <span class="c1"># Final prep tasks before returning the split dataframe</span>
+
+        <span class="c1">#Sometimes the algo will put some rows in the val set even if the split percent was set to zero</span>
+        <span class="c1">#In those cases move the rows from val to test </span>
+        <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="n">val_pct</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">df_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_val</span><span class="p">)</span>
+            <span class="n">df_val</span> <span class="o">=</span> <span class="n">df_val</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#remove the values from </span>
+
+        <span class="c1">#Apply train, split, val labels to the split collumn </span>
+        <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;train&#39;</span>
+        <span class="n">df_test</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+        <span class="n">df_val</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;val&#39;</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_test</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_val</span><span class="p">)</span>
+        
+        <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">df_main</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;Output shape does not match input shape. Data loss has occured.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, PyLabel Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

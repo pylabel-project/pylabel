@@ -1,0 +1,12 @@
+pandas
+bbox_visualizer
+matplotlib
+opencv-python
+scikit-learn
+jupyter_bbox_widget
+pyyaml
+pytest
+pytest-lazy-fixture
+black
+nbmake
+sphinx_rtd_theme

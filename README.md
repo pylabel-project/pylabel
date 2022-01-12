@@ -1,9 +1,16 @@
 # PyLabel 
 
-```
-pip install pylabel
-```
-<img src="https://img.shields.io/pypi/dm/pylabel?style=plastic">&nbsp;&nbsp;&nbsp;<a href="https://colab.research.google.com/github/pylabel-project/samples/blob/main/coco2voc.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+<a href="https://pypi.org/project/pylabel/">
+<img alt="PyPI" src="https://img.shields.io/pypi/v/pylabel?color=gre">&nbsp;&nbsp;
+<img src="https://img.shields.io/pypi/dm/pylabel?style=plastic"></a>
+&nbsp;&nbsp;
+
+<a href='https://pylabel.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/pylabel/badge/?version=latest' alt='Documentation Status' />
+</a>
+&nbsp;&nbsp;<a href="https://colab.research.google.com/github/pylabel-project/samples/blob/main/coco2voc.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+&nbsp;
+
 <p><p>
 PyLabel is a Python package to help you prepare image datasets for computer vision models including PyTorch and YOLOv5. It can translate bounding box annotations between different formats. (For example, COCO to YOLO.) And it includes an AI-assisted labeling tool that runs in a Jupyter notebook. 
 
@@ -28,6 +35,7 @@ See PyLabel in action in these [sample Jupyter notebooks](https://github.com/pyl
 - [Splitting Images Datasets into Train, Test, Val](https://github.com/pylabel-project/samples/blob/main/dataset_splitting.ipynb)
 - [Labeling Tool Demo with AI Assisted Labeling](https://github.com/pylabel-project/samples/blob/main/pylabeler.ipynb)
 
+Find more docs at https://pylabel.readthedocs.io. 
 
 ## About PyLabel 
-PyLabel is being developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabelalpha/package/issues). Please let us know how we can make PyLabel more useful. 
+PyLabel was developed by Jeremy Fraenkel, Alex Heaton, and Derek Topper as the Capstope project for the Master of Information and Data Science (MIDS) at the UC Berkeley School of Information. If you have any questions or feedback please [create an issue](https://github.com/pylabel-project/pylabel/issues). Please let us know how we can make PyLabel more useful. 

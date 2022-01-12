@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pylabel.importer &mdash; PyLabel 0.1.30 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> PyLabel
+            <img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/arrow_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation :</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pylabel.html">pylabel package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.analyze">pylabel.analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.dataset">pylabel.dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.exporter">pylabel.exporter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.importer">pylabel.importer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.labeler">pylabel.labeler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.shared">pylabel.shared module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.splitter">pylabel.splitter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel.visualize">pylabel.visualize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pylabel.html#module-pylabel">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyLabel</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>pylabel.importer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pylabel.importer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module includes the commands to import an existing dataset. </span>
+<span class="sd">PyLabel current supports importing labels from COCO, YOLO, and VOC formats. </span>
+<span class="sd">You can also import set of images that do not have labels yet and label them manually using the PyLabel</span>
+<span class="sd">labelling tool. &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PurePath</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">pylabel.shared</span> <span class="kn">import</span> <span class="n">schema</span>
+<span class="kn">from</span> <span class="nn">pylabel.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">pylabel.exporter</span> <span class="kn">import</span> <span class="n">Export</span>
+
+
+<span class="k">def</span> <span class="nf">_GetValueOrBlank</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">user_input</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If an element is missing from the XML file reading the .text value will return an error.</span>
+<span class="sd">    If the element does not exist return &quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">user_input</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">text</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">user_input</span>
+
+
+<span class="c1"># These are the valid columns in the pylabel annotations table.</span>
+<div class="viewcode-block" id="ImportCoco"><a class="viewcode-back" href="../../pylabel.html#pylabel.importer.ImportCoco">[docs]</a><span class="k">def</span> <span class="nf">ImportCoco</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">path_to_images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function takes the path to a JSON file in COCO format as input. It returns a PyLabel dataset object that contains the annotations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        PyLabel dataset object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str):The path to the JSON file with the COCO annotations.</span>
+<span class="sd">        path_to_images (str): The path to the images relative to the json file.</span>
+<span class="sd">            If the images are in the same directory as the JSON file then omit this parameter.</span>
+<span class="sd">            If the images are in a different directory on the same level as the annotations then you would</span>
+<span class="sd">            set `path_to_images=&#39;../images/&#39;`</span>
+<span class="sd">        name (str): This will set the dataset.name property for this dataset.</span>
+<span class="sd">            If not specified, the filename (without extension) of the COCO annotation file file will be used as the dataset name.</span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; from pylabel import importer</span>
+<span class="sd">        &gt;&gt;&gt; dataset = importer.ImportCoco(&quot;coco_annotations.json&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">cocojson</span><span class="p">:</span>
+        <span class="n">annotations_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cocojson</span><span class="p">)</span>
+
+    <span class="c1"># Store the 3 sections of the json as seperate json arrays</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">annotations_json</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">])</span>
+    <span class="n">images</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="s2">&quot;img_&quot;</span> <span class="o">+</span> <span class="n">images</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">images</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">images</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># print(images)</span>
+
+    <span class="c1"># If the user has specified a different image folder then use that one</span>
+    <span class="k">if</span> <span class="n">path_to_images</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">images</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_to_images</span>
+
+    <span class="n">astype_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;img_width&quot;</span><span class="p">:</span> <span class="s2">&quot;int64&quot;</span><span class="p">,</span> <span class="s2">&quot;img_height&quot;</span><span class="p">:</span> <span class="s2">&quot;int64&quot;</span><span class="p">,</span> <span class="s2">&quot;img_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;int64&quot;</span><span class="p">}</span>
+    <span class="n">astype_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">astype_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">astype_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">images</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">astype_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+    <span class="c1"># print(astype_dict)</span>
+    <span class="c1"># images = images.astype({&#39;img_width&#39;: &#39;int64&#39;,&#39;img_height&#39;: &#39;int64&#39;,&#39;img_depth&#39;: &#39;int64&#39;})</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">astype_dict</span><span class="p">)</span>
+
+    <span class="n">annotations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">annotations_json</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">])</span>
+    <span class="n">annotations</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="s2">&quot;ann_&quot;</span> <span class="o">+</span> <span class="n">annotations</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="n">categories</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">json_normalize</span><span class="p">(</span><span class="n">annotations_json</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">])</span>
+    <span class="n">categories</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="s2">&quot;cat_&quot;</span> <span class="o">+</span> <span class="n">categories</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">annotations</span>
+    <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">,</span> <span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">,</span> <span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">,</span> <span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">ann_bbox</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">])</span>
+
+    <span class="c1"># debug print(df.info())</span>
+
+    <span class="c1"># Join the annotions with the information about the image to add the image columns to the dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;img_id&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;ann_image_id&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">categories</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;ann_category_id&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;cat_id&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Rename columns if needed from the coco column name to the pylabel column name</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;img_file_name&quot;</span><span class="p">:</span> <span class="s2">&quot;img_filename&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Drop columns that are not in the schema</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">schema</span><span class="p">)]</span>
+
+    <span class="c1"># Add missing columns that are in the schema but not part of the table</span>
+    <span class="n">df</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Reorder columns</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">annotated</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># These should be strings</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">cat_id</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">cat_id</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># These should be integers</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">img_width</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">img_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">img_height</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">img_height</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="c1"># Assign the filename (without extension) as the name of the dataset</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="n">dataset</span><span class="o">.</span><span class="n">path_to_annotations</span> <span class="o">=</span> <span class="n">PurePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+<div class="viewcode-block" id="ImportVOC"><a class="viewcode-back" href="../../pylabel.html#pylabel.importer.ImportVOC">[docs]</a><span class="k">def</span> <span class="nf">ImportVOC</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">path_to_images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provide the path a directory with annotations in VOC Pascal XML format and it returns a PyLabel dataset object that contains the annotations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        PyLabel dataset object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): The path to the directory with the annotations in VOC Pascal XML format.</span>
+<span class="sd">        path_to_images (str): The path to the images relative to the annotations.</span>
+<span class="sd">            If the images are in the same directory as the annotation files then omit this parameter.</span>
+<span class="sd">            If the images are in a different directory on the same level as the annotations then you would</span>
+<span class="sd">            set `path_to_images=&#39;../images/&#39;`</span>
+<span class="sd">        name (str): Default is &#39;dataset&#39;. This will set the dataset.name property for this dataset.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; from pylabel import importer</span>
+<span class="sd">        &gt;&gt;&gt; dataset = importer.ImportVOC(path=&quot;annotations/&quot;, path_to_images=&quot;../images/&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create an empty dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+    <span class="c1"># the dictionary to pass to pandas dataframe</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">row_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">img_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">cat_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">GetCatId</span><span class="p">(</span><span class="n">cat_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This will assign a numeric cat_id to each cat_name.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cat_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cat_names</span><span class="p">:</span>
+            <span class="n">cat_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cat_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cat_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">cat_name</span><span class="p">)</span>
+
+    <span class="c1"># iterate over files in that directory</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xml&quot;</span><span class="p">):</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">xml_data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>  <span class="c1"># Read file</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="n">xml_data</span><span class="p">)</span>  <span class="c1"># Parse XML</span>
+            <span class="n">folder</span> <span class="o">=</span> <span class="n">_GetValueOrBlank</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;folder&quot;</span><span class="p">),</span> <span class="n">user_input</span><span class="o">=</span><span class="n">path_to_images</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">)</span>
+            <span class="n">size_width</span> <span class="o">=</span> <span class="n">size</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;width&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">size_height</span> <span class="o">=</span> <span class="n">size</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">size_depth</span> <span class="o">=</span> <span class="n">_GetValueOrBlank</span><span class="p">(</span><span class="n">size</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">))</span>
+            <span class="n">segmented</span> <span class="o">=</span> <span class="n">_GetValueOrBlank</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;segmented&quot;</span><span class="p">))</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># Build dictionary that will be become the row in the dataframe</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">folder</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_id</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">size_width</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">size_height</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">size_depth</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_segmented&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segmented</span>
+
+            <span class="nb">object</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">object</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GetCatId</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">])</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_pose&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GetValueOrBlank</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;pose&quot;</span><span class="p">))</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_truncated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GetValueOrBlank</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;truncated&quot;</span><span class="p">))</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_difficult&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_GetValueOrBlank</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;difficult&quot;</span><span class="p">))</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;bndbox&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;xmin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;bndbox&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;ymin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;bndbox&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;xmax&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;bndbox&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;ymax&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;split&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="c1"># Add this row to the dict</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">row_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                <span class="c1"># increment the rowid</span>
+                <span class="n">row_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Increment the imageid because we are going to read annother file</span>
+        <span class="n">img_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Convert the dict with all of the annotation data to a dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">annotated</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># These should be strings</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">cat_id</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">cat_id</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># These should be integers</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">img_width</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">img_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">img_height</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">img_height</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Reorder columns</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">path_to_annotations</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="c1"># Get the path without the filename</span>
+    <span class="c1"># dataset.path_to_annotations = &quot;Alex ander&quot;</span>
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+<div class="viewcode-block" id="ImportYoloV5"><a class="viewcode-back" href="../../pylabel.html#pylabel.importer.ImportYoloV5">[docs]</a><span class="k">def</span> <span class="nf">ImportYoloV5</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">,</span>
+    <span class="n">img_ext</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
+    <span class="n">cat_names</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">path_to_images</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provide the path a directory with annotations in YOLO format and it returns a PyLabel dataset object that contains the annotations.</span>
+<span class="sd">    The Yolo format does not store much information about the images, such as the height and width. When you import a</span>
+<span class="sd">    Yolo dataset PyLabel will extract this information from the images.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        PyLabel dataset object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): The path to the directory with the annotations in YOLO format.</span>
+<span class="sd">        img_ext (str): Specify the file extension of your images: .jpeg, .png, etc. Because the YOLO format</span>
+<span class="sd">            does not store filename of the image, it must be specified if you are converting from YOLO to another format.</span>
+<span class="sd">        cat_names (list): YOLO anotations only store a class number, not the name. You can provide a list of class ids</span>
+<span class="sd">            that correspend to the int used to represent that class in the annotations. For example `[&#39;Squirrel,&#39;Nut&#39;]`.</span>
+
+<span class="sd">            If you have the class names already stored in a YOLO YAML file then use the ImportYoloV5WithYaml method to</span>
+<span class="sd">            automatically read the class names from that file.</span>
+<span class="sd">        path_to_images (str): The path to the images relative to the annotations.</span>
+<span class="sd">            If the images are in the same directory as the annotation files then omit this parameter.</span>
+<span class="sd">            If the images are in a different directory on the same level as the annotations then you would</span>
+<span class="sd">            set `path_to_images=&#39;../images/&#39;`</span>
+<span class="sd">        name (str): Default is &#39;dataset&#39;. This will set the dataset.name property for this dataset.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; from pylabel import importer</span>
+<span class="sd">        &gt;&gt;&gt; dataset = importer.ImportYoloV5(path=&quot;labels/&quot;, path_to_images=&quot;../images/&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">GetCatNameFromId</span><span class="p">(</span><span class="n">cat_id</span><span class="p">,</span> <span class="n">cat_names</span><span class="p">):</span>
+        <span class="n">cat_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cat_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">cat_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cat_names</span><span class="p">[</span><span class="n">cat_id</span><span class="p">]</span>
+
+    <span class="c1"># Create an empty dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+    <span class="c1"># the dictionary to pass to pandas dataframe</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">row_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">img_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># iterate over files in that directory</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.txt&quot;</span><span class="p">):</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>  <span class="c1"># Read file</span>
+
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
+
+                <span class="p">(</span>
+                    <span class="n">cat_id</span><span class="p">,</span>
+                    <span class="n">x_center_norm</span><span class="p">,</span>
+                    <span class="n">y_center_norm</span><span class="p">,</span>
+                    <span class="n">width_norm</span><span class="p">,</span>
+                    <span class="n">height_norm</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_to_images</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="n">img_ext</span><span class="p">)</span>
+
+                <span class="c1"># Get the path to the image file to extract the height, width, and depth</span>
+                <span class="n">image_path</span> <span class="o">=</span> <span class="n">PurePath</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">path_to_images</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">])</span>
+
+                <span class="c1"># Check if there is a file at this location.</span>
+                <span class="k">assert</span> <span class="n">exists</span><span class="p">(</span>
+                    <span class="n">image_path</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;File does not exist: </span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">. Check path_to_images and img_ext arguments.&quot;</span>
+
+                <span class="n">im</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">image_path</span><span class="p">))</span>
+                <span class="n">img_height</span><span class="p">,</span> <span class="n">img_width</span><span class="p">,</span> <span class="n">img_depth</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span>
+
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_id</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_width</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_height</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_depth</span>
+
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">width_norm</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_width</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">height_norm</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_height</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x_center_norm</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_width</span> <span class="o">-</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y_center_norm</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_height</span> <span class="o">+</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_xmin&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_ymax&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span>
+
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ann_bbox_height&quot;</span><span class="p">]</span>
+
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;cat_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cat_id</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GetCatNameFromId</span><span class="p">(</span><span class="n">cat_id</span><span class="p">,</span> <span class="n">cat_names</span><span class="p">)</span>
+
+                <span class="c1"># Add this row to the dict</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">row_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
+                <span class="n">row_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">img_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">annotated</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># These should be strings</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">cat_id</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">cat_id</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># These should be integers</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">img_width</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">img_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">img_height</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">img_height</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Reorder columns</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">path_to_annotations</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+<div class="viewcode-block" id="ImportImagesOnly"><a class="viewcode-back" href="../../pylabel.html#pylabel.importer.ImportImagesOnly">[docs]</a><span class="k">def</span> <span class="nf">ImportImagesOnly</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import a directory of images as a dataset with no annotations.</span>
+<span class="sd">    Then use PyLabel to annote the images. Will import images with these extensions:</span>
+<span class="sd">    (&#39;.png&#39;, &#39;.jpg&#39;, &#39;.jpeg&#39;, &#39;.tiff&#39;, &#39;.bmp&#39;, &#39;.gif&#39;)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str):</span>
+<span class="sd">            The path to the directory with the images.</span>
+<span class="sd">        name (str):</span>
+<span class="sd">            Default is &#39;dataset&#39;. Descriptive name, which is used when outputting files.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        A dataset object with one row for each image and no annotations.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; from pylabel import importer</span>
+<span class="sd">        &gt;&gt;&gt; dataset = importer.ImportImagesOnly(path=&quot;images/&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create an empty dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+    <span class="c1"># the dictionary to pass to pandas dataframe</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">img_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># iterate over files in that directory</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.tiff&quot;</span><span class="p">,</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;.gif&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">PurePath</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_filename&quot;</span><span class="p">])</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">image_path</span><span class="p">))</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># If the file is not an image then this will fail</span>
+                <span class="n">im</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error reading file &#39;</span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">&#39;. Exclude non-image files by using the ends_width param.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">img_height</span><span class="p">,</span> <span class="n">img_width</span><span class="p">,</span> <span class="n">img_depth</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span>
+
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_id</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_width</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_height</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;img_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_depth</span>
+            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;cat_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="c1"># Add this row to the dict</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span>
+            <span class="n">img_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;id&quot;</span>
+
+    <span class="c1"># Reorder columns</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">path_to_annotations</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+<span class="k">def</span> <span class="nf">_yaml_reader</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import the YAML File for the YOLOv5 data as dict.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="ImportYoloV5WithYaml"><a class="viewcode-back" href="../../pylabel.html#pylabel.importer.ImportYoloV5WithYaml">[docs]</a><span class="k">def</span> <span class="nf">ImportYoloV5WithYaml</span><span class="p">(</span>
+    <span class="n">yaml_file</span><span class="p">,</span>
+    <span class="n">image_ext</span><span class="o">=</span><span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
+    <span class="n">name_of_annotations_folder</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
+    <span class="n">path_to_annotations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import a YOLO dataset by reading the YAML file to extract the class names, image and label locations,</span>
+<span class="sd">    and preserve if an image should be in the train, test, or val split.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        PyLabel dataset object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        yaml_file (str):</span>
+<span class="sd">            Path to the yaml file that describes the dataset to be imported.</span>
+<span class="sd">        image_ext (str):</span>
+<span class="sd">            The image file extension.</span>
+<span class="sd">        path_to_annotations (str):</span>
+<span class="sd">            the path to the annotations file; if path to annotations is none, file replaces name of images file from yaml file with annotations.</span>
+<span class="sd">        name_of_annotations_folder (str):</span>
+<span class="sd">            Default is &quot;labels&quot;. Change this to &quot;annotations&quot; if your folder is called &quot;annotations&quot;</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; from pylabel import importer</span>
+<span class="sd">        &gt;&gt;&gt; dataset = importer.ImportYoloV5WithYaml(yaml_file=&#39;data/dataset.yaml&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Note to other developers:</span>
+<span class="sd">    As a note, the &quot;path_to_images&quot; variable in this code refers to the relative path relative to the path to annotations.</span>
+<span class="sd">    It is different than the path to images specified in the YAML file.</span>
+<span class="sd">    PyLabel uses the former to establish its pathing and the latter path to actually view the needed data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">path_to_annotations_copy</span> <span class="o">=</span> <span class="n">path_to_annotations</span>
+
+    <span class="k">if</span> <span class="n">path_to_annotations</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path_to_annotations_defined</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path_to_annotations_defined</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_yaml_reader</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">)</span>
+    <span class="n">yoloclasses</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;names&quot;</span><span class="p">]</span>
+
+    <span class="n">iterated_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">splitted</span> <span class="ow">in</span> <span class="n">iterated_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">splitted</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;nc&quot;</span><span class="p">,</span> <span class="s2">&quot;names&quot;</span><span class="p">]:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">path_to_images</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">splitted</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;split type not in the YAML file.&quot;</span><span class="p">)</span>
+            <span class="c1"># if counter &gt; 0</span>
+            <span class="c1"># change PoA to new split type</span>
+
+            <span class="c1"># if</span>
+            <span class="k">if</span> <span class="n">path_to_annotations</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">counter</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># In case your folder is called labels or some thing else that doesn&#39;t jive with what we want you to call it.</span>
+                <span class="k">if</span> <span class="n">path_to_annotations_defined</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">path_to_annotations</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                        <span class="n">PurePath</span><span class="p">(</span>
+                            <span class="n">path_to_annotations_copy</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                                <span class="n">iterated_list</span><span class="p">[</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">splitted</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># This probably needs to be reworked but there&#39;s potentially an issue with resetting the path</span>
+                <span class="c1"># to annotations as we iterate through each split type.</span>
+                <span class="k">elif</span> <span class="n">name_of_annotations_folder</span> <span class="o">!=</span> <span class="s2">&quot;labels&quot;</span> <span class="ow">and</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">path_to_annotations</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                        <span class="n">PurePath</span><span class="p">(</span>
+                            <span class="n">path_to_annotations</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                                <span class="n">iterated_list</span><span class="p">[</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">splitted</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">name_of_annotations_folder</span> <span class="o">!=</span> <span class="s2">&quot;labels&quot;</span> <span class="ow">and</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">path_to_annotations</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                        <span class="n">PurePath</span><span class="p">(</span>
+                            <span class="n">path_to_images</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="n">name_of_annotations_folder</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path_to_annotations</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                        <span class="n">PurePath</span><span class="p">(</span><span class="n">path_to_images</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="s2">&quot;labels&quot;</span><span class="p">))</span>
+                    <span class="p">)</span>
+
+                <span class="n">path_to_images</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PurePath</span><span class="p">(</span><span class="s2">&quot;../../images/&quot;</span><span class="p">,</span> <span class="n">splitted</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dataset</span> <span class="o">=</span> <span class="n">ImportYoloV5</span><span class="p">(</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path_to_annotations</span><span class="p">,</span>
+                    <span class="n">path_to_images</span><span class="o">=</span><span class="n">path_to_images</span><span class="p">,</span>
+                    <span class="n">cat_names</span><span class="o">=</span><span class="n">yoloclasses</span><span class="p">,</span>
+                    <span class="n">img_ext</span><span class="o">=</span><span class="n">image_ext</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;split&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">splitted</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dataset2</span> <span class="o">=</span> <span class="n">ImportYoloV5</span><span class="p">(</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path_to_annotations</span><span class="p">,</span>
+                    <span class="n">path_to_images</span><span class="o">=</span><span class="n">path_to_images</span><span class="p">,</span>
+                    <span class="n">cat_names</span><span class="o">=</span><span class="n">yoloclasses</span><span class="p">,</span>
+                    <span class="n">img_ext</span><span class="o">=</span><span class="n">image_ext</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">dataset2</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;split&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">splitted</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataset2</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">dataset</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, PyLabel Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
