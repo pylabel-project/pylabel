@@ -82,6 +82,19 @@ class Analyze:
         """
         return self.dataset.df["img_filename"].nunique()
 
+    @property
+    def class_name_id_map(self):
+        """Returns a dict where the class name is the key and class id is the value.
+
+        Returns:
+            Dict
+
+        Example:
+            >>> dataset.analyze.class_name_id_map()
+            {('Squirrel', 0),('Nut', 1)}
+        """
+        return dict(zip(self.dataset.df.cat_name, self.dataset.df.cat_id))
+
     def ShowClassSplits(self, normalize=True):
         """Show the distribution of classes across train, val, and
         test splits of the dataset.
