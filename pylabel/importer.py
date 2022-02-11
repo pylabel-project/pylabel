@@ -79,8 +79,15 @@ def ImportCoco(path, path_to_images=None, name=None):
 
     categories = pd.json_normalize(annotations_json["categories"])
     categories.columns = "cat_" + categories.columns
+    
+    # Converting this to string resolves issue #23
+    categories.cat_id = categories.cat_id.astype(str)
 
     df = annotations
+
+    # Converting this to string resolves issue #23
+    df.ann_category_id = df.ann_category_id.astype(str)
+    
     df[
         ["ann_bbox_xmin", "ann_bbox_ymin", "ann_bbox_width", "ann_bbox_height"]
     ] = pd.DataFrame(df.ann_bbox.tolist(), index=df.index)
