@@ -83,9 +83,6 @@ def ImportCoco(path, path_to_images=None, name=None):
     # Converting this to string resolves issue #23
     categories.cat_id = categories.cat_id.astype(str)
 
-    # Converting this to string resolves issue #23
-    categories.cat_id = categories.cat_id.astype(str)
-
     df = annotations
 
     # Converting this to string resolves issue #23
