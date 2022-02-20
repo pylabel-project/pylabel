@@ -79,7 +79,7 @@ def ImportCoco(path, path_to_images=None, name=None):
 
     categories = pd.json_normalize(annotations_json["categories"])
     categories.columns = "cat_" + categories.columns
-    
+
     # Converting this to string resolves issue #23
     categories.cat_id = categories.cat_id.astype(str)
 
@@ -87,7 +87,7 @@ def ImportCoco(path, path_to_images=None, name=None):
 
     # Converting this to string resolves issue #23
     df.ann_category_id = df.ann_category_id.astype(str)
-    
+
     df[
         ["ann_bbox_xmin", "ann_bbox_ymin", "ann_bbox_width", "ann_bbox_height"]
     ] = pd.DataFrame(df.ann_bbox.tolist(), index=df.index)
@@ -244,7 +244,7 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
 
 def ImportYoloV5(
     path,
-    img_ext="jpg",
+    img_ext="jpg,jpeg,png",
     cat_names=[],
     path_to_images="",
     name="dataset",
@@ -259,11 +259,12 @@ def ImportYoloV5(
 
     Args:
         path (str): The path to the directory with the annotations in YOLO format.
-        img_ext (str): Specify the file extension of your images: .jpeg, .png, etc. Because the YOLO format
-            does not store filename of the image, it must be specified if you are converting from YOLO to another format.
-        cat_names (list): YOLO anotations only store a class number, not the name. You can provide a list of class ids
-            that correspend to the int used to represent that class in the annotations. For example `['Squirrel,'Nut']`.
-
+        img_ext (str, comma separated): Specify the file extension(s) of the images used in your dataset:
+         .jpeg, .png, etc. This is required because the YOLO format does not store the filename of the images.
+         It could be any of the image formats supported by YoloV5. PyLabel will iterate through the file extensions
+         specified until it finds a match.
+        cat_names (list): YOLO annotations only store a class number, not the name. You can provide a list of class ids
+            that correspond to the int used to represent that class in the annotations. For example `['Squirrel,'Nut']`.
             If you have the class names already stored in a YOLO YAML file then use the ImportYoloV5WithYaml method to
             automatically read the class names from that file.
         path_to_images (str): The path to the images relative to the annotations.
@@ -308,15 +309,25 @@ def ImportYoloV5(
                     height_norm,
                 ) = line.split()
                 row["img_folder"] = path_to_images
-                row["img_filename"] = filename.name.replace("txt", img_ext)
 
-                # Get the path to the image file to extract the height, width, and depth
-                image_path = PurePath(path, path_to_images, row["img_filename"])
+                # Figure out what the extension is of the corresponding image file
+                # by looping through the extension in the img_ext parameter
+                found_image = False
+                for ext in img_ext.split(","):
+                    image_filename = filename.name.replace("txt", ext)
+
+                    # Get the path to the image file to extract the height, width, and depth
+                    image_path = PurePath(path, path_to_images, image_filename)
+                    if exists(image_path):
+                        found_image = True
+                        break
 
                 # Check if there is a file at this location.
-                assert exists(
-                    image_path
-                ), f"File does not exist: {image_path}. Check path_to_images and img_ext arguments."
+                assert (
+                    found_image == True
+                ), f"No image file found: {image_path}. Check path_to_images and img_ext arguments."
+
+                row["img_filename"] = image_filename
 
                 im = cv2.imread(str(image_path))
                 img_height, img_width, img_depth = im.shape
