@@ -297,70 +297,96 @@ def ImportYoloV5(
         if filename.is_file() and filename.name.endswith(".txt"):
             filepath = filename.path
             file = open(filepath, "r")  # Read file
+            row = {}
 
-            for line in file:
-                row = {}
+            # First find the image files and extract the metadata about the image
+            row["img_folder"] = path_to_images
 
-                (
-                    cat_id,
-                    x_center_norm,
-                    y_center_norm,
-                    width_norm,
-                    height_norm,
-                ) = line.split()
-                row["img_folder"] = path_to_images
+            # Figure out what the extension is of the corresponding image file
+            # by looping through the extension in the img_ext parameter
+            found_image = False
+            for ext in img_ext.split(","):
+                image_filename = filename.name.replace("txt", ext)
 
-                # Figure out what the extension is of the corresponding image file
-                # by looping through the extension in the img_ext parameter
-                found_image = False
-                for ext in img_ext.split(","):
-                    image_filename = filename.name.replace("txt", ext)
+                # Get the path to the image file to extract the height, width, and depth
+                image_path = PurePath(path, path_to_images, image_filename)
+                if exists(image_path):
+                    found_image = True
+                    break
 
-                    # Get the path to the image file to extract the height, width, and depth
-                    image_path = PurePath(path, path_to_images, image_filename)
-                    if exists(image_path):
-                        found_image = True
-                        break
+            # Check if there is a file at this location.
+            assert (
+                found_image == True
+            ), f"No image file found: {image_path}. Check path_to_images and img_ext arguments."
 
-                # Check if there is a file at this location.
-                assert (
-                    found_image == True
-                ), f"No image file found: {image_path}. Check path_to_images and img_ext arguments."
+            row["img_filename"] = image_filename
 
-                row["img_filename"] = image_filename
+            im = cv2.imread(str(image_path))
+            img_height, img_width, img_depth = im.shape
 
-                im = cv2.imread(str(image_path))
-                img_height, img_width, img_depth = im.shape
+            row["img_id"] = img_id
+            row["img_width"] = img_width
+            row["img_height"] = img_height
+            row["img_depth"] = img_depth
 
-                row["img_id"] = img_id
-                row["img_width"] = img_width
-                row["img_height"] = img_height
-                row["img_depth"] = img_depth
-
-                row["ann_bbox_width"] = float(width_norm) * img_width
-                row["ann_bbox_height"] = float(height_norm) * img_height
-                row["ann_bbox_xmin"] = float(x_center_norm) * img_width - (
-                    (row["ann_bbox_width"] / 2)
-                )
-                row["ann_bbox_ymax"] = float(y_center_norm) * img_height + (
-                    (row["ann_bbox_height"] / 2)
-                )
-                row["ann_bbox_xmax"] = row["ann_bbox_xmin"] + row["ann_bbox_width"]
-                row["ann_bbox_ymin"] = row["ann_bbox_ymax"] - row["ann_bbox_height"]
-
-                row["ann_area"] = row["ann_bbox_width"] * row["ann_bbox_height"]
-
-                row["cat_id"] = cat_id
-                row["cat_name"] = GetCatNameFromId(cat_id, cat_names)
-
-                # Add this row to the dict
+            # Read the annotation in the file
+            # Check if the file has at least one line:
+            numlines = len(open(filepath).readlines())
+            if numlines == 0:
+                # Create a row without annotations
                 d[row_id] = row
                 row_id += 1
+            else:
+                for line in file:
+                    line = line.strip()
+
+                    # check if the row is empty, leave annotation columns blank
+                    if line:
+                        d[row_id] = copy.deepcopy(row)
+                        (
+                            cat_id,
+                            x_center_norm,
+                            y_center_norm,
+                            width_norm,
+                            height_norm,
+                        ) = line.split()
+
+                        row["ann_bbox_width"] = float(width_norm) * img_width
+                        row["ann_bbox_height"] = float(height_norm) * img_height
+                        row["ann_bbox_xmin"] = float(x_center_norm) * img_width - (
+                            (row["ann_bbox_width"] / 2)
+                        )
+                        row["ann_bbox_ymax"] = float(y_center_norm) * img_height + (
+                            (row["ann_bbox_height"] / 2)
+                        )
+                        row["ann_bbox_xmax"] = (
+                            row["ann_bbox_xmin"] + row["ann_bbox_width"]
+                        )
+                        row["ann_bbox_ymin"] = (
+                            row["ann_bbox_ymax"] - row["ann_bbox_height"]
+                        )
+
+                        row["ann_area"] = row["ann_bbox_width"] * row["ann_bbox_height"]
+
+                        row["cat_id"] = cat_id
+                        row["cat_name"] = GetCatNameFromId(cat_id, cat_names)
+
+                        d[row_id] = row
+                        row_id += 1
+                        # Copy the image data to use for the next row
+                    else:
+                        # Create a row without annotations
+                        d[row_id] = row
+                        row_id += 1
+
+                # Add this row to the dict
+        # increment the image id
         img_id += 1
 
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
     df.index.name = "id"
     df.annotated = 1
+    df.fillna("", inplace=True)
 
     # These should be strings
     df.cat_id = df.cat_id.astype(str)
