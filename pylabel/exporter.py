@@ -126,52 +126,71 @@ class Export:
                 else:
                     segmented_text = ""
 
-                object_text_start = "<object>"
+                # If the image has no annotations, skip this part of the output
+                if not pd.isnull(df_smaller.loc[index]["cat_id"]):
 
-                name_text = (
-                    "<name>" + str(df_smaller.loc[index]["cat_name"]) + "</name>"
-                )
-                pose_text = (
-                    "<pose>" + str(df_smaller.loc[index]["ann_pose"]) + "</pose>"
-                )
-                truncated_text = (
-                    "<truncated>"
-                    + str(df_smaller.loc[index]["ann_truncated"])
-                    + "</truncated>"
-                )
-                difficult_text = (
-                    "<difficult>"
-                    + str(df_smaller.loc[index]["ann_difficult"])
-                    + "</difficult>"
-                )
+                    object_text_start = "<object>"
 
-                occluded_text = ""
+                    name_text = (
+                        "<name>" + str(df_smaller.loc[index]["cat_name"]) + "</name>"
+                    )
+                    pose_text = (
+                        "<pose>" + str(df_smaller.loc[index]["ann_pose"]) + "</pose>"
+                    )
+                    truncated_text = (
+                        "<truncated>"
+                        + str(df_smaller.loc[index]["ann_truncated"])
+                        + "</truncated>"
+                    )
+                    difficult_text = (
+                        "<difficult>"
+                        + str(df_smaller.loc[index]["ann_difficult"])
+                        + "</difficult>"
+                    )
 
-                bound_box_text_start = "<bndbox>"
+                    occluded_text = ""
 
-                xmin_text = (
-                    "<xmin>"
-                    + str(df_smaller.loc[index]["ann_bbox_xmin"].astype("int"))
-                    + "</xmin>"
-                )
-                xmax_text = (
-                    "<xmax>"
-                    + str(df_smaller.loc[index]["ann_bbox_xmax"].astype("int"))
-                    + "</xmax>"
-                )
-                ymin_text = (
-                    "<ymin>"
-                    + str(df_smaller.loc[index]["ann_bbox_ymin"].astype("int"))
-                    + "</ymin>"
-                )
-                ymax_text = (
-                    "<ymax>"
-                    + str(df_smaller.loc[index]["ann_bbox_ymax"].astype("int"))
-                    + "</ymax>"
-                )
+                    bound_box_text_start = "<bndbox>"
 
-                bound_box_text_end = "</bndbox>"
-                object_text_end = "</object>"
+                    xmin_text = (
+                        "<xmin>"
+                        + str(int(df_smaller.loc[index]["ann_bbox_xmin"]))
+                        + "</xmin>"
+                    )
+                    xmax_text = (
+                        "<xmax>"
+                        + str(int(df_smaller.loc[index]["ann_bbox_xmax"]))
+                        + "</xmax>"
+                    )
+                    ymin_text = (
+                        "<ymin>"
+                        + str(int(df_smaller.loc[index]["ann_bbox_ymin"]))
+                        + "</ymin>"
+                    )
+                    ymax_text = (
+                        "<ymax>"
+                        + str(int(df_smaller.loc[index]["ann_bbox_ymax"]))
+                        + "</ymax>"
+                    )
+
+                    bound_box_text_end = "</bndbox>"
+                    object_text_end = "</object>"
+                else:
+                    object_text_start = ""
+                    name_text = ""
+                    pose_text = ""
+                    truncated_text = ""
+                    difficult_text = ""
+                    occluded_text = ""
+                    bound_box_text_start = ""
+                    xmin_text = ""
+                    xmax_text = ""
+                    ymin_text = ""
+                    ymax_text = ""
+                    bound_box_text_end = ""
+                    object_text_end = ""
+
+                # Continue this part even if there are no annotations for this image
                 annotation_text_end = "</annotation>"
 
                 xmlstring = (
@@ -210,6 +229,7 @@ class Export:
                 return output_file_path
 
             else:
+                # When there are more than one annotations for the image
 
                 # print('test')
                 annotation_text_start = "<annotation>"
@@ -278,19 +298,19 @@ class Export:
                     object_text_start = "<object>"
 
                     name_text = (
-                        "<name>" + str(df_smaller.loc[index]["cat_name"]) + "</name>"
+                        "<name>" + str(df_smaller.loc[obj]["cat_name"]) + "</name>"
                     )
                     pose_text = (
-                        "<pose>" + str(df_smaller.loc[index]["ann_pose"]) + "</pose>"
+                        "<pose>" + str(df_smaller.loc[obj]["ann_pose"]) + "</pose>"
                     )
                     truncated_text = (
                         "<truncated>"
-                        + str(df_smaller.loc[index]["ann_truncated"])
+                        + str(df_smaller.loc[obj]["ann_truncated"])
                         + "</truncated>"
                     )
                     difficult_text = (
                         "<difficult>"
-                        + str(df_smaller.loc[index]["ann_difficult"])
+                        + str(df_smaller.loc[obj]["ann_difficult"])
                         + "</difficult>"
                     )
 
@@ -304,22 +324,22 @@ class Export:
 
                     xmin_text = (
                         "<xmin>"
-                        + str(df_smaller.loc[index]["ann_bbox_xmin"].astype("int"))
+                        + str(int(df_smaller.loc[obj]["ann_bbox_xmin"]))
                         + "</xmin>"
                     )
                     xmax_text = (
                         "<xmax>"
-                        + str(df_smaller.loc[index]["ann_bbox_xmax"].astype("int"))
+                        + str(int(df_smaller.loc[obj]["ann_bbox_xmax"]))
                         + "</xmax>"
                     )
                     ymin_text = (
                         "<ymin>"
-                        + str(df_smaller.loc[index]["ann_bbox_ymin"].astype("int"))
+                        + str(int(df_smaller.loc[obj]["ann_bbox_ymin"]))
                         + "</ymin>"
                     )
                     ymax_text = (
                         "<ymax>"
-                        + str(df_smaller.loc[index]["ann_bbox_ymax"].astype("int"))
+                        + str(int(df_smaller.loc[obj]["ann_bbox_ymax"]))
                         + "</ymax>"
                     )
 
@@ -452,9 +472,13 @@ class Export:
         # Note, having zero annotates can still be considered annotated
         # in cases when are no objects in the image thats should be indentified
         yolo_dataset = yolo_dataset.loc[yolo_dataset["annotated"] == 1]
-        yolo_dataset["cat_id"] = (
-            yolo_dataset["cat_id"].astype("float").astype(pd.Int32Dtype())
-        )
+
+        # yolo_dataset["cat_id"] = (
+        #     yolo_dataset["cat_id"].astype("float").astype(pd.Int32Dtype())
+        # )
+
+        yolo_dataset.cat_id = yolo_dataset.cat_id.replace(r"^\s*$", np.nan, regex=True)
+        pd.to_numeric(yolo_dataset["cat_id"])
 
         if cat_id_index != None:
             assert isinstance(cat_id_index, int), "cat_id_index must be an int."
@@ -608,8 +632,10 @@ class Export:
         """
         # Copy the dataframe in the dataset so the original dataset doesn't change when you apply the export tranformations
         df = self.dataset.df.copy(deep=True)
-        # Tweak dataset for standardized output
-        df["cat_id"] = df["cat_id"].astype("int")
+        # Replace empty string values with NaN
+        df = df.replace(r"^\s*$", np.nan, regex=True)
+        pd.to_numeric(df["cat_id"])
+
         df["ann_iscrowd"] = df["ann_iscrowd"].fillna(0)
 
         if cat_id_index != None:
@@ -657,24 +683,29 @@ class Export:
                 }
             ]
 
-            categories = [
-                {
-                    "id": int(df["cat_id"][i]),
-                    "name": df["cat_name"][i],
-                    "supercategory": df["cat_supercategory"][i],
-                }
-            ]
+            # Skip this if cat_id is na
+            if not pd.isna(df["cat_id"][i]):
+                categories = [
+                    {
+                        "id": int(df["cat_id"][i]),
+                        "name": df["cat_name"][i],
+                        "supercategory": df["cat_supercategory"][i],
+                    }
+                ]
 
-            if list_c:
-                if categories[0]["id"] in list_c or np.isnan(categories[0]["id"]):
-                    pass
-                else:
+                # Check if the list is empty
+                if list_c:
+                    if categories[0]["id"] in list_c:
+                        pass
+                    else:
+                        categories[0]["id"] = int(categories[0]["id"])
+                        df_outputC.append(pd.DataFrame([categories]))
+                elif not pd.isna(categories[0]["id"]):
+                    categories[0]["id"] = int(categories[0]["id"])
                     df_outputC.append(pd.DataFrame([categories]))
-            elif ~np.isnan(categories[0]["id"]):
-                df_outputC.append(pd.DataFrame([categories]))
-            else:
-                pass
-            list_c.append(categories[0]["id"])
+                else:
+                    pass
+                list_c.append(categories[0]["id"])
 
             if list_i:
                 if images[0]["id"] in list_i or np.isnan(images[0]["id"]):
@@ -687,7 +718,9 @@ class Export:
                 pass
             list_i.append(images[0]["id"])
 
-            df_outputA.append(pd.DataFrame([annotations]))
+            # If the class id is blank, then there is no annotation to add
+            if not pd.isna(categories[0]["id"]):
+                df_outputA.append(pd.DataFrame([annotations]))
 
         mergedI = pd.concat(df_outputI, ignore_index=True)
         mergedA = pd.concat(df_outputA, ignore_index=True)
