@@ -22,6 +22,12 @@ class Analyze:
             >>> dataset.analyze.classes
             ["Squirrel", "Nut"]
         """
+
+        self.dataset.df.cat_id = self.dataset.df.cat_id.replace(
+            r"^\s*$", np.nan, regex=True
+        )
+        pd.to_numeric(self.dataset.df["cat_id"])
+
         filtered_df = self.dataset.df[self.dataset.df["cat_id"].notnull()]
         categories = dict(zip(filtered_df.cat_name, filtered_df.cat_id.astype("int")))
         categories = sorted(categories.items(), key=lambda x: x[1])
