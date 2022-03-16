@@ -30,8 +30,17 @@ class Visualize:
         bboxes = []
 
         for index, row in df_single_img_annots.iterrows():
-            labels.append(row['cat_name'])
-            bboxes.append([int(row['ann_bbox_xmin']),int(row['ann_bbox_ymin']),int(row['ann_bbox_xmax']),int(row['ann_bbox_ymax'])])
+            # If there are no annotations, then skip because there are no boxes to draw
+            if row["ann_bbox_xmin"] != "":
+                labels.append(row["cat_name"])
+                bboxes.append(
+                    [
+                        int(row["ann_bbox_xmin"]),
+                        int(row["ann_bbox_ymin"]),
+                        int(row["ann_bbox_xmax"]),
+                        int(row["ann_bbox_ymax"]),
+                    ]
+                )
 
         img_with_boxes = bbv.draw_multiple_rectangles(img, bboxes)
         img_with_boxes = bbv.add_multiple_labels(img_with_boxes, labels, bboxes)
