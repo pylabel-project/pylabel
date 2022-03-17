@@ -371,7 +371,7 @@ def ImportYoloV5(
                         row["cat_id"] = cat_id
                         row["cat_name"] = GetCatNameFromId(cat_id, cat_names)
 
-                        d[row_id] = row
+                        d[row_id] = dict(row)
                         row_id += 1
                         # Copy the image data to use for the next row
                     else:
