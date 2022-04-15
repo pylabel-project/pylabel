@@ -116,6 +116,10 @@ def ImportCoco(path, path_to_images=None, name=None):
     df.index.name = "id"
     df.annotated = 1
 
+    # Fill na values with empty strings which resolved some errors when
+    # working with images that don't have any annotations
+    df.fillna("", inplace=True)
+
     # These should be strings
     df.cat_id = df.cat_id.astype(str)
 
