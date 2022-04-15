@@ -444,7 +444,7 @@ class Export:
 
         # Inspired by https://github.com/aws-samples/groundtruth-object-detection/blob/master/create_annot.py
         yolo_dataset = ds.df.copy(deep=True)
-        # Convert nan values in the split column from nan to '' because those are easier to with with when building paths
+        # Convert nan values in the split column from nan to '' because those are easier to work with with when building paths
         yolo_dataset.split = yolo_dataset.split.fillna("")
 
         # Create all of the paths that will be used to manage the files in this dataset
@@ -478,7 +478,23 @@ class Export:
         # )
 
         yolo_dataset.cat_id = yolo_dataset.cat_id.replace(r"^\s*$", np.nan, regex=True)
+
         pd.to_numeric(yolo_dataset["cat_id"])
+
+        # Convert empty bbox coordinates to nan to avoid math errors
+        # If an image has no annotations then an empty label file will be created
+        yolo_dataset.ann_bbox_xmin = yolo_dataset.ann_bbox_xmin.replace(
+            r"^\s*$", np.nan, regex=True
+        )
+        yolo_dataset.ann_bbox_ymin = yolo_dataset.ann_bbox_ymin.replace(
+            r"^\s*$", np.nan, regex=True
+        )
+        yolo_dataset.ann_bbox_width = yolo_dataset.ann_bbox_width.replace(
+            r"^\s*$", np.nan, regex=True
+        )
+        yolo_dataset.ann_bbox_height = yolo_dataset.ann_bbox_height.replace(
+            r"^\s*$", np.nan, regex=True
+        )
 
         if cat_id_index != None:
             assert isinstance(cat_id_index, int), "cat_id_index must be an int."
