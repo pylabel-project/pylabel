@@ -1,4 +1,4 @@
-Commands to run tests pytest
+Commands to run tests in pytest
 
 ```
 pytest
