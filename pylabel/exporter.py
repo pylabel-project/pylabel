@@ -694,7 +694,7 @@ class Export:
                     "iscrowd": df["ann_iscrowd"][i],
                     "pose": df["ann_pose"][i],
                     "truncated": df["ann_truncated"][i],
-                    "category_id": df["cat_id"][i],
+                    "category_id": int(df["cat_id"][i]),
                     "difficult": df["ann_difficult"][i],
                 }
             ]
