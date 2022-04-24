@@ -678,29 +678,30 @@ class Export:
                 }
             ]
 
-            annotations = [
-                {
-                    "image_id": df["img_id"][i],
-                    "id": df.index[i],
-                    "segmented": df["ann_segmented"][i],
-                    "bbox": [
-                        df["ann_bbox_xmin"][i],
-                        df["ann_bbox_ymin"][i],
-                        df["ann_bbox_width"][i],
-                        df["ann_bbox_height"][i],
-                    ],
-                    "area": df["ann_area"][i],
-                    "segmentation": df["ann_segmentation"][i],
-                    "iscrowd": df["ann_iscrowd"][i],
-                    "pose": df["ann_pose"][i],
-                    "truncated": df["ann_truncated"][i],
-                    "category_id": df["cat_id"][i],
-                    "difficult": df["ann_difficult"][i],
-                }
-            ]
-
             # Skip this if cat_id is na
             if not pd.isna(df["cat_id"][i]):
+
+                annotations = [
+                    {
+                        "image_id": df["img_id"][i],
+                        "id": df.index[i],
+                        "segmented": df["ann_segmented"][i],
+                        "bbox": [
+                            df["ann_bbox_xmin"][i],
+                            df["ann_bbox_ymin"][i],
+                            df["ann_bbox_width"][i],
+                            df["ann_bbox_height"][i],
+                        ],
+                        "area": df["ann_area"][i],
+                        "segmentation": df["ann_segmentation"][i],
+                        "iscrowd": df["ann_iscrowd"][i],
+                        "pose": df["ann_pose"][i],
+                        "truncated": df["ann_truncated"][i],
+                        "category_id": int(df["cat_id"][i]),
+                        "difficult": df["ann_difficult"][i],
+                    }
+                ]
+
                 categories = [
                     {
                         "id": int(df["cat_id"][i]),
