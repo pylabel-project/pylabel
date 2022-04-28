@@ -539,7 +539,9 @@ class Export:
             df_single_img_annots = yolo_dataset.loc[
                 yolo_dataset.img_filename == img_filename
             ]
-            annot_txt_file = img_filename.split(".")[0] + ".txt"
+            
+            basename, _ = os.path.splitext(img_filename)
+            annot_txt_file = basename + ".txt"
             # Use the value of the split collumn to create a directory
             # The values should be train, val, test or ''
             if use_splits:
