@@ -45,13 +45,18 @@ def _ReindexCatIds(df, cat_id_index=0):
     like Detectron require starting from 1.
     """
     assert isinstance(cat_id_index, int), "cat_id_index must be an int."
-    df = df.replace(r"^\s*$", np.nan, regex=True)
-    pd.to_numeric(df["cat_id"])
-
-    #Drop drop rows with NaN cat_id 
-    df2 = df[df.cat_id.notnull()]
+    
+    # Convert empty strings to NaN and drop rows with NaN cat_id
+    df_copy = df.replace(r"^\s*$", np.nan, regex=True)
+    df_copy = df_copy[df.cat_id.notnull()]
+    # Coerce cat_id to int
+    df_copy["cat_id"] = pd.to_numeric(df_copy["cat_id"])
 
     # Map cat_ids to the range [cat_id_index, cat_id_index + num_cats)
-    unique_ids = np.sort(df2["cat_id"].unique())
-    ids_dict = dict((v, k) for k, v in enumerate(unique_ids, start=cat_id_index))
-    df["cat_id"] = df["cat_id"].map(ids_dict)
+    unique_ids = np.sort(df_copy["cat_id"].unique())
+    ids_dict = dict((v, k)
+                    for k, v in enumerate(unique_ids, start=cat_id_index))
+    df_copy["cat_id"] = df_copy["cat_id"].map(ids_dict)
+    
+    # Write back to the original dataframe
+    df["cat_id"] = df_copy["cat_id"]
