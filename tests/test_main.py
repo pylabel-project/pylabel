@@ -1,6 +1,7 @@
 import pytest
 from pylabel import importer
 import pandas as pd
+import copy
 
 # Test the importing
 # Create a dataset
@@ -174,6 +175,28 @@ def test_export_coco(coco_dataset):
     assert isinstance(
         path_to_coco_export[0], str
     ), "ExportToCoco should return a list with one or more strings."
+
+
+def test_ReindexCatIds(coco_dataset):
+    # Check if the ReindexCatIds function is working by checking the
+    # cat ids after the function is called. The cat ids should be continuous
+    # starting with the index
+    index = 5
+    ds_copy = copy.deepcopy(coco_dataset)
+    ds_copy.ReindexCatIds(index)
+
+    assert (
+        min(ds_copy.analyze.class_ids) == index
+    ), "The min value should equal the index"
+
+    assert (
+        max(ds_copy.analyze.class_ids) == index + len(ds_copy.analyze.class_ids) - 1
+    ), "ReindexCatIds: The max value should equal the index + number of classes"
+
+    assert (
+        list(range(index, index + len(ds_copy.analyze.class_ids)))
+        == ds_copy.analyze.class_ids
+    ), "ReindexCatIds: The class ids should be continuous"
 
 
 # Add tests for non-labeled datasets
