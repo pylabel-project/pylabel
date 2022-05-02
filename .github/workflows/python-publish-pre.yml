@@ -12,8 +12,8 @@ name: Publish Pre-Release Python Package
 on:
   release:
     types: [published]
-    branches: [ dev ]
-
+    branches:
+      - dev
 jobs:
   deploy:
 
