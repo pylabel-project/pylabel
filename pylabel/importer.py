@@ -593,6 +593,13 @@ def ImportYoloV5WithYaml(
                     img_ext=image_ext,
                 )
                 dataset2.df["split"] = splitted
+
+                # This code is added so that the image ids are unique when the multiple datasets are merged
+                # It will take the max img_id of the first data set
+                # And then add that to the image ids in the second dataset so they don't collide
+                max_img_id = max(dataset.df["img_id"])
+                dataset2.df["img_id"] += max_img_id + 1
                 dataset.df = dataset.df.append(dataset2.df)
+                dataset.df.reset_index(0, inplace=True)
                 counter += 1
     return dataset
