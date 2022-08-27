@@ -24,7 +24,10 @@ def _GetValueOrBlank(element, user_input=None):
     If the element does not exist return ""
     """
     if user_input == None:
-        return element.text
+        try:
+            return element.text
+        except AttributeError:
+            return ""
     else:
         return user_input
 
