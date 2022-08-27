@@ -14,7 +14,7 @@ with zipfile.ZipFile("data/BCCD_coco.zip", "r") as zip_ref:
 
 # Download sample yolo dataset
 os.system(
-    "wget 'https://github.com/ultralytics/yolov5/releases/download/v1.0/coco128.zip' -O data/coco128.zip"
+    "wget 'https://github.com/pylabel-project/datasets_models/blob/main/coco128.zip?raw=true' -O data/coco128.zip"
 )
 with zipfile.ZipFile("data/coco128.zip", "r") as zip_ref:
     zip_ref.extractall("data")
