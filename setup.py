@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="pylabel",
     packages=["pylabel"],
-    version="0.1.40",
+    version="0.1.41",
     description="Transform, analyze, and visualize computer vision annotations.",
     long_description=long_description,
     long_description_content_type="text/markdown",
