@@ -127,8 +127,12 @@ class Export:
                     segmented_text = ""
 
                 # If the image has no annotations, skip this part of the output
-                if not pd.isnull(df_smaller.loc[index]["cat_id"]):
-
+                no_annotations = (
+                    pd.isnull(df_smaller.loc[index]["cat_id"])
+                    or df_smaller.loc[index]["cat_id"] == ""
+                )
+                
+                if not no_annotations:
                     object_text_start = "<object>"
 
                     name_text = (
