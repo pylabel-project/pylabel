@@ -33,7 +33,7 @@ def _GetValueOrBlank(element, user_input=None):
 
 
 # These are the valid columns in the pylabel annotations table.
-def ImportCoco(path, path_to_images=None, name=None):
+def ImportCoco(path, path_to_images=None, name=None, encoding='utf-8'):
     """
     This function takes the path to a JSON file in COCO format as input. It returns a PyLabel dataset object that contains the annotations.
 
@@ -48,11 +48,12 @@ def ImportCoco(path, path_to_images=None, name=None):
             set `path_to_images='../images/'`
         name (str): This will set the dataset.name property for this dataset.
             If not specified, the filename (without extension) of the COCO annotation file file will be used as the dataset name.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
     Example:
         >>> from pylabel import importer
         >>> dataset = importer.ImportCoco("coco_annotations.json")
     """
-    with open(path) as cocojson:
+    with open(path, encoding=encoding) as cocojson:
         annotations_json = json.load(cocojson)
 
     # Store the 3 sections of the json as seperate json arrays
@@ -143,7 +144,7 @@ def ImportCoco(path, path_to_images=None, name=None):
     return dataset
 
 
-def ImportVOC(path, path_to_images=None, name="dataset"):
+def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
     """
     Provide the path a directory with annotations in VOC Pascal XML format and it returns a PyLabel dataset object that contains the annotations.
 
@@ -157,6 +158,7 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
             If the images are in a different directory on the same level as the annotations then you would
             set `path_to_images='../images/'`
         name (str): Default is 'dataset'. This will set the dataset.name property for this dataset.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
 
     Example:
         >>> from pylabel import importer
@@ -182,7 +184,7 @@ def ImportVOC(path, path_to_images=None, name="dataset"):
     for filename in os.scandir(path):
         if filename.is_file() and filename.name.endswith(".xml"):
             filepath = filename.path
-            xml_data = open(filepath, "r").read()  # Read file
+            xml_data = open(filepath, "r", encoding=encoding).read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
             folder = _GetValueOrBlank(root.find("folder"), user_input=path_to_images)
             filename = root.find("filename").text
@@ -255,6 +257,7 @@ def ImportYoloV5(
     cat_names=[],
     path_to_images="",
     name="dataset",
+    encoding='utf-8',
 ):
     """
     Provide the path a directory with annotations in YOLO format and it returns a PyLabel dataset object that contains the annotations.
@@ -279,6 +282,7 @@ def ImportYoloV5(
             If the images are in a different directory on the same level as the annotations then you would
             set `path_to_images='../images/'`
         name (str): Default is 'dataset'. This will set the dataset.name property for this dataset.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
 
     Example:
         >>> from pylabel import importer
@@ -303,7 +307,7 @@ def ImportYoloV5(
     for filename in os.scandir(path):
         if filename.is_file() and filename.name.endswith(".txt"):
             filepath = filename.path
-            file = open(filepath, "r")  # Read file
+            file = open(filepath, "r", encoding=encoding)  # Read file
             row = {}
 
             # First find the image files and extract the metadata about the image
@@ -338,7 +342,7 @@ def ImportYoloV5(
 
             # Read the annotation in the file
             # Check if the file has at least one line:
-            numlines = len(open(filepath).readlines())
+            numlines = len(open(filepath, encoding=encoding).readlines())
             if numlines == 0:
                 # Create a row without annotations
                 d[row_id] = row
@@ -478,9 +482,9 @@ def ImportImagesOnly(path, name="dataset"):
     return dataset
 
 
-def _yaml_reader(yaml_file):
+def _yaml_reader(yaml_file, encoding):
     """Import the YAML File for the YOLOv5 data as dict."""
-    with open(yaml_file) as file:
+    with open(yaml_file, encoding=encoding) as file:
         data = yaml.safe_load(file)
     return data
 
@@ -490,6 +494,7 @@ def ImportYoloV5WithYaml(
     image_ext="jpg",
     name_of_annotations_folder="labels",
     path_to_annotations=None,
+    encoding='utf-8',
 ):
     """Import a YOLO dataset by reading the YAML file to extract the class names, image and label locations,
     and preserve if an image should be in the train, test, or val split.
@@ -506,6 +511,7 @@ def ImportYoloV5WithYaml(
             the path to the annotations file; if path to annotations is none, file replaces name of images file from yaml file with annotations.
         name_of_annotations_folder (str):
             Default is "labels". Change this to "annotations" if your folder is called "annotations"
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
 
     Example:
         >>> from pylabel import importer
@@ -528,7 +534,7 @@ def ImportYoloV5WithYaml(
         path_to_annotations_defined = True
     counter = 0
 
-    data = _yaml_reader(yaml_file)
+    data = _yaml_reader(yaml_file, encoding)
     yoloclasses = data["names"]
 
     iterated_list = list(data.keys())
