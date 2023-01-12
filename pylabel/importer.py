@@ -48,7 +48,7 @@ def ImportCoco(path, path_to_images=None, name=None, encoding='utf-8'):
             set `path_to_images='../images/'`
         name (str): This will set the dataset.name property for this dataset.
             If not specified, the filename (without extension) of the COCO annotation file file will be used as the dataset name.
-        encoding (str): Default is 'utf-8. Encoding of the annotations.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
     Example:
         >>> from pylabel import importer
         >>> dataset = importer.ImportCoco("coco_annotations.json")
@@ -158,7 +158,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
             If the images are in a different directory on the same level as the annotations then you would
             set `path_to_images='../images/'`
         name (str): Default is 'dataset'. This will set the dataset.name property for this dataset.
-        encoding (str): Default is 'utf-8. Encoding of the annotations.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
 
     Example:
         >>> from pylabel import importer
@@ -282,7 +282,7 @@ def ImportYoloV5(
             If the images are in a different directory on the same level as the annotations then you would
             set `path_to_images='../images/'`
         name (str): Default is 'dataset'. This will set the dataset.name property for this dataset.
-        encoding (str): Default is 'utf-8. Encoding of the annotations.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
 
     Example:
         >>> from pylabel import importer
@@ -511,7 +511,7 @@ def ImportYoloV5WithYaml(
             the path to the annotations file; if path to annotations is none, file replaces name of images file from yaml file with annotations.
         name_of_annotations_folder (str):
             Default is "labels". Change this to "annotations" if your folder is called "annotations"
-        encoding (str): Default is 'utf-8. Encoding of the annotations.
+        encoding (str): Default is 'utf-8. Encoding of the annotations file(s).
 
     Example:
         >>> from pylabel import importer
