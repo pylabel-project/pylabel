@@ -10,6 +10,7 @@ import os
 import yaml
 import shutil
 from pylabel.shared import _ReindexCatIds
+import csv
 
 from pathlib import PurePath, Path
 
@@ -131,7 +132,7 @@ class Export:
                     pd.isnull(df_smaller.loc[index]["cat_id"])
                     or df_smaller.loc[index]["cat_id"] == ""
                 )
-                
+
                 if not no_annotations:
                     object_text_start = "<object>"
 
@@ -405,6 +406,7 @@ class Export:
         copy_images=False,
         use_splits=False,
         cat_id_index=None,
+        segmentation=False,
     ):
         """Writes annotation files to disk in YOLOv5 format and returns the paths to files.
 
@@ -433,6 +435,9 @@ class Export:
                 then increment the cat_ids to index + number of categories continuously.
                 It's useful if the cat_ids are not continuous in the original dataset.
                 Yolo requires the set of annotations to start at 0 when training a model.
+            segmentation (boolean):
+                If true, then segmentation annotations will be exported instead of bounding box annotations.
+                If there are no segmentation annotations, then no annotations will be empty.
 
         Returns:
             A list with 1 or more paths (strings) to annotations files. If a YAML file is created
@@ -485,6 +490,10 @@ class Export:
 
         pd.to_numeric(yolo_dataset["cat_id"])
 
+        if cat_id_index != None:
+            assert isinstance(cat_id_index, int), "cat_id_index must be an int."
+            _ReindexCatIds(yolo_dataset, cat_id_index)
+
         # Convert empty bbox coordinates to nan to avoid math errors
         # If an image has no annotations then an empty label file will be created
         yolo_dataset.ann_bbox_xmin = yolo_dataset.ann_bbox_xmin.replace(
@@ -500,31 +509,21 @@ class Export:
             r"^\s*$", np.nan, regex=True
         )
 
-        if cat_id_index != None:
-            assert isinstance(cat_id_index, int), "cat_id_index must be an int."
-            _ReindexCatIds(yolo_dataset, cat_id_index)
+        # If segmentation = False then export bounding boxes
+        if segmentation == False:
 
-        yolo_dataset["center_x_scaled"] = (
-            yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"] * 0.5)
-        ) / yolo_dataset["img_width"]
-        yolo_dataset["center_y_scaled"] = (
-            yolo_dataset["ann_bbox_ymin"] + (yolo_dataset["ann_bbox_height"] * 0.5)
-        ) / yolo_dataset["img_height"]
-        yolo_dataset["width_scaled"] = (
-            yolo_dataset["ann_bbox_width"] / yolo_dataset["img_width"]
-        )
-        yolo_dataset["height_scaled"] = (
-            yolo_dataset["ann_bbox_height"] / yolo_dataset["img_height"]
-        )
-        yolo_dataset[
-            [
-                "cat_id",
-                "center_x_scaled",
-                "center_y_scaled",
-                "width_scaled",
-                "height_scaled",
-            ]
-        ]
+            yolo_dataset["center_x_scaled"] = (
+                yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"] * 0.5)
+            ) / yolo_dataset["img_width"]
+            yolo_dataset["center_y_scaled"] = (
+                yolo_dataset["ann_bbox_ymin"] + (yolo_dataset["ann_bbox_height"] * 0.5)
+            ) / yolo_dataset["img_height"]
+            yolo_dataset["width_scaled"] = (
+                yolo_dataset["ann_bbox_width"] / yolo_dataset["img_width"]
+            )
+            yolo_dataset["height_scaled"] = (
+                yolo_dataset["ann_bbox_height"] / yolo_dataset["img_height"]
+            )
 
         # Create folders to store annotations
         if output_path == None:
@@ -543,7 +542,7 @@ class Export:
             df_single_img_annots = yolo_dataset.loc[
                 yolo_dataset.img_filename == img_filename
             ]
-            
+
             basename, _ = os.path.splitext(img_filename)
             annot_txt_file = basename + ".txt"
             # Use the value of the split collumn to create a directory
@@ -558,20 +557,65 @@ class Export:
                 split_dir,
             ).mkdir(parents=True, exist_ok=True)
 
-            df_single_img_annots.to_csv(
-                destination,
-                index=False,
-                header=False,
-                sep=" ",
-                float_format="%.4f",
-                columns=[
-                    "cat_id",
-                    "center_x_scaled",
-                    "center_y_scaled",
-                    "width_scaled",
-                    "height_scaled",
-                ],
-            )
+            # If segmentation = false then output bounding boxes
+            if segmentation == False:
+
+                df_single_img_annots.to_csv(
+                    destination,
+                    index=False,
+                    header=False,
+                    sep=" ",
+                    float_format="%.4f",
+                    columns=[
+                        "cat_id",
+                        "center_x_scaled",
+                        "center_y_scaled",
+                        "width_scaled",
+                        "height_scaled",
+                    ],
+                )
+
+            # If segmentation = true then output the segmentation mask
+            else:
+                # Create one file for image
+                with open(destination, "w") as file:
+                    # Create one row per row in the data frame
+                    for i in range(0, df_single_img_annots.shape[0]):
+                        row = df_single_img_annots.iloc[i].cat_id + " "
+                        segmentation_array = df_single_img_annots.iloc[
+                            i
+                        ].ann_segmentation[0]
+
+                        # Iterate through every value of the segmentation array
+                        # To normalize the coordinates from 0-1
+                        for index, l in enumerate(segmentation_array):
+                            # The first number in the array is the x value so divide by the width
+                            if index % 2 == 0:
+                                row += (
+                                    str(
+                                        round(
+                                            segmentation_array[index]
+                                            / df_single_img_annots.iloc[i].img_width,
+                                            5,
+                                        )
+                                    )
+                                    + " "
+                                )
+                            else:
+                                # The first number in the array is the x value so divide by the height
+                                row += (
+                                    str(
+                                        round(
+                                            segmentation_array[index]
+                                            / df_single_img_annots.iloc[i].img_height,
+                                            5,
+                                        )
+                                    )
+                                    + " "
+                                )
+
+                        file.write(row + "\n")
+
             output_file_paths.append(destination)
 
             if copy_images:
