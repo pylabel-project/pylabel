@@ -669,7 +669,7 @@ class Export:
     def ExportToYoloV7(
         self,
         output_path="training/labels",
-        yaml_file="dataset.yaml",
+        yaml_file="data.yaml",
         copy_images=False,
         use_splits=False,
         cat_id_index=None,
