@@ -11,3 +11,4 @@ pytest-lazy-fixture
 black
 nbmake
 sphinx_rtd_theme
+tqdm

@@ -10,6 +10,7 @@ import os
 import yaml
 import shutil
 from pylabel.shared import _ReindexCatIds
+from tqdm import tqdm
 import csv
 
 from pathlib import PurePath, Path
@@ -380,7 +381,7 @@ class Export:
                 return output_file_path
 
         # Loop through all images in the dataframe and call voc_xml_file_creation for each one
-        for file_title in list(set(self.dataset.df.img_filename)):
+        for file_title in tqdm(list(set(self.dataset.df.img_filename)), desc='Exporting files'):
 
             file_name = Path(file_title)
             file_name = str(file_name.with_suffix(".xml"))
@@ -538,7 +539,7 @@ class Export:
         unique_images = yolo_dataset["img_filename"].unique()
         output_file_paths = []
 
-        for img_filename in unique_images:
+        for img_filename in tqdm(unique_images, desc='Exporting files'):
             df_single_img_annots = yolo_dataset.loc[
                 yolo_dataset.img_filename == img_filename
             ]
@@ -707,7 +708,7 @@ class Export:
         list_c = []
         json_list = []
 
-        for i in range(0, df.shape[0]):
+        for i in tqdm(range(0, df.shape[0]), desc="Exporting files"):
             images = [
                 {
                     "id": df["img_id"][i],

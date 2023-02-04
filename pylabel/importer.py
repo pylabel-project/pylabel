@@ -12,6 +12,7 @@ from pathlib import Path, PurePath
 import copy
 import cv2
 import yaml
+from tqdm import tqdm
 
 from pylabel.shared import schema
 from pylabel.dataset import Dataset
@@ -304,7 +305,7 @@ def ImportYoloV5(
     img_id = 0
 
     # iterate over files in that directory
-    for filename in os.scandir(path):
+    for filename in tqdm(os.scandir(path), desc='Importing files'):
         if filename.is_file() and filename.name.endswith(".txt"):
             filepath = filename.path
             file = open(filepath, "r", encoding=encoding)  # Read file
