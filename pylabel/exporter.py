@@ -381,8 +381,8 @@ class Export:
                 return output_file_path
 
         # Loop through all images in the dataframe and call voc_xml_file_creation for each one
-        for file_title in tqdm(list(set(self.dataset.df.img_filename)), desc='Exporting files'):
-
+        pbar = tqdm(desc="Exporting VOC files...", total=len(list(set(self.dataset.df.img_filename))))
+        for file_title in list(set(self.dataset.df.img_filename)):
             file_name = Path(file_title)
             file_name = str(file_name.with_suffix(".xml"))
             file_path = str(Path(output_path, file_name))
@@ -397,6 +397,7 @@ class Export:
                 output_file_path=file_path,
             )
             output_file_paths.append(voc_file_path)
+            pbar.update()
 
         return output_file_paths
 
@@ -538,8 +539,8 @@ class Export:
 
         unique_images = yolo_dataset["img_filename"].unique()
         output_file_paths = []
-
-        for img_filename in tqdm(unique_images, desc='Exporting files'):
+        pbar = tqdm(desc="Exporting YOLO files...", total=len(unique_images))
+        for img_filename in unique_images:
             df_single_img_annots = yolo_dataset.loc[
                 yolo_dataset.img_filename == img_filename
             ]
@@ -631,6 +632,7 @@ class Export:
                     str(source_image_path),
                     str(PurePath(path_dict["image_path"], split_dir, img_filename)),
                 )
+            pbar.update()
 
         # Create YAML file
         if yaml_file:
@@ -708,7 +710,8 @@ class Export:
         list_c = []
         json_list = []
 
-        for i in tqdm(range(0, df.shape[0]), desc="Exporting files"):
+        pbar = tqdm(desc="Exporting to COCO file...", total=range(0, df.shape[0]))
+        for i in range(0, df.shape[0]):
             images = [
                 {
                     "id": df["img_id"][i],
@@ -781,6 +784,8 @@ class Export:
             # If the class id is blank, then there is no annotation to add
             if not pd.isna(categories[0]["id"]):
                 df_outputA.append(pd.DataFrame([annotations]))
+
+            pbar.update()
 
         mergedI = pd.concat(df_outputI, ignore_index=True)
         mergedA = pd.concat(df_outputA, ignore_index=True)

@@ -182,6 +182,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
         return cat_names.index(cat_name)
 
     # iterate over files in that directory
+    pbar = tqdm(desc="Importing VOC files...", total=len(os.listdir(path)))
     for filename in os.scandir(path):
         if filename.is_file() and filename.name.endswith(".xml"):
             filepath = filename.path
@@ -229,6 +230,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
 
         # Increment the imageid because we are going to read annother file
         img_id += 1
+        pbar.update()
 
     # Convert the dict with all of the annotation data to a dataframe
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
@@ -305,7 +307,8 @@ def ImportYoloV5(
     img_id = 0
 
     # iterate over files in that directory
-    for filename in tqdm(os.scandir(path), desc='Importing files'):
+    pbar = tqdm(desc="Importing YOLO files...", total=len(os.listdir(path)))
+    for filename in os.scandir(path):
         if filename.is_file() and filename.name.endswith(".txt"):
             filepath = filename.path
             file = open(filepath, "r", encoding=encoding)  # Read file
@@ -394,6 +397,7 @@ def ImportYoloV5(
                 # Add this row to the dict
         # increment the image id
         img_id += 1
+        pbar.update()
 
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
     df.index.name = "id"
@@ -442,6 +446,8 @@ def ImportImagesOnly(path, name="dataset"):
     img_id = 0
 
     # iterate over files in that directory
+    pbar = tqdm(desc="Importing images files...", total=len(os.listdir(path)))
+
     for filename in os.scandir(path):
         if filename.is_file() and filename.name.lower().endswith(
             (".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".gif")
@@ -471,6 +477,7 @@ def ImportImagesOnly(path, name="dataset"):
             # Add this row to the dict
             d[img_id] = row
             img_id += 1
+        pbar.update()
 
     df = pd.DataFrame.from_dict(d, "index", columns=schema)
     df.index.name = "id"
