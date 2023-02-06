@@ -710,7 +710,7 @@ class Export:
         list_c = []
         json_list = []
 
-        pbar = tqdm(desc="Exporting to COCO file...", total=range(0, df.shape[0]))
+        pbar = tqdm(desc="Exporting to COCO file...", total=df.shape[0])
         for i in range(0, df.shape[0]):
             images = [
                 {
