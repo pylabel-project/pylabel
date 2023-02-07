@@ -446,7 +446,7 @@ def ImportImagesOnly(path, name="dataset"):
     img_id = 0
 
     # iterate over files in that directory
-    pbar = tqdm(desc="Importing images files...", total=len(os.listdir(path)))
+    pbar = tqdm(desc="Importing image files...", total=len(os.listdir(path)))
 
     for filename in os.scandir(path):
         if filename.is_file() and filename.name.lower().endswith(
