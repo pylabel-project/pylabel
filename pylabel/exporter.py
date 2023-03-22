@@ -583,7 +583,7 @@ class Export:
                 with open(destination, "w") as file:
                     # Create one row per row in the data frame
                     for i in range(0, df_single_img_annots.shape[0]):
-                        row = df_single_img_annots.iloc[i].cat_id
+                        row = str(df_single_img_annots.iloc[i].cat_id)
                         segmentation_array = df_single_img_annots.iloc[
                             i
                         ].ann_segmentation[0]
