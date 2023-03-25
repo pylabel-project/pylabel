@@ -23,5 +23,5 @@ setup(
         "scikit-learn",
         "jupyter_bbox_widget",
         "pyyaml",
-    ],
+         "tqdm"
 )
