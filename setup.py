@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="pylabel",
     packages=["pylabel"],
-    version="0.1.47",
+    version="0.1.48",
     description="Transform, analyze, and visualize computer vision annotations.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -23,5 +23,6 @@ setup(
         "scikit-learn",
         "jupyter_bbox_widget",
         "pyyaml",
-    ],
+         "tqdm",
+    ]
 )
