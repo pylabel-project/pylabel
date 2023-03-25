@@ -16,7 +16,7 @@ PyLabel is a Python package to help you prepare image datasets for computer visi
 
 -	**Translate:** Convert annotation formats with a single line of code: 
     ```
-    importer.ImportCoco(path_to_annotations).ExportToYoloV5()
+    importer.ImportCoco(path_to_annotations).export.ExportToYoloV5()
     ```
 -	**Analyze:** PyLabel stores annotatations in a pandas dataframe so you can easily perform analysis on image datasets. 
 -	**Split:** Divide image datasets into train, test, and val with stratification to get consistent class distribution.  <br><img src="https://raw.githubusercontent.com/pylabel-project/datasets_models/main/pylabel_assets/train_test_split.png" width=400>
