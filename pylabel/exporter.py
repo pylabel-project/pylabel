@@ -78,7 +78,6 @@ class Export:
             folder=True,
             occluded=True,
         ):
-
             index = 0
             df_smaller = data[data["img_filename"] == file_name].reset_index()
 
@@ -381,7 +380,10 @@ class Export:
                 return output_file_path
 
         # Loop through all images in the dataframe and call voc_xml_file_creation for each one
-        pbar = tqdm(desc="Exporting VOC files...", total=len(list(set(self.dataset.df.img_filename))))
+        pbar = tqdm(
+            desc="Exporting VOC files...",
+            total=len(list(set(self.dataset.df.img_filename))),
+        )
         for file_title in list(set(self.dataset.df.img_filename)):
             file_name = Path(file_title)
             file_name = str(file_name.with_suffix(".xml"))
@@ -513,7 +515,6 @@ class Export:
 
         # If segmentation = False then export bounding boxes
         if segmentation == False:
-
             yolo_dataset["center_x_scaled"] = (
                 yolo_dataset["ann_bbox_xmin"] + (yolo_dataset["ann_bbox_width"] * 0.5)
             ) / yolo_dataset["img_width"]
@@ -561,7 +562,6 @@ class Export:
 
             # If segmentation = false then output bounding boxes
             if segmentation == False:
-
                 df_single_img_annots.to_csv(
                     destination,
                     index=False,
@@ -583,7 +583,7 @@ class Export:
                 with open(destination, "w") as file:
                     # Create one row per row in the data frame
                     for i in range(0, df_single_img_annots.shape[0]):
-                        row = df_single_img_annots.iloc[i].cat_id
+                        row = str(df_single_img_annots.iloc[i].cat_id)
                         segmentation_array = df_single_img_annots.iloc[
                             i
                         ].ann_segmentation[0]
@@ -726,7 +726,6 @@ class Export:
 
             # Skip this if cat_id is na
             if not pd.isna(df["cat_id"][i]):
-
                 annotations = [
                     {
                         "image_id": df["img_id"][i],
