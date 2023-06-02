@@ -25,7 +25,9 @@ class Split:
         test, and val) by applying the command twice.
         """
         df_main = self.dataset.df
-        gss = sklearnGroupShuffleSplit(n_splits=1, train_size=train_pct)
+        gss = sklearnGroupShuffleSplit(
+            n_splits=1, train_size=train_pct, random_state=random_state
+        )
         train_indexes, test_indexes = next(
             gss.split(X=df_main, y=df_main[group_col], groups=df_main.index.values)
         )
@@ -39,7 +41,9 @@ class Split:
             df_test = df_main.loc[df_main["split"] == "test"]
             df_test = df_test.reset_index()
             second_split_pct = float(test_pct / (test_pct + val_pct))
-            gss2 = sklearnGroupShuffleSplit(n_splits=1, train_size=second_split_pct)
+            gss2 = sklearnGroupShuffleSplit(
+                n_splits=1, train_size=second_split_pct, random_state=random_state
+            )
             test_indexes_2, val_indexes_2 = next(
                 gss2.split(X=df_test, y=df_test[group_col], groups=df_test.index.values)
             )
