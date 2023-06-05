@@ -261,6 +261,7 @@ def ImportYoloV5(
     path_to_images="",
     name="dataset",
     encoding='utf-8',
+    transform_line=lambda x: x,
 ):
     """
     Provide the path a directory with annotations in YOLO format and it returns a PyLabel dataset object that contains the annotations.
@@ -364,7 +365,7 @@ def ImportYoloV5(
                             y_center_norm,
                             width_norm,
                             height_norm,
-                        ) = line.split()
+                        ) = transform_line(line.split())
 
                         row["ann_bbox_width"] = float(width_norm) * img_width
                         row["ann_bbox_height"] = float(height_norm) * img_height
