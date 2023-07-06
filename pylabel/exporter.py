@@ -403,6 +403,41 @@ class Export:
 
         return output_file_paths
 
+    @staticmethod
+    def _df_to_csv(
+        df: pd.DataFrame,
+        file_path: str,
+        sep: str = " ",
+        float_format: str = "%0.4f",
+        columns: List[str] = None
+    ):
+        """
+        with the pandas to_csv method the output for a list (e.g. the keypoints) must include a quote character or an
+        escape character. To avoid both of those, we need a custom function
+        """
+        if columns is None:
+            columns = df.columns
+
+        def _format_float(fl: float, fl_format: str):
+            if np.isnan(fl):
+                return ""
+            else:
+                return fl_format % fl
+
+        with open(file_path, "w") as f:
+            for _, row in df[columns].iterrows():
+                formatted_row = []
+                for x in row:
+                    if isinstance(x, float):
+                        formatted_row.append(_format_float(x, float_format))
+                    elif isinstance(x, list):
+                        formatted_row.extend(
+                            [_format_float(y, float_format) if isinstance(y, float) else str(y) for y in x]
+                        )
+                    else:
+                        formatted_row.append(str(x))
+                f.write(sep.join(formatted_row) + '\n')
+
     def ExportToYoloV5(
         self,
         output_path="training/labels",
@@ -528,6 +563,25 @@ class Export:
                 yolo_dataset["ann_bbox_height"] / yolo_dataset["img_height"]
             )
 
+            keypoints_yolo = [[] for _ in range(len(yolo_dataset.index))]
+            for img_ix, row in yolo_dataset.iterrows():
+                img_width = row["img_width"]
+                img_height = row["img_height"]
+                keypoints_coco = row["ann_keypoints"]
+                if keypoints_coco:
+                    for bbox_ix, kp in enumerate(keypoints_coco):
+                        if bbox_ix % 3 == 0:
+                            # x coordinate
+                            keypoints_yolo[img_ix].append(kp / img_width)
+                        elif bbox_ix % 3 == 1:
+                            # y coordinate
+                            keypoints_yolo[img_ix].append(kp / img_height)
+                        else:
+                            # visibility
+                            keypoints_yolo[img_ix].append(kp)
+            yolo_dataset["keypoints_scaled_as_string"] = keypoints_yolo
+
+
         # Create folders to store annotations
         if output_path == None:
             dest_folder = PurePath(
@@ -562,19 +616,21 @@ class Export:
 
             # If segmentation = false then output bounding boxes
             if segmentation == False:
-                df_single_img_annots.to_csv(
-                    destination,
-                    index=False,
-                    header=False,
+                columns = [
+                    "cat_id",
+                    "center_x_scaled",
+                    "center_y_scaled",
+                    "width_scaled",
+                    "height_scaled",
+                    "keypoints_scaled_as_string"
+                ]
+
+                self._df_to_csv(
+                    df=df_single_img_annots,
+                    file_path=destination,
                     sep=" ",
                     float_format="%.4f",
-                    columns=[
-                        "cat_id",
-                        "center_x_scaled",
-                        "center_y_scaled",
-                        "width_scaled",
-                        "height_scaled",
-                    ],
+                    columns=columns
                 )
 
             # If segmentation = true then output the segmentation mask
