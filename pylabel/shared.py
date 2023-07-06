@@ -24,6 +24,7 @@ schema = [
     "ann_area",
     "ann_segmentation",
     "ann_iscrowd",
+    "ann_keypoints",
     "ann_pose",
     "ann_truncated",
     "ann_difficult",
