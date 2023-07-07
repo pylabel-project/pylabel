@@ -188,8 +188,13 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
             filepath = filename.path
             xml_data = open(filepath, "r", encoding=encoding).read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
-            folder = _GetValueOrBlank(root.find("folder"), user_input=path_to_images)
-            filename = root.find("filename").text
+            # ignore "folder" node in xml
+            #folder = _GetValueOrBlank(root.find("folder"), user_input=path_to_images)
+            folder = path_to_images if path_to_images else "."
+            # "filename" node in xml sometimes is invalid
+            # only get suffix
+            filename_node = root.find("filename").text
+            suffix = Path(filename_node).suffix
             size = root.find("size")
             size_width = size.find("width").text
             size_height = size.find("height").text
@@ -199,7 +204,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
             row = {}
             # Build dictionary that will be become the row in the dataframe
             row["img_folder"] = folder
-            row["img_filename"] = filename
+            row["img_filename"] = filename.name.replace(".xml",suffix)
             row["img_id"] = img_id
             row["img_width"] = size_width
             row["img_height"] = size_height
