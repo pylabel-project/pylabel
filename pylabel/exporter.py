@@ -816,6 +816,12 @@ class Export:
                     }
                 ]
 
+                # include keypoints, if available
+                if "ann_keypoints" in df.keys():
+                    n_keypoints = int(len(df["ann_keypoints"][i]) / 3)  # 3 numbers per keypoint: x,y,visibility
+                    annotations[0]["num_keypoints"] = n_keypoints
+                    annotations[0]["keypoints"] = df["ann_keypoints"][i]
+
                 categories = [
                     {
                         "id": int(df["cat_id"][i]),
