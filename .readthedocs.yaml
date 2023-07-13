@@ -8,10 +8,12 @@ sphinx:
 python:
   version: 3.7
 
-formats: all
+formats: 
+  all
 
 # Optionally specify requirements file if needed
-requirements_file: requirements.txt
+requirements_file: 
+  requirements.txt
 
 # Optionally specify the Python interpreter used
 python_interpreter: python3
