@@ -1,0 +1,30 @@
+version: 2
+
+sphinx:
+  configuration: docs/conf.py
+  builder: html
+  fail_on_warning: true
+
+python:
+  version: 3.7
+
+formats: all
+
+# Optionally specify requirements file if needed
+requirements_file: requirements.txt
+
+# Optionally specify the Python interpreter used
+python_interpreter: python3
+
+# Optionally enable building of PDF documentation
+#pdf:
+#  build: true
+
+# Optionally specify additional dependencies
+#dependencies:
+#  - matplotlib
+#  - numpy
+
+# Optionally specify environment variables
+#env:
+#  - SPHINX_ENV_VAR: some_value
