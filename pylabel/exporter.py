@@ -628,7 +628,6 @@ class Export:
                 Path(path_dict["image_path"], split_dir).mkdir(
                     parents=True, exist_ok=True
                 )
-                print(str(source_image_path))
                 shutil.copy(
                     str(source_image_path),
                     str(PurePath(path_dict["image_path"], split_dir, img_filename)),
