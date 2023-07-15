@@ -189,14 +189,15 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
             xml_data = open(filepath, "r", encoding=encoding).read()  # Read file
             root = ET.XML(xml_data)  # Parse XML
             folder = _GetValueOrBlank(root.find("folder"), user_input=path_to_images)
-            
-            if path_to_images != None:
+            filename = root.find("filename").text
+            if path_to_images != None: 
                 # find file that has same name without extension in the images folder
-                filename = next(
-                    (f for f in os.listdir(path_to_images) if f.startswith(filename.name[:-4])), None
-                )
-            else:
-                filename = root.find("filename").text
+                for f in os.listdir(path_to_images):
+                    if f.startswith(filename.name[:-4]):
+                        filename = f
+                        break
+            
+                
             size = root.find("size")
             size_width = size.find("width").text
             size_height = size.find("height").text
@@ -206,7 +207,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
             row = {}
             # Build dictionary that will be become the row in the dataframe
             row["img_folder"] = folder
-            row["img_filename"] = filename 
+            row["img_filename"] = filename #filename.name
             row["img_id"] = img_id
             row["img_width"] = size_width
             row["img_height"] = size_height
