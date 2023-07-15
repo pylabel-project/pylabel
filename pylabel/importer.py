@@ -206,7 +206,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
             row = {}
             # Build dictionary that will be become the row in the dataframe
             row["img_folder"] = folder
-            row["img_filename"] = filename #filename.name
+            row["img_filename"] = filename 
             row["img_id"] = img_id
             row["img_width"] = size_width
             row["img_height"] = size_height
