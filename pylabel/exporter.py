@@ -615,7 +615,7 @@ class Export:
             if copy_images:
                 source_image_path = str(
                     Path(
-                        ds.path_to_annotations,
+                        #ds.path_to_annotations,
                         df_single_img_annots.iloc[0].img_folder,
                         df_single_img_annots.iloc[0].img_filename,
                     )
