@@ -817,10 +817,18 @@ class Export:
                 ]
 
                 # include keypoints, if available
-                if "ann_keypoints" in df.keys():
-                    n_keypoints = int(len(df["ann_keypoints"][i]) / 3)  # 3 numbers per keypoint: x,y,visibility
+                if "ann_keypoints" in df.keys() and (not np.isnan(df["ann_keypoints"][i]).all()):
+                    keypoints = df["ann_keypoints"][i]
+                    if isinstance(keypoints, list):
+                        n_keypoints = int(len(keypoints) / 3)  # 3 numbers per keypoint: x,y,visibility
+                    elif isinstance(keypoints, np.ndarray):
+                        n_keypoints = int(keypoints.size / 3)  # 3 numbers per keypoint: x,y,visibility
+                    else:
+                        raise TypeError('The keypoints array is expected to be either a list or a numpy array')
                     annotations[0]["num_keypoints"] = n_keypoints
-                    annotations[0]["keypoints"] = df["ann_keypoints"][i]
+                    annotations[0]["keypoints"] = keypoints
+                else:
+                    pass
 
                 categories = [
                     {
