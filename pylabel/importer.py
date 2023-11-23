@@ -5,6 +5,7 @@ labelling tool. """
 
 import json
 import pandas as pd
+import numpy as np
 import xml.etree.ElementTree as ET
 import os
 from os.path import exists
@@ -261,7 +262,7 @@ def ImportVOC(path, path_to_images=None, name="dataset", encoding='utf-8'):
 
 def ImportYoloV5(
     path,
-    img_ext="jpg,jpeg,png",
+    img_ext="jpg,jpeg,png,webp",
     cat_names=[],
     path_to_images="",
     name="dataset",
@@ -341,7 +342,13 @@ def ImportYoloV5(
 
             row["img_filename"] = image_filename
 
-            im = cv2.imread(str(image_path))
+            imgstream = open(str(image_path), "rb")
+            imgbytes = bytearray(imgstream.read())
+            numpyarray = np.asarray(imgbytes, dtype=np.uint8)
+
+            im = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
+
+            #im = cv2.imread(str(image_path))
             img_height, img_width, img_depth = im.shape
 
             row["img_id"] = img_id
