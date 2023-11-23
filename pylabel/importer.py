@@ -348,8 +348,13 @@ def ImportYoloV5(
 
             im = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
 
-            # im = cv2.imread(str(image_path))
-            img_height, img_width, img_depth = im.shape
+            img_height = im.shape[0]
+            img_width = im.shape[1]
+            # If the image is grayscale then there is no img_depth
+            if len(im.shape) == 2:
+                img_depth = 1
+            else:
+                img_depth = im.shape[2]  # 3 for color images
 
             row["img_id"] = img_id
             row["img_width"] = img_width
