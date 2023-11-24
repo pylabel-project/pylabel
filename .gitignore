@@ -1,5 +1,6 @@
 penv/ 
 env/ 
+venv/
 .vscode/settings.json
 coco_instances_val2017.json
 mypythonlib.egg-info/

@@ -425,9 +425,10 @@ class Export:
                 return fl_format % fl
 
         with open(file_path, "w") as f:
-            for _, row in df[columns].iterrows():
+            for row in df[columns].itertuples():
+                row=row[1:]
                 formatted_row = []
-                for x in row:
+                for x in row:                
                     if isinstance(x, float):
                         formatted_row.append(_format_float(x, float_format))
                     elif isinstance(x, list):
