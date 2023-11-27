@@ -300,6 +300,8 @@ def ImportYoloV5(
 
     def GetCatNameFromId(cat_id, cat_names):
         cat_id = int(cat_id)
+        if not cat_names:
+            return str(cat_id)
         if len(cat_names) > int(cat_id):
             return cat_names[cat_id]
 
