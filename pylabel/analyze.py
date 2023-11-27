@@ -135,7 +135,7 @@ class Analyze:
             df.insert(pos, col.name, col)
 
         df_value_counts = pd.DataFrame(
-            ds.df["cat_name"].value_counts(normalize=normalize), columns=["cat_name"]
+            ds.df["cat_name"].value_counts(normalize=normalize)
         )
 
         df_value_counts.index.name = "cat_name"
@@ -150,12 +150,13 @@ class Analyze:
             group_df = pd.DataFrame(group)
             df_split_value_counts = pd.DataFrame(
                 group_df["cat_name"].value_counts(normalize=normalize),
-                columns=["cat_name"],
             )
             df_split_value_counts.index.name = "cat_name"
             df_split_value_counts.columns = [name]
             df_value_counts = pd.merge(
-                df_value_counts, df_split_value_counts, how="left", on=["cat_name"]
+                df_value_counts, df_split_value_counts, 
+                how="left", 
+                left_index=True, right_index=True
             )
 
         # Move 'train' to the left of the table since that is the usual convention.
