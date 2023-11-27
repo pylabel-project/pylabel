@@ -21,3 +21,4 @@ BCCD_Dataset/
 model_training/
 __pycache__
 samples
+build/
