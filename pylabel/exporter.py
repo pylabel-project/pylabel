@@ -781,7 +781,7 @@ class Export:
         json_list = []
 
         pbar = tqdm(desc="Exporting to COCO file...", total=df.shape[0])
-        for i in range(0, df.shape[0]):
+        for i in df.index:
             images = [
                 {
                     "id": df["img_id"][i],
@@ -799,7 +799,7 @@ class Export:
                 annotations = [
                     {
                         "image_id": df["img_id"][i],
-                        "id": df.index[i],
+                        "id": i,
                         "segmented": df["ann_segmented"][i],
                         "bbox": [
                             df["ann_bbox_xmin"][i],
