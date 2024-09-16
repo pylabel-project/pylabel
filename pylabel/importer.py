@@ -342,11 +342,7 @@ def ImportYoloV5(
 
             row["img_filename"] = image_filename
 
-            imgstream = open(str(image_path), "rb")
-            imgbytes = bytearray(imgstream.read())
-            numpyarray = np.asarray(imgbytes, dtype=np.uint8)
-
-            im = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
+            im = cv2.imread(str(image_path), cv2.IMREAD_UNCHANGED)
 
             img_height = im.shape[0]
             img_width = im.shape[1]
