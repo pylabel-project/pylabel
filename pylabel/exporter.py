@@ -865,7 +865,7 @@ class Export:
             list_i.append(images[0]["id"])
 
             # If the class id is blank, then there is no annotation to add
-            if not pd.isna(categories[0]["id"]):
+            if not pd.isna(df["cat_id"][i]):
                 df_outputA.append(pd.DataFrame([annotations]))
 
             pbar.update()
